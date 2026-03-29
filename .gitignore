@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# One-time fix scripts
+fix_*.py
+add_*.py
+create_*.py
