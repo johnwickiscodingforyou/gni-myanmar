@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server'
 export async function GET() {
   try {
     const res = await fetch(`https://gni-autonomous.vercel.app/api/predictions-list`, {
-      headers: { 'X-GNI-Key': process.env.NEXT_PUBLIC_GNI_API_KEY || '', 'X-Client': 'gni-myanmar-v1' },
+      headers: { 'X-GNI-Key': process.env.GNI_API_KEY || process.env.NEXT_PUBLIC_GNI_API_KEY || '', 'X-Client': 'gni-myanmar-v1' },
       next: { revalidate: 300 }
     })
     const data = await res.json()
