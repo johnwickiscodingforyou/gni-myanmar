@@ -16,7 +16,7 @@ export default function PredictionsPage() {
 
   useEffect(() => {
     fetch(`${GNI}/api/predictions-list`, {
-      headers: { 'X-GNI-Key': KEY, 'X-Client': 'gni-myanmar-v1' }
+      headers: { 'X-Client': 'gni-myanmar-v1' }
     })
       .then(r => r.json())
       .then(d => { setPredictions(d.predictions || []); setLoading(false) })

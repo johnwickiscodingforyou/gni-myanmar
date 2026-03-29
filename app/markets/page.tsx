@@ -29,7 +29,7 @@ export default function MarketsPage() {
     const results: TickerData[] = []
     TICKERS.forEach(({ ticker, label }) => {
       fetch(`${GNI}/api/stocks?ticker=${encodeURIComponent(ticker)}&range=7d`, {
-        headers: { 'X-GNI-Key': KEY, 'X-Client': 'gni-myanmar-v1' }
+        headers: { 'X-Client': 'gni-myanmar-v1' }
       })
         .then(r => r.json())
         .then(d => { if (!d.error && d.price) results.push({ ticker, label, price: d.price, changePercent: d.changePercent }) })
