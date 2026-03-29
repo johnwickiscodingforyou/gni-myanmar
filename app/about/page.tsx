@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 import Nav from '@/components/Nav'
 
 export default function AboutPage() {
@@ -8,7 +8,7 @@ export default function AboutPage() {
         <div className="max-w-5xl mx-auto px-4 py-4">
           <div className="mb-1">
             <h1 className="text-xl font-bold text-white">About GNI Myanmar</h1>
-            <p className="text-xs text-gray-400">About | ????????</p>
+            <p className="text-xs text-gray-400">About | အကြောင်းအရာ</p>
           </div>
           <Nav />
         </div>
@@ -16,10 +16,9 @@ export default function AboutPage() {
       <main className="max-w-5xl mx-auto px-4 py-6">
 
         <div className="bg-gray-900 border border-gray-700 rounded-xl p-6 mb-6">
-          <h2 className="text-lg font-bold text-white mb-3">GNI Myanmar ? ???????????????</h2>
+          <h2 className="text-lg font-bold text-white mb-3">GNI Myanmar အကြောင်း</h2>
           <p className="text-gray-300 text-sm leading-relaxed mb-4">
-            Global Nexus Insights (GNI) ??? ??????????????????????? ???????????? AI ????? ????????????????
-            ??????????????? ??????????????? ?????????????????????
+            Global Nexus Insights (GNI) သည် နိုင်ငံတကာ ဘူမိနိုင်ငံရေး သတင်းအချက်အလက်များကို AI နည်းပညာဖြင့် စုဆောင်းပြီး နေ့စဉ် အစီရင်ခံစာများ ထုတ်ပြန်သည့် စနစ်တစ်ခုဖြစ်သည်။
           </p>
           <p className="text-gray-300 text-sm leading-relaxed">
             This Myanmar version presents GNI intelligence reports in Myanmar language,
@@ -66,17 +65,17 @@ export default function AboutPage() {
           <p className="text-xs text-gray-400 leading-relaxed">
             GNI Myanmar reads intelligence data from GNI_Autonomous via secure API.
             GNI_Autonomous runs 4 autonomous pipelines daily producing geopolitical intelligence reports,
-            MAD multi-agent debate verdicts, and market analysis ? all at $0.00/month cost.
+            MAD multi-agent debate verdicts, and market analysis — all at $0.00/month cost.
           </p>
           <a href="https://gni-autonomous.vercel.app" target="_blank"
             className="inline-block mt-3 text-xs text-blue-400 border border-blue-800 rounded px-3 py-1">
-            View GNI_Autonomous ?
+            View GNI_Autonomous
           </a>
         </div>
 
         <div className="bg-yellow-950 border border-yellow-800 rounded-xl p-4">
           <p className="text-yellow-200 text-xs">
-            ?? Disclaimer: GNI reports are for informational purposes only and do not constitute financial advice.
+            Disclaimer: GNI reports are for informational purposes only and do not constitute financial advice.
             Higher Diploma in Computer Science | Spring University Myanmar (SUM) | Team Geeks
           </p>
         </div>
