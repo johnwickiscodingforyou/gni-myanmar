@@ -103,9 +103,18 @@ export default function PredictionsPage() {
           <p className="text-xs text-gray-500">Earliest GPVS verification: April 10, 2026</p>
         </div>
       </main>
+      
+      {/* DISCLAIMER */}
+      <div className='max-w-5xl mx-auto px-4 pb-4'>
+        <div className='bg-yellow-950 border border-yellow-800 rounded-xl p-3'>
+          <p className='text-xs text-yellow-300'>
+            &#9888;&#65039; <strong>Disclaimer:</strong> GNI reports are for informational purposes only and do not constitute financial advice. Always conduct your own research before making investment decisions.
+          </p>
+        </div>
+      </div>
       <footer className="border-t border-gray-800 mt-8">
         <div className="max-w-5xl mx-auto px-4 py-4 text-center text-xs text-gray-600">
-          Global Nexus Insights Myanmar | Predictions | SUM
+          Global Nexus Insights Myanmar | Predictions | Higher Diploma in Computer Science | Spring University Myanmar (SUM)
         </div>
       </footer>
     </div>
