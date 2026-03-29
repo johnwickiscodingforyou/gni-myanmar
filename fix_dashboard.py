@@ -1,4 +1,6 @@
-"use client"
+﻿import os
+
+content = '''"use client"
 import { useEffect, useState } from 'react'
 import Nav from '@/components/Nav'
 
@@ -282,3 +284,8 @@ export default function Dashboard() {
     </div>
   )
 }
+'''
+
+with open("app/page.tsx", "w", encoding="utf-8") as f:
+    f.write(content)
+print(f"Written: app/page.tsx ({len(content)} chars)")
