@@ -39,7 +39,7 @@ export default function ReportsPage() {
         <div className="max-w-5xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-1">
             <div>
-              <h1 className="text-xl font-bold text-white">?? Reports</h1>
+              <h1 className="text-xl font-bold text-white">GNI Reports</h1>
               <p className="text-xs text-gray-400">Intelligence Reports | ??????????????</p>
             </div>
             <span className="text-xs text-gray-400">{reports.length} reports</span>

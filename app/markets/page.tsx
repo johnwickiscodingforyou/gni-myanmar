@@ -51,7 +51,7 @@ export default function MarketsPage() {
         <div className="max-w-5xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-1">
             <div>
-              <h1 className="text-xl font-bold text-white">?? Markets</h1>
+              <h1 className="text-xl font-bold text-white">GNI Markets</h1>
               <p className="text-xs text-gray-400">Key Market Indicators | ????????????????</p>
             </div>
             <a href={`${GNI}/stocks`} target="_blank" className="text-xs text-blue-400 border border-blue-800 rounded px-3 py-1">

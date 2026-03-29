@@ -2,12 +2,17 @@
 import { useEffect, useState } from 'react'
 import Nav from '@/components/Nav'
 
-const GNI = process.env.NEXT_PUBLIC_GNI_API_URL || 'https://gni-autonomous.vercel.app'
-const KEY = process.env.NEXT_PUBLIC_GNI_API_KEY || ''
-
 interface Prediction {
   id: string; direction: string; confidence: number
-  verify_date: string; accuracy_score: number | null; agent_name: string; created_at: string
+  verify_date: string; accuracy_score: number | null
+  agent_name: string; created_at: string
+}
+
+function safeDate(d: string) {
+  if (!d) return 'TBD'
+  const dt = new Date(d)
+  if (isNaN(dt.getTime())) return 'TBD'
+  return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
 export default function PredictionsPage() {
@@ -15,9 +20,7 @@ export default function PredictionsPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch(`/api/predictions`, {
-      headers: { 'X-Client': 'gni-myanmar-v1' }
-    })
+    fetch('/api/predictions')
       .then(r => r.json())
       .then(d => { setPredictions(d.predictions || []); setLoading(false) })
       .catch(() => setLoading(false))
@@ -32,7 +35,7 @@ export default function PredictionsPage() {
         <div className="max-w-5xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-1">
             <div>
-              <h1 className="text-xl font-bold text-white">?? Predictions</h1>
+              <h1 className="text-xl font-bold text-white">GNI Predictions</h1>
               <p className="text-xs text-gray-400">MAD Agent Predictions | ?????????????????</p>
             </div>
             <div className="text-xs text-gray-400">
@@ -44,25 +47,27 @@ export default function PredictionsPage() {
         </div>
       </header>
       <main className="max-w-5xl mx-auto px-4 py-6">
-        {loading && <div className="text-center py-20 text-gray-400">? Loading...</div>}
+        {loading && <div className="text-center py-20 text-gray-400">Loading...</div>}
 
         {pending.length > 0 && (
           <section className="mb-6">
             <div className="text-xs text-gray-500 uppercase tracking-wider mb-3">Pending Verification ({pending.length})</div>
             <div className="space-y-3">
-              {pending.map(p => (
+              {pending.slice(0, 20).map(p => (
                 <div key={p.id} className="bg-gray-900 border border-amber-800 rounded-xl p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <span className={`text-sm font-bold px-3 py-1 rounded-full ${p.direction?.toLowerCase() === 'bearish' ? 'bg-red-900 text-red-300' : 'bg-green-900 text-green-300'}`}>
-                      {p.direction?.toUpperCase()}
+                    <span className={`text-sm font-bold px-3 py-1 rounded-full ${p.direction?.toLowerCase() === 'bearish' ? 'bg-red-900 text-red-300' : p.direction?.toLowerCase() === 'bullish' ? 'bg-green-900 text-green-300' : 'bg-gray-700 text-gray-300'}`}>
+                      {p.direction?.toUpperCase() || 'PENDING'}
                     </span>
                     <span className="text-xs text-gray-400">
-                      Confidence: <span className="text-white font-bold">{p.confidence ? Math.round(p.confidence * 100) + '%' : 'N/A'}</span>
+                      Confidence: <span className="text-white font-bold">
+                        {p.confidence && p.confidence > 0 ? Math.round(p.confidence * 100) + '%' : 'N/A'}
+                      </span>
                     </span>
                   </div>
                   <div className="text-xs text-gray-500">
                     Agent: <span className="text-gray-300">{p.agent_name || 'MAD'}</span> |
-                    Verify: <span className="text-amber-400">{new Date(p.verify_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                    Verify: <span className="text-amber-400">{safeDate(p.verify_date)}</span>
                   </div>
                 </div>
               ))}
