@@ -52,7 +52,7 @@ export default function MarketsPage() {
           <div className="flex items-center justify-between mb-1">
             <div>
               <h1 className="text-xl font-bold text-white">GNI Markets</h1>
-              <p className="text-xs text-gray-400">Key Market Indicators | ????????????????</p>
+              <p className="text-xs text-gray-400">Key Market Indicators | ဈေးကွက်အချက်အလက်များ</p>
             </div>
             <a href={`${GNI}/stocks`} target="_blank" className="text-xs text-blue-400 border border-blue-800 rounded px-3 py-1">
               Full Markets ?

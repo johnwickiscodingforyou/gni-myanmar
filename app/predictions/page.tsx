@@ -36,7 +36,7 @@ export default function PredictionsPage() {
           <div className="flex items-center justify-between mb-1">
             <div>
               <h1 className="text-xl font-bold text-white">GNI Predictions</h1>
-              <p className="text-xs text-gray-400">MAD Agent Predictions | ?????????????????</p>
+              <p className="text-xs text-gray-400">MAD Agent Predictions | ခန့်မှန်းချက်များ</p>
             </div>
             <div className="text-xs text-gray-400">
               <span className="text-amber-400 font-bold">{pending.length}</span> pending |
