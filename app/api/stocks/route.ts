@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
     const ticker = searchParams.get('ticker') || 'SPY'
     const range = searchParams.get('range') || '7d'
     const res = await fetch(`https://gni-autonomous.vercel.app/api/stocks?ticker=${encodeURIComponent(ticker)}&range=${range}`, {
-      headers: { 'X-Client': 'gni-myanmar-v1' },
+      headers: { 'X-GNI-Key': process.env.NEXT_PUBLIC_GNI_API_KEY || '', 'X-Client': 'gni-myanmar-v1' },
       next: { revalidate: 300 }
     })
     const data = await res.json()
