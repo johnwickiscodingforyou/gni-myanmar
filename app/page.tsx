@@ -1,6 +1,11 @@
 "use client"
 import { useEffect, useState } from 'react'
 import Nav from '@/components/Nav'
+import dynamic from 'next/dynamic'
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
+
+const MiniMap = dynamic(() => import('@/components/MiniMap'), { ssr: false })
+const MiniChart = dynamic(() => import('@/components/MiniChart'), { ssr: false })
 
 interface Report {
   id: string; title: string; myanmar_summary: string; summary: string
@@ -34,6 +39,7 @@ export default function Dashboard() {
   const [tickers, setTickers] = useState<{label:string;price:number;changePercent:string}[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [mapEvents, setMapEvents] = useState<any[]>([])
 
   const KEY_TICKERS = [
     { ticker: 'SPY', label: 'S&P 500' },
@@ -47,6 +53,11 @@ export default function Dashboard() {
       .then(r => r.json())
       .then(d => { setReports(d.reports || []); setLoading(false) })
       .catch(() => { setError('Data load failed'); setLoading(false) })
+
+    fetch('/api/article-events')
+      .then(r => r.json())
+      .then(d => { setMapEvents(d.events || d.articles || []) })
+      .catch(() => {})
 
     KEY_TICKERS.forEach(({ ticker, label }) => {
       fetch(`/api/stocks?ticker=${encodeURIComponent(ticker)}&range=7d`)
@@ -135,6 +146,41 @@ export default function Dashboard() {
                       <p className="text-xs text-gray-300 leading-relaxed">{latest.mad_ostrich_case?.slice(0, 200)}...</p>
                     </div>
                   )}
+                </div>
+              </div>
+            </section>
+
+            {/* MAP + CHART side by side */}
+            <section className="mb-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Mini Map */}
+                <div className="bg-gray-900 border border-gray-700 rounded-xl overflow-hidden">
+                  <div className="flex items-center justify-between px-4 py-2 border-b border-gray-700">
+                    <div className="text-xs font-bold text-white">Geopolitical Event Map</div>
+                    <a href="https://gni-autonomous.vercel.app/map" target="_blank"
+                      className="text-xs text-blue-400 border border-blue-800 rounded px-2 py-0.5">
+                      Full Map
+                    </a>
+                  </div>
+                  <div style={{ height: '220px' }}>
+                    {mapEvents.length > 0
+                      ? <MiniMap events={mapEvents.slice(0, 20)} height="220px" />
+                      : <div className="flex items-center justify-center h-full text-xs text-gray-600">Loading map...</div>
+                    }
+                  </div>
+                </div>
+
+                {/* Mini BTC Chart */}
+                <div className="bg-gray-900 border border-gray-700 rounded-xl overflow-hidden">
+                  <div className="flex items-center justify-between px-4 py-2 border-b border-gray-700">
+                    <div className="text-xs font-bold text-white">Bitcoin — 1 Year</div>
+                    <a href="/markets" className="text-xs text-amber-400 border border-amber-800 rounded px-2 py-0.5">
+                      Markets
+                    </a>
+                  </div>
+                  <div style={{ height: '220px' }}>
+                    <MiniChart />
+                  </div>
                 </div>
               </div>
             </section>
