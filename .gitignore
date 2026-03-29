@@ -44,3 +44,6 @@ next-env.d.ts
 fix_*.py
 add_*.py
 create_*.py
+
+check_*.py
+fix_myanmar_issues.py
