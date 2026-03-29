@@ -64,7 +64,7 @@ export default function ReportsPage() {
                 </div>
               </div>
               <div className="bg-gray-800 rounded-lg p-3 mb-3">
-                <div className="text-xs text-amber-400 font-bold mb-1">??????????</div>
+                <div className="text-xs text-amber-400 font-bold mb-1">မြန်မာ အကျဉ်းချုပ်</div>
                 <p className="text-gray-300 text-sm leading-relaxed">{r.myanmar_summary || r.summary?.slice(0, 200) || 'N/A'}</p>
               </div>
               <div className="flex items-center gap-4 text-xs text-gray-500">
