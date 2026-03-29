@@ -15,7 +15,7 @@ export default function PredictionsPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch(`${GNI}/api/predictions-list`, {
+    fetch(`/api/predictions`, {
       headers: { 'X-Client': 'gni-myanmar-v1' }
     })
       .then(r => r.json())

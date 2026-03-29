@@ -28,7 +28,7 @@ export default function MarketsPage() {
     let done = 0
     const results: TickerData[] = []
     TICKERS.forEach(({ ticker, label }) => {
-      fetch(`${GNI}/api/stocks?ticker=${encodeURIComponent(ticker)}&range=7d`, {
+      fetch(`/api/stocks?ticker=${encodeURIComponent(ticker)}&range=7d`, {
         headers: { 'X-Client': 'gni-myanmar-v1' }
       })
         .then(r => r.json())

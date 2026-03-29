@@ -35,7 +35,7 @@ export default function Dashboard() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    fetch(`${GNI}/api/reports`, {
+    fetch(`/api/reports`, {
       headers: { 'X-Client': 'gni-myanmar-v1' }
     })
       .then(r => r.json())

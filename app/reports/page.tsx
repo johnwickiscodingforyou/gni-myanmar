@@ -25,7 +25,7 @@ export default function ReportsPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch(`${GNI}/api/reports`, {
+    fetch(`/api/reports`, {
       headers: { 'X-Client': 'gni-myanmar-v1' }
     })
       .then(r => r.json())
