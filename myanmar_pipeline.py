@@ -12,7 +12,7 @@ from supabase import create_client
 
 GNI_API    = 'https://gni-autonomous.vercel.app'
 GNI_KEY    = os.getenv('GNI_API_KEY', '')
-GROQ_KEY   = os.getenv('GROQ_API_KEY', '')
+GROQ_KEY   = os.getenv('GROQ_API_KEY', '').strip()
 SUPA_URL   = os.getenv('SUPABASE_URL', '')
 SUPA_KEY   = os.getenv('SUPABASE_SERVICE_KEY', '')
 TG_TOKEN   = os.getenv('TELEGRAM_BOT_TOKEN', '')
