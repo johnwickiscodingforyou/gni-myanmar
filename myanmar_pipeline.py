@@ -146,7 +146,7 @@ def run():
                 f"geopolitical implications. Write clearly for general readers. "
                 f"Myanmar Unicode only.", 600)
             groq_tokens += 600
-            time.sleep(0.5)
+            time.sleep(6)
         except Exception as e:
             log(f'    WARNING: {type(e).__name__}: {str(e)[:120]}'); brief = None
         article_rows.append({'run_date':str(run_date),'run_timestamp':run_ts,
@@ -238,7 +238,7 @@ def run():
         try:
             r = groq_gen(groq, prompt, mt)
             groq_tokens += mt
-            time.sleep(0.5)
+            time.sleep(6)
             return r
         except Exception as e:
             log(f'    WARNING: {type(e).__name__}: {str(e)[:120]}'); return None
