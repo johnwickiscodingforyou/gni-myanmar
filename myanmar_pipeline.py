@@ -137,7 +137,7 @@ def run():
             groq_tokens += 600
             time.sleep(0.5)
         except Exception as e:
-            log(f'    WARNING: {e}'); brief = None
+            log(f'    WARNING: {type(e).__name__}: {str(e)[:120]}'); brief = None
         article_rows.append({'run_date':str(run_date),'run_timestamp':run_ts,
             'article_title':title[:500],'url':url[:1000],'source':source[:100],
             'is_selected':True,'has_geo':has_geo,
@@ -230,7 +230,7 @@ def run():
             time.sleep(0.5)
             return r
         except Exception as e:
-            log(f'    WARNING: {e}'); return None
+            log(f'    WARNING: {type(e).__name__}: {str(e)[:120]}'); return None
 
     funnel_mm = gen('Funnel',
         f"GNI collected {funnel_collected} articles from 25 sources, selected best {funnel_selected}. "
