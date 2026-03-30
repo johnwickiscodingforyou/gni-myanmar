@@ -36,7 +36,7 @@ export default function IntelPage() {
       .catch(() => setLoading(false))
     fetch('/api/pillar-reports')
       .then(r => r.json())
-      .then(d => setPillars(d.pillars || d.reports || []))
+      .then(d => setPillars(d.pillars || d.reports || d.data || []))
       .catch(() => {})
     fetch('/api/intel-mm')
       .then(r => r.json())

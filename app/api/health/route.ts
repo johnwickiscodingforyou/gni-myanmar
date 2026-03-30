@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
   const h = { 'X-GNI-Key': gniKey, 'X-Client': 'myanmar-health-v1' }
   const [rep, stk, pred, ev] = await Promise.all([
     checkUrl('https://gni-myanmar.vercel.app/api/reports'),
-    checkUrl('https://gni-myanmar.vercel.app/api/stocks?ticker=SPY&range=1d'),
+    checkUrl('https://gni-myanmar.vercel.app/api/stocks?ticker=SPY&range=7d'),
     checkUrl('https://gni-myanmar.vercel.app/api/predictions'),
     checkUrl('https://gni-myanmar.vercel.app/api/article-events'),
   ])
