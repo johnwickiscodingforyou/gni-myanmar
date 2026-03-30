@@ -186,7 +186,7 @@ def run():
         long_thr  = rep.get('long_shoot_threats','')
         plain_nar = rep.get('plain_narrative','')
         mkt_imp   = rep.get('market_impact','')
-        ci_width  = rep.get('ci_width',0)
+        ci_width  = rep.get('confidence_interval_width', rep.get('ci_width', 0))
         rep_id    = rep.get('id','')
         log(f'  OK: {esc_score}/10 {esc_level} | {mad_verd} {round((mad_conf or 0)*100)}%')
     except Exception as e:
