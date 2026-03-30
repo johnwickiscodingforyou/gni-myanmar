@@ -30,7 +30,7 @@ jobs:
           pip install \
             supabase \
             python-dotenv \
-            groq==0.9.0 \
+            groq==0.13.0 \
             requests \
             reportlab
 
