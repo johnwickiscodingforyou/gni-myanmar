@@ -7,7 +7,7 @@ Phase 2 | Team Geeks | March 31, 2026
 import os, sys, json, time, csv, io
 from datetime import datetime, timezone, timedelta
 import requests
-from groq import Groq
+# Groq via direct REST (groq library has Azure IP issues on GitHub Actions)
 from supabase import create_client
 
 GNI_API    = 'https://gni-autonomous.vercel.app'
@@ -24,7 +24,7 @@ def log(msg): print(msg, flush=True)
 
 def get_groq():
     if not GROQ_KEY: raise Exception('GROQ_API_KEY not set')
-    return Groq(api_key=GROQ_KEY)
+    return GROQ_KEY  # return key directly -- used by groq_gen via REST
 
 def get_supa():
     if not SUPA_URL or not SUPA_KEY: raise Exception('Supabase creds not set')
@@ -37,12 +37,23 @@ def gni_get(path):
     res.raise_for_status()
     return res.json()
 
-def groq_gen(client, prompt, max_tokens=400):
-    resp = client.chat.completions.create(
-        model=GROQ_MODEL,
-        messages=[{'role':'user','content':prompt}],
-        max_tokens=max_tokens, temperature=0.3)
-    return resp.choices[0].message.content.strip()
+def groq_gen(api_key, prompt, max_tokens=400):
+    resp = requests.post(
+        'https://api.groq.com/openai/v1/chat/completions',
+        headers={
+            'Authorization': f'Bearer {api_key}',
+            'Content-Type': 'application/json',
+        },
+        json={
+            'model': GROQ_MODEL,
+            'messages': [{'role': 'user', 'content': prompt}],
+            'max_tokens': max_tokens,
+            'temperature': 0.3,
+        },
+        timeout=60
+    )
+    resp.raise_for_status()
+    return resp.json()['choices'][0]['message']['content'].strip()
 
 def tg_send(text):
     if not TG_TOKEN:
