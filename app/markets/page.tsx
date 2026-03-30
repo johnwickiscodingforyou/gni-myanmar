@@ -54,15 +54,15 @@ export default function MarketsPage() {
               <h1 className="text-xl font-bold text-white">GNI Markets</h1>
               <p className="text-xs text-gray-400">Key Market Indicators | ဈေးကွက်အချက်အလက်များ</p>
             </div>
-            <a href={`${GNI}/stocks`} target="_blank" className="text-xs text-blue-400 border border-blue-800 rounded px-3 py-1">
-              Full Markets ?
+            <a href="/market" className="text-xs text-blue-400 border border-blue-800 rounded px-3 py-1">
+              Full Markets
             </a>
           </div>
           <Nav />
         </div>
       </header>
       <main className="max-w-5xl mx-auto px-4 py-6">
-        {loading && <div className="text-center py-20 text-gray-400">? Loading market data...</div>}
+        {loading && <div className="text-center py-20 text-gray-400">Loading market data...</div>}
         {tickers.length > 0 && (
           <div className="bg-gray-900 border border-gray-700 rounded-xl overflow-hidden">
             <div className="grid grid-cols-4 px-4 py-2 border-b border-gray-800 text-xs text-gray-500 uppercase tracking-wider">
@@ -94,6 +94,11 @@ export default function MarketsPage() {
         )}
         <div className="mt-4 text-center text-xs text-gray-600">Data: Yahoo Finance via GNI | Not financial advice</div>
       </main>
+      <div className="max-w-5xl mx-auto px-4 pb-4">
+        <div className="bg-yellow-950 border border-yellow-800 rounded-xl p-3">
+          <p className="text-xs text-yellow-300">Disclaimer: GNI reports are for informational purposes only. Not financial advice. Higher Diploma in Computer Science | Spring University Myanmar (SUM)</p>
+        </div>
+      </div>
       <footer className="border-t border-gray-800 mt-8">
         <div className="max-w-5xl mx-auto px-4 py-4 text-center text-xs text-gray-600">
           Global Nexus Insights Myanmar | Markets | Higher Diploma in Computer Science | Spring University Myanmar (SUM)
