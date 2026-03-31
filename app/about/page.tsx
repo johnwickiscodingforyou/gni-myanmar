@@ -1,5 +1,5 @@
 "use client"
-// v2 build: 2026-03-31 15:04
+export const dynamic = "force-dynamic"
 import { useEffect } from 'react'
 import Nav from '@/components/Nav'
 
