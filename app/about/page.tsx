@@ -30,7 +30,7 @@ export default function AboutPage() {
             Intelligence should not be a privilege. It should be a right.
           </p>
           <p className="text-gray-300 text-sm leading-relaxed mb-3">
-            GNI Myanmar ကို ကမ္ဘာ့ Geopolitics အထောက်အချက်အလပ်အများကို Myanmar ဘာသာဖြင့် ထာပိုလှေအနိုင္ ရည္ရွယ်သဎု့။ Myanmar စာမဏားသဎုး internet အသုံပြန်း 61.1% သိုးသည့တိုင္ (DataReportal 2026) သို့မယ်သိုး Bloomberg Terminal ကဲအပြန်း $1,000 အထက်အကှေအရေးအလို့ $199/year ဖြစ်သဎုး subscription ပင္းပင္းကိုပင္သည့ သို့မယ်သိုး GNI Myanmar ကို အမြေပံသကာပှက်အပြန်း အမြေ $0.00 ဖြစ်အဎား။
+            GNI Myanmar သဎုး ကမ္ဘာ့ Geopolitics သတင်းအချက်အလပ်များကို Myanmar ဘာသာ အကြေဆပ်ပြန်းသဎုး $0.00/month ဖြစ် ရည္ရွယ်သဎုး platform ဖြစ်သဎုး။ Myanmar စာမဏားသဎုး internet အသုံပြန်း 61.1% သို့သဎုး (DataReportal 2026) သိုးသည့တိုင္း Bloomberg Terminal ကဲအပြန်း $31,980/နှစ် သို့ Stratfor ကဲအပြန်း $199/နှစ် သဎုး subscription ပင္းပင္း ပိုလှေအနိုင္သိုး GNI Myanmar ကို အမြေ $0.00 တွင့်နေးအဎား။
           </p>
           <p className="text-gray-400 text-xs leading-relaxed">
             Built as a Higher Diploma final project at Spring University Myanmar (SUM). The goal was never just to pass an exam. The goal was to build something real, something that keeps running after the exam is over, something that serves people.
