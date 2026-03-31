@@ -65,7 +65,7 @@ export default function PredictionsPage() {
           <p className="text-sm text-gray-200 leading-relaxed">Predictions သဎုး GNI အဒောက်ဆုံး MAD agent ငရစ်ကြီးက BULLISH သို့မဿာ BEARISH အလို့ ခန့မှန်းချက်များဖြစ်သဎုး။ အပာအခြက် prediction တစ်ခုးစီကို verify_date ရှိပြန်းပြီး actual သတင်းအခြေအလု့နှင့် GPVS standard ဖြစ် အကြေဆပ်သတ်ပြီး accuracy score ရရသဎုး။ April 10၊ 2026 တွင့်် ပထမ GPVS verification သဎုး နောက်ဆုံးပြီးသဎုး။</p>
         </div>
         {/* COUNTDOWN */}
-        <div className="bg-gray-900 border border-gray-700 rounded-xl p-4 mb-4 flex items-center justify-between">
+        <div className="bg-gray-900 border border-gray-700 rounded-xl p-3 sm:p-4 mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
             <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Next GPVS Verification</div>
             <div className="text-sm font-bold text-amber-400">April 10, 2026</div>

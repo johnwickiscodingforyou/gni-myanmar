@@ -73,8 +73,8 @@ export default function MarketPage() {
             <p className="text-sm text-amber-100 leading-relaxed">{currentBrief.myanmar_brief}</p>
           </div>
         )}
-        <div className="bg-gray-900 border border-gray-700 rounded-xl overflow-hidden">
-          <div className="grid grid-cols-4 px-4 py-2 border-b border-gray-800 text-xs text-gray-500 uppercase tracking-wider">
+        <div className="bg-gray-900 border border-gray-700 rounded-xl overflow-hidden overflow-x-auto">
+          <div className="grid grid-cols-4 px-2 sm:px-4 py-2 border-b border-gray-800 text-xs text-gray-500 uppercase tracking-wider">
             <div className="col-span-2">Instrument</div>
             <div className="text-right">Price</div>
             <div className="text-right">3D Change</div>

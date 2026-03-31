@@ -76,7 +76,7 @@ export default function ReportsPage() {
         )}
         <div className="space-y-4">
           {reports.map(r => (
-            <div key={r.id} className="bg-gray-900 border border-gray-700 rounded-xl p-5">
+            <div key={r.id} className="bg-gray-900 border border-gray-700 rounded-xl p-3 sm:p-5">
               <div className="flex items-start justify-between gap-3 mb-3">
                 <h2 className="text-base font-bold text-white leading-snug">{r.title}</h2>
                 <div className="flex flex-col items-end gap-1 shrink-0">

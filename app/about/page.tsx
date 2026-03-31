@@ -132,7 +132,7 @@ export default function AboutPage() {
               { time: 'Every 30 min',       name: 'gni_heartbeat',   desc: 'System health check, Telegram alert if issues' },
             ].map(({ time, name, desc }) => (
               <div key={name} className="flex items-start gap-3 bg-gray-800 rounded-lg px-3 py-2">
-                <span className="text-amber-400 font-mono shrink-0 w-36">{time}</span>
+                <span className="text-amber-400 font-mono shrink-0 w-28 text-xs">{time}</span>
                 <div>
                   <span className="text-blue-300 font-bold">{name}</span>
                   <span className="text-gray-400 ml-2">{desc}</span>
@@ -183,7 +183,7 @@ export default function AboutPage() {
         </div>
 
         {/* THREE PILLARS */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           {[
             { title: 'Always Free',  sub: '$0.00/month forever', color: 'border-green-700 text-green-400' },
             { title: 'Always On',    sub: 'Self-healing 24/7',   color: 'border-blue-700 text-blue-400' },
