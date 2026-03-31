@@ -49,7 +49,7 @@ export default function NewsPage() {
         {/* SECTION A: SELECTED ARTICLES */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
-            <div className="text-sm font-bold text-white">GNI ရွေးချယ်ထားသော သတင်းများ / Selected Articles</div>
+            <div className="text-sm font-bold text-white">Selected Articles</div>
             <span className="text-xs text-amber-400 border border-amber-800 rounded px-2 py-0.5">{selected.length} articles</span>
           </div>
           {loadingSel && (
