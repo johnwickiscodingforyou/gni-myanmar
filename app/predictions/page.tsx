@@ -58,7 +58,30 @@ export default function PredictionsPage() {
         </div>
       </header>
       <main className="max-w-5xl mx-auto px-4 py-6">
-        {loading && <div className="text-center py-20 text-gray-400">Loading...</div>}
+        {/* MM INTRO */}
+        <div className="bg-gray-900 border border-pink-800 rounded-xl p-4 mb-4">
+          <p className="text-sm text-gray-200 leading-relaxed">Predictions သဎုး GNI အဒောက်ဆုံး MAD agent ငရစ်ကြီးက BULLISH သို့မဿာ BEARISH အလို့ ခန့မှန်းချက်များဖြစ်သဎုး။ အပာအခြက် prediction တစ်ခုးစီကို verify_date ရှိပြန်းပြီး actual သတင်းအခြေအလု့နှင့် GPVS standard ဖြစ် အကြေဆပ်သတ်ပြီး accuracy score ရရသဎုး။ April 10၊ 2026 တွင့်် ပထမ GPVS verification သဎုး နောက်ဆုံးပြီးသဎုး။</p>
+        </div>
+        {/* COUNTDOWN */}
+        <div className="bg-gray-900 border border-gray-700 rounded-xl p-4 mb-4 flex items-center justify-between">
+          <div>
+            <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Next GPVS Verification</div>
+            <div className="text-sm font-bold text-amber-400">April 10, 2026</div>
+          </div>
+          <div className="text-right">
+            <div className="text-xs text-gray-500 mb-1">Days remaining</div>
+            <div className="text-2xl font-bold text-white">
+              {Math.max(0, Math.ceil((new Date("2026-04-10").getTime() - Date.now()) / 86400000))}
+            </div>
+          </div>
+        </div>
+        {loading && (
+          <div className="space-y-2 animate-pulse">
+            <div className="bg-gray-800 rounded-xl h-12 w-full"></div>
+            <div className="bg-gray-800 rounded-xl h-12 w-full"></div>
+            <div className="bg-gray-800 rounded-xl h-12 w-3/4"></div>
+          </div>
+        )}
         {accuracyPct !== null && (
           <div className="bg-green-950 border border-green-700 rounded-xl p-4 mb-6 text-center">
             <div className="text-xs text-green-400 font-bold uppercase tracking-wider mb-1">GPVS Track Record</div>
@@ -121,6 +144,34 @@ export default function PredictionsPage() {
         )}
       </main>
       <div className="max-w-5xl mx-auto px-4 pb-4">
+        {/* FUTURE ROADMAP */}
+        <div className="bg-gray-900 border border-gray-700 rounded-xl p-5 mb-4">
+          <div className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-3">Coming as GPVS Accumulates</div>
+          <div className="space-y-3">
+            {[
+              { num: "01", title: "Validation Log", status: "FUTURE", date: "April 10, 2026+",
+                desc: "GPVS scorecard သဎုး agent တစ်ခုးစီ အခြက်ရေးကို အမှန်သဎုး။ Predictions verify ဖြစ်အစြပြီး accuracy ပြန်ပါသဎုး။" },
+              { num: "02", title: "Model Learning", status: "FUTURE", date: "Q3 2026",
+                desc: "အအံထောက် outcome များ ကောင်းသမှန်းအခြေး၊ source bias correction နှင့် GNI အကြေဆပ်လိုန်း self-correct ဖြစ်သဎုး ကိုသိုးတွင့်် အဖည့အရား" },
+              { num: "03", title: "Pattern Library", status: "FUTURE", date: "Q4 2026",
+                desc: "သမို့အပြန်းအပြန်း escalation pattern ကို historical sequence နှင့် အည်သာအခါသဎုးအခါ ကို predict ဖြစ်သဎုး။ GNI အမြေသဎုး advanced capability ဖြစ်သဎုး။" },
+            ].map(({ num, title, status, date, desc }) => (
+              <div key={title} className="bg-gray-800 border border-gray-700 rounded-xl p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-gray-500 font-mono">{num}</span>
+                    <span className="text-sm font-bold text-white">{title}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-amber-400 border border-amber-800 rounded px-2 py-0.5">{status}</span>
+                    <span className="text-xs text-gray-500">{date}</span>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-400 leading-relaxed">{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
         <div className="bg-yellow-950 border border-yellow-800 rounded-xl p-3">
           <p className="text-xs text-yellow-300">Disclaimer: Predictions are for informational purposes only. Not financial advice.</p>
         </div>
