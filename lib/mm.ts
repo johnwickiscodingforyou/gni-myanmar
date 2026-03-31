@@ -7,70 +7,69 @@ export const mm = {
 
   // ── DASHBOARD ────────────────────────────────────────────────
   dashboard_intro:
-    'GNI Myanmar သဎုး ကမ္ဘာ့ Geopolitics သတင်းအချက်အလပ်များကို AI နှစ်ပညာဖြစ် Myanmar ဘာသာ $0.00/month ရည္ရွယ်သဎုး platform ဖြစ်သဎုး။ ' +
-    'GNI_Autonomous မှ ရယ်လုပြီး secure API ဖြစ် data ရယ်လု Groq AI ဖြစ် တစ်နေ့ 2 ကြီမ် update ဖြစ်သဎုး။ ' +
-    'အပောက် sections များတွင့်် live reports၊ market data၊ news archive နှင့် predictions ကို ကြည့်ပါနိုင္။',
+    'ဒီ platform သည် ကမ္ဘာ့ geopolitics သတင်းများကို Myanmar သတင်းစာဖတ်သူများ နားလည်လွယ်အောင် ' +
+    'AI နှင့် ဒီဇိုင်းဆွဲထားသည်။ နိုင်ငံရေး၊ စစ်ရေး၊ စီးပွားရေး အန္တရာယ်များကို နားလည်လိုသူများအတွက် ' +
+    'တိုက်ရိုက်သုံးနိုင်သည်။ တစ်နေ့ 2 ကြိမ် AI update ဖြစ်ပြီး $0.00/month ဖြစ်သည်။',
 
-  // ── INTEL ─────────────────────────────────────────────────────
+  // ── INTEL ────────────────────────────────────────────────────
   intel_intro:
-    'Full Intelligence သဎုး GNI Myanmar အပြည့်ဆုံး analysis hub ဖြစ်သဎုး။ ' +
-    'Tab 6 ခုး -- Brief (သတင်းချက်ထုတ်စေး)၊ Funnel (အပာအခြက်ရေးအဆောက်)၊ Analysis (အမြေပံသကာအချက်)၊ Pillars (GEO/TECH/FIN)၊ ' +
-    'MAD (agent 4 ကြီး Myanmar ဘာသာ verdict)၊ Predictions (GPVS forecast) တို့ပါသဎုး။',
+    'Full Intelligence သည် ကမ္ဘာ့ geopolitics ကို နက်နဲစွာ နားလည်လိုသော Myanmar သုတေသီများနှင့် ' +
+    'ခွဲခြမ်းစိတ်ဖြာမှုကို အသုံးချလိုသူများအတွက် ဒီဇိုင်းဆွဲထားသည်။ ' +
+    'Brief, Funnel, Analysis, Pillars, MAD, Predictions tab 6 ခုပါသည်။',
 
-  // ── REPORTS ───────────────────────────────────────────────────
+  // ── REPORTS ──────────────────────────────────────────────────
   reports_intro:
-    'အစီရင်ခံးစာများသဎုး GNI ရို့အဒောက်ဆုံး output ဖြစ်သဎုး။ ' +
-    'အပာအခြက် report တစ်ခုးစီကို article 425 ခုးပိုးဆေး အကြေဆပ် 11 ခုးကို သုံပံးသပ်ပြီးပြန်း ' +
-    'escalation score (0-10)၊ sentiment၊ MAD verdict နှင့် confidence interval ထုတ်စေးသဎုး။ ' +
-    'တစ်နေ့ 2 ကြီမ် 02:00 နှင့် 10:00 UTC တွင့်် GitHub Actions ဖြစ် အထုတ်မောသဎုး။',
+    'Intelligence Reports သည် GNI ၏ ကမ္ဘာ့ geopolitics မှတ်တမ်းများကို ခြေရာကောက်လိုသော ' +
+    'Myanmar သုတေသီများနှင့် မူဝါဒရေးဆွဲသူများအတွက် ဒီဇိုင်းဆွဲထားသည်။ ' +
+    'တစ်နေ့ 2 ကြိမ် 02:00 နှင့် 10:00 UTC တွင် GitHub Actions မှ အလိုအလျောက်ထုတ်သည်။',
 
-  // ── MAP ───────────────────────────────────────────────────────
+  // ── MAP ──────────────────────────────────────────────────────
   map_intro:
-    'ကမ္ဘာ့အပေသဎုး GNI Myanmar အဒောက်ဆုံး geo-tagged articles ကို မြေပုံနှစ် pin တွင့်် ကြည့်ပြည့်သဎုး။ ' +
-    'အပာအခြက် pin ကို နှစ်ကြည့်သဎုးအခါ Myanmar ဘာသာ brief ကို အပောက်သပြည့်ပါသဎုး။',
+    'World Map သည် ကမ္ဘာ့ geopolitical ဖြစ်ရပ်များကို မြေပုံပေါ်တွင် မြင်ယောင်ကြည့်လိုသော ' +
+    'Myanmar သတင်းစာဖတ်သူများနှင့် geo-politics စိတ်ဝင်စားသူများအတွက် ဒီဇိုင်းဆွဲထားသည်။ ' +
+    'Pin တစ်ခုချင်းကို နှိပ်ကြည့်သောအခါ Myanmar ဘာသာ brief ကို ဖတ်ရှုနိုင်သည်။',
 
-  // ── NEWS ──────────────────────────────────────────────────────
+  // ── NEWS ─────────────────────────────────────────────────────
   news_intro:
-    'News Archive သဎုး GNI pipeline ဖြစ် အခြက်ရေးသဎုး articles ကို စုံဆောင်းသဎုး။ ' +
-    'Selected articles (120+) သဎုး GNI ရို့ အကြေဆပ်ထါ အပာအခြက် အကြေဆပ်သဎုး။ ' +
-    'Collected articles (900+) သဎုး RSS sources 25 ခုးလြ raw articles အမြေကြည့်ဖြစ်သဎုး။ ' +
-    '"Show Myanmar Brief" ကို နှစ်ကြည့်သဎုး brief ကို ဖြစ်ကြည့်နိုင္။',
+    'News Archive သည် ကမ္ဘာ့ geopolitics သတင်းများကို မူရင်းအင်္ဂလိပ်ဘာသာဖြင့် ဖတ်ရှုလိုသော ' +
+    'Myanmar သတင်းစာဖတ်သူများနှင့် သုတေသီများအတွက် ဒီဇိုင်းဆွဲထားသည်။ ' +
+    'Selected articles 120+ နှင့် collected articles 900+ ပါဝင်သည်။',
 
-  // ── MARKET ────────────────────────────────────────────────────
+  // ── MARKET ───────────────────────────────────────────────────
   market_intro:
-    'စေးကွက် page သဎုး Yahoo Finance အခြက်ရေးသဎုး global market data ကို ပြန်ပါသဎုး။ ' +
-    'Tab 6 ခုး -- Commodity၊ Index၊ Stocks၊ Forex၊ Crypto၊ Bond တစ်ခုးစီ instruments 4 ခုးပါသဎုး။ ' +
-    'Myanmar brief ကို အအံထောက်မွန် Groq AI ဖြစ် ပြန်ပါသဎုး။',
+    'Market သည် ကမ္ဘာ့ geopolitics သည် ဈေးကွက်များကို မည်သို့ သက်ရောက်သည်ကို နားလည်လိုသော ' +
+    'Myanmar ရင်းနှီးမြှုပ်နှံသူများနှင့် စီးပွားရေးသုတေသီများအတွက် ဒီဇိုင်းဆွဲထားသည်။ ' +
+    'Commodity, Index, Stocks, Forex, Crypto, Bond tab 6 ခုပါသည်။',
 
-  // ── PREDICTIONS ───────────────────────────────────────────────
+  // ── PREDICTIONS ──────────────────────────────────────────────
   predictions_intro:
-    'Predictions သဎုး GNI ရို့ MAD agent ငရစ်ကြီးက BULLISH သို့မဿာ BEARISH အလို့ ' +
-    'ခန့မှန်းချက်များဖြစ်သဎုး။ ' +
-    'အပာအခြက် prediction တစ်ခုးစီကို verify_by ရက်သှိပြန်းပြီး GPVS standard ဖြစ် accuracy ရရသဎုး။ ' +
-    'April 10၊ 2026 တွင့်် ပထမ GPVS verification ဖြစ်သဎုး။',
+    'Predictions သည် GNI ၏ AI ခန့်မှန်းချက်များကို အချိန်နှင့်တပြေးညီ စစ်ဆေးလိုသော ' +
+    'Myanmar သုတေသီများနှင့် မူဝါဒရေးဆွဲသူများအတွက် ဒီဇိုင်းဆွဲထားသည်။ ' +
+    'GPVS စနစ်ဖြင့် accuracy ကို April 10, 2026 တွင် ပထမဆုံး verification ပြုလုပ်မည်။',
 
-  // ── ABOUT DREAM ───────────────────────────────────────────────
+  // ── ABOUT DREAM ──────────────────────────────────────────────
   about_dream:
-    'GNI Myanmar သဎုး ကမ္ဘာ့ Geopolitics သတင်းအချက်အလပ်များကို Myanmar ဘာသာ ' +
-    'အကြေဆပ်ပြန်းသဎုး $0.00/month ဖြစ် ရည္ရွယ်သဎုး platform ဖြစ်သဎုး။ ' +
-    'Myanmar စာမဏားသဎုး internet အသုံပြန်း 61.1% သို့သဎုး (DataReportal 2026) သိုးသည့တိုင္း ' +
-    'Bloomberg Terminal ကဲအပြန်း $31,980/နှစ် သို့ Stratfor $199/နှစ် ' +
-    'သဎုး subscription ပင္းပင္း ပိုလှေအနိုင္သိုး ' +
-    'GNI Myanmar ကို အမြေ $0.00 တွင့်နေးအဎား။',
+    'GNI Myanmar သည် ကမ္ဘာ့ Geopolitics သတင်းအချက်အလက်များကို Myanmar ' +
+    'သတင်းစာဖတ်သူများအတွက် ပေးဆောင်သည့် $0.00/month ဖြင့် လည်ပတ်သည့် platform ဖြစ်သည်။ ' +
+    'Myanmar ပြည်သူများ internet အသုံးပြုမှု 61.1% ရှိသော်လည်း ' +
+    'Bloomberg Terminal $31,980/နှစ် သို့မဟုတ် Stratfor $199/နှစ် ' +
+    'subscription ပေးဆောင်နိုင်ခြင်းမရှိသောကြောင့် ' +
+    'GNI Myanmar ကို အခမဲ့ဖြင့် တည်ဆောက်ခဲ့သည်။',
 
-  // ── ABOUT PIPELINE HEADER ─────────────────────────────────────
-  pipeline_chain_label: 'ပိုက်လုပြန်းဆက်လှမ်း',
+  // ── ABOUT PIPELINE HEADER ────────────────────────────────────
+  pipeline_chain_label: 'ပိုက်လိုင်းလည်ပတ်မှုဆက်လမ်း',
 
-  // ── DOWNLOADS ─────────────────────────────────────────────────
+  // ── DOWNLOADS ────────────────────────────────────────────────
   downloads_intro:
-    'GNI Myanmar အချက်အလပ်များကို အသုံပြန်းလွတ်ျသာ၊ အသုံပြန်းပြန်ပါသဎုး။ ' +
-    'Reports၊ predictions နှင့် articles datasets ကို CSV နှင့် JSON ဖြစ် ဒောင်းလုဒ်နိုင္။ API key မလိုအပေ။',
+    'Downloads သည် GNI Myanmar ၏ raw intelligence data ကို သုတေသနအတွက် ' +
+    'ဒေါင်းလုဒ်ယူလိုသော Myanmar သုတေသီများနှင့် data analysts များအတွက် ဒီဇိုင်းဆွဲထားသည်။ ' +
+    'Reports, predictions နှင့် articles datasets ကို CSV နှင့် JSON ဖြင့် ရယူနိုင်သည်။ API key မလိုပါ။',
 
-  // ── HEALTH ────────────────────────────────────────────────────
+  // ── HEALTH ───────────────────────────────────────────────────
   health_intro:
-    'Health page သဎုး GNI Myanmar အမြေ system ကျန်းမာရေး real-time စေးချက်ပြန်ပါသဎုး။ ' +
-    'Supabase၊ API၊ pipeline စေးချက်ချန်းမာရေးကို အပြည့်ဆုံးသဎုး အတာမြေ ' +
-    'Telegram သို့ အမြေအကြေဆပ်ပါသဎုး။',
+    'Health သည် GNI Myanmar ၏ နည်းပညာစနစ်များကို အချိန်နှင့်တပြေးညီ စစ်ဆေးလိုသော ' +
+    'စနစ်ထိန်းသိမ်းသူများနှင့် developer များအတွက် ဒီဇိုင်းဆွဲထားသည်။ ' +
+    'Supabase, API, pipeline များ အကုန်လုံး အလုပ်လုပ်မလုပ် real-time စစ်ဆေးနိုင်သည်။',
 
 } as const
 
