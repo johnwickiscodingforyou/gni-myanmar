@@ -41,6 +41,9 @@ export default function NewsPage() {
         </div>
       </header>
       <main className="max-w-5xl mx-auto px-4 py-4">
+        <div className="bg-gray-900 border border-green-800 rounded-xl p-4 mb-4">
+          <p className="text-sm text-gray-200 leading-relaxed">သတင်း Archive သဎုး GNI pipeline ဖြစ် အခြက်ရေးသဎုး articles ကို စုံဆောင်းသဎုး။ Selected articles (120+) သဎုး GNI ရို့ အကြေဆပ်ထါ အပာအခြက် အကြေဆပ်သဎုး။ Collected articles (900+) သဎုး RSS sources 25 ခုးလြ အခြက်ရေးသဎုး articles အမြေကြည့်ဖြစ်သဎုး။ "Show Myanmar Brief" ကို နှစ်ကြည့်သဎုး Myanmar brief ကို ဖြစ်ကြည့်နိုင္။</p>
+        </div>
 
         {/* SECTION A: SELECTED ARTICLES */}
         <div className="mb-6">

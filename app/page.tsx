@@ -128,6 +128,10 @@ export default function Dashboard() {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-6">
+        {/* HUB DESCRIPTION */}
+        <div className="bg-gray-900 border border-blue-800 rounded-xl p-4 mb-4">
+          <p className="text-sm text-gray-200 leading-relaxed">GNI Myanmar သည် ကမ္ဘာ့ Geopolitics သတင်းအချက်အလက်များကို AI နည်ပညာဖြင့် ခွဲခြမ်းသပ်းဖြာပြီး Myanmar ဘာသာဖြင့် တင်ဆပြသည့် $0.00/month platform ဖြစ်သဎုး။ GNI_Autonomous မှ secure API ဖြင့် data ရယူပြီး Groq AI ဖြင့် တစ်နေ့ ၂ ကြီမ် update ဖြစ်သဎုး။ အပောက်ဆုံး section များတွင့် live reports၊ market data၊ news archive နှင့် MAD predictions များကို ကြည့်ေူပက်နိုင္။</p>
+        </div>
         {loading && (
           <div className="space-y-4 animate-pulse">
               <div className="bg-gray-800 rounded-xl h-32 w-full"></div>
@@ -399,27 +403,30 @@ export default function Dashboard() {
 
             {/* SUB-PAGE INTRO ROWS */}
             <section className="mb-4">
-              <div className="text-xs text-gray-500 uppercase tracking-wider mb-2">ခွဲခြမ်းစိတ်ဖြာမှုများ / Analysis Pages</div>
+              <div className="text-xs text-gray-500 uppercase tracking-wider mb-2">Analysis Pages</div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {[
-                  { href: '/map',         label: 'World Map',       sub: 'ကမ္ဘာ့ပြဒါး',        color: 'border-blue-800 text-blue-400' },
-                  { href: '/market',      label: 'Markets',         sub: 'ဈေးကွက်',           color: 'border-amber-800 text-amber-400' },
-                  { href: '/news',        label: 'News Archive',    sub: 'သတင်းမှတ်တမ်း',      color: 'border-green-800 text-green-400' },
-                  { href: '/intel',       label: 'Full Intel',      sub: 'ထောက်လှမ်းရေး',      color: 'border-purple-800 text-purple-400' },
-                  { href: '/reports',     label: 'Reports',         sub: 'အစီရင်ခံစာ',         color: 'border-teal-800 text-teal-400' },
-                  { href: '/predictions', label: 'Predictions',     sub: 'ခန့်မှန်းချက်',       color: 'border-pink-800 text-pink-400' },
-                  { href: '/downloads',   label: 'Downloads',       sub: 'ဒေတာဒေါင်းလုဒ်',    color: 'border-gray-600 text-gray-400' },
-                  { href: '/about',       label: 'About',           sub: 'အကြောင်းအရာ',        color: 'border-gray-600 text-gray-400' },
-                ].map(({ href, label, sub, color }) => (
+                  { num:"01", href:"/map",         label:"World Map",    desc:"ကမ္ဘာ့အပေသဎုး geo-tagged articles ကို မြေပုံနှစ် pin တွင့်် မြေမြေ ကြည့်သဎုး။ Myanmar brief ပါသဎုး။",   color:"border-blue-800 text-blue-400" },
+                  { num:"02", href:"/market",      label:"Markets",      desc:"Commodity, Index, Stocks, Forex, Crypto, Bond tab 6 ခုးပါသဎုး။ Yahoo Finance အခြက်ရေး။ Myanmar brief ပါသဎုး။",       color:"border-amber-800 text-amber-400" },
+                  { num:"03", href:"/news",        label:"News Archive",  desc:"အကြေဆပ်ချ articles 120+ နှင့် collected 900+ ပါသဎုး။ Myanmar brief toggle ဖြစ်ကြည့်နိုင္။",      color:"border-green-800 text-green-400" },
+                  { num:"04", href:"/intel",       label:"Full Intel",    desc:"အပြည့်ဆုံး analysis hub။ Brief, Funnel, Analysis, Pillars, MAD, Predictions tab 6 ခုးပါသဎုး။ Myanmar translation ပါသဎုး။",    color:"border-purple-800 text-purple-400" },
+                  { num:"05", href:"/reports",     label:"Reports",       desc:"အစီရင်ခံးစာ archive။ Escalation score, MAD verdict, Myanmar brief ပါသဎုး။ တစ်နေ့ 2 ကြီမ် အကြေဆပ်သဎုး။",      color:"border-teal-800 text-teal-400" },
+                  { num:"06", href:"/predictions", label:"Predictions",   desc:"MAD agent ခန့မှန်းချက်များ။ GPVS accuracy track လုပ်သဎုး။ April 10 verification ဖြစ်သဎုး။",    color:"border-pink-800 text-pink-400" },
+                  { num:"07", href:"/downloads",   label:"Downloads",     desc:"Reports, predictions, articles CSV နှင့် JSON ဖြစ် ဒောင်းလုဒ်နိုင္။ Free ဖြစ်သဎုး။",      color:"border-gray-600 text-gray-400" },
+                  { num:"08", href:"/about",       label:"About",         desc:"GNI Myanmar အကြေဆပ်, tech stack, cost breakdown, L4-L7 journey နှင့် pipeline chain တို့ပါသဎုး။",          color:"border-gray-600 text-gray-400" },
+                ].map(({ num, href, label, desc, color }) => (
                   <a key={href} href={href} className={`bg-gray-900 border rounded-xl p-3 hover:bg-gray-800 transition-colors ${color}`}>
-                    <div className={`text-xs font-bold ${color.split(' ')[1]}`}>{label}</div>
-                    <div className="text-xs text-gray-500 mt-0.5">{sub}</div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs text-gray-600 font-mono">{num}</span>
+                      <span className={`text-xs font-bold ${color.split(' ')[1]}`}>{label}</span>
+                      <span className="text-xs text-green-600 ml-auto">LIVE</span>
+                    </div>
+                    <p className="text-xs text-gray-500 leading-relaxed">{desc}</p>
                   </a>
                 ))}
               </div>
             </section>
-
-            {/* PREVIOUS REPORTS */}
+                        {/* PREVIOUS REPORTS */}
             {reports.length > 1 && (
               <section className="mb-6">
                 <div className="text-xs text-gray-500 uppercase tracking-wider mb-2">ယခင်အစီရင်ခံစာများ / Previous Reports</div>
