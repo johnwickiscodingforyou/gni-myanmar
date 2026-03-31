@@ -64,13 +64,21 @@ export default function IntelPage() {
       <header className="border-b border-gray-800 bg-gray-900">
         <div className="max-w-5xl mx-auto px-4 py-4">
           <div className="mb-1">
-            <h1 className="text-xl font-bold text-white">ထောက်လှမ်းရေးအပြည့် / Full Intelligence</h1>
+            <h1 className="text-xl font-bold text-white">Full Intelligence</h1>
             <p className="text-xs text-gray-400">Complete intelligence analysis | All sections</p>
           </div>
           <Nav />
         </div>
       </header>
       <main className="max-w-5xl mx-auto px-4 py-4">
+        {/* MM DESCRIPTION */}
+        <div className="bg-gray-900 border border-gray-700 rounded-xl p-4 mb-4">
+          <p className="text-sm text-gray-200 leading-relaxed">Full Intelligence သဎုး GNI Myanmar အပြည့်ဆုံး analysis hub ဖြစ်သဎုး။ Tab ဆ ခုးပါသဎုး -- Brief (သတင်းချက်ထုတ်စေး), Funnel (အပာအခြက်ရေးအဆောက်), Analysis (အမြေပံသကာအချက်ထုတ်စေး), Pillars (GEO/TECH/FIN ချဆြန်း), MAD (အကြေဆပ် agent ငရစ်ကြီးအဆြေးအနှင့်း verdict Myanmar ဘာသာ), နှင့် Predictions (GPVS ခန့မှန်းချက်) တို့ပါသဎုး။</p>
+        </div>
+        {/* HUB DESCRIPTION */}
+        <div className="bg-gray-900 border border-purple-800 rounded-xl p-4 mb-4">
+          <p className="text-sm text-gray-200 leading-relaxed">Full Intelligence သည် GNI Myanmar အပြည့်ဆုံး analysis hub ဖြစ်သဎုး။ Tab ၆ ခုပါဝင်သဎုး -- Brief (Myanmar ဘာသာ သတင်းချက်ထုတ်စေး), Funnel (အပာအခြက်ရေးတွက်လပ်သဎုးကို သိုးသဎုးကိုပြ), Analysis (အမြေပံသကာအချက်ထုတ်စေး), Pillars (GEO/TECH/FIN ချဆြန်းခွေ), MAD (Myanmar ဘာသာ agent ၄ ဦးအကြေဆပ် debate verdict), နှင့် Predictions (GPVS forecast) တို့ပါသဎုး။</p>
+        </div>
         {loading && (
           <div className="space-y-4 animate-pulse">
               <div className="bg-gray-800 rounded-xl h-32 w-full"></div>

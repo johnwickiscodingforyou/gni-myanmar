@@ -34,7 +34,7 @@ export default function DownloadsPage() {
       <header className="border-b border-gray-800 bg-gray-900">
         <div className="max-w-5xl mx-auto px-4 py-4">
           <div className="mb-1">
-            <h1 className="text-xl font-bold text-white">ဒေတာဒေါင်းလုဒ် / Downloads</h1>
+            <h1 className="text-xl font-bold text-white">Downloads</h1>
             <p className="text-xs text-gray-400">Open datasets | Free to download | GNI-R-147</p>
           </div>
           <Nav />

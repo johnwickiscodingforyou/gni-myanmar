@@ -14,7 +14,7 @@ export default function AboutPage() {
         <div className="max-w-5xl mx-auto px-4 py-4">
           <div className="mb-1">
             <h1 className="text-xl font-bold text-white">About GNI Myanmar</h1>
-            <p className="text-xs text-gray-400">GNI Myanmar အကြေဆပ် | အကြေဆပ်အရာ</p>
+            <p className="text-xs text-gray-400">System Overview | $0.00/month | Team Geeks | SUM</p>
           </div>
           <Nav />
         </div>

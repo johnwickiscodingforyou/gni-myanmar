@@ -47,7 +47,7 @@ export default function MarketPage() {
       <header className="border-b border-gray-800 bg-gray-900">
         <div className="max-w-5xl mx-auto px-4 py-4">
           <div className="mb-1">
-            <h1 className="text-xl font-bold text-white">ဈေးကွက် / Market</h1>
+            <h1 className="text-xl font-bold text-white">Market</h1>
             <p className="text-xs text-gray-400">Global Market Intelligence | Yahoo Finance</p>
           </div>
           <Nav />

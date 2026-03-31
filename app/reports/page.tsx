@@ -50,7 +50,7 @@ export default function ReportsPage() {
         <div className="max-w-5xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-1">
             <div>
-              <h1 className="text-xl font-bold text-white">GNI အစီရင်ခံစာများ / Reports</h1>
+              <h1 className="text-xl font-bold text-white">Intelligence Reports</h1>
               <p className="text-xs text-gray-400">Intelligence Reports Archive | {reports.length} reports</p>
             </div>
           </div>
@@ -58,6 +58,14 @@ export default function ReportsPage() {
         </div>
       </header>
       <main className="max-w-5xl mx-auto px-4 py-6">
+        {/* MM DESCRIPTION */}
+        <div className="bg-gray-900 border border-gray-700 rounded-xl p-4 mb-4">
+          <p className="text-sm text-gray-200 leading-relaxed">အစီရင်ခံးစာများ GNI ရို့အဒောက်ဆုံး output ဖြစ်သဎုး။ အပာအခြက် report တစ်ခုးစီကို article ငေးရား ၄၂၅ ခုးလြန် အကြေဆပ် ၁၁ ခုးကို သုံပံးသပ်ပြီးပြန်း escalation score (0-10)၊ sentiment၊ MAD verdict နှင့် confidence interval ထုတ်စေးသဎုး။ တစ်နေ့ ၂ ကြီမ် 02:00 နှင့် 10:00 UTC တွင့်် GitHub Actions ဖြစ်အထုတ်မောသဎုး။</p>
+        </div>
+        {/* HUB DESCRIPTION */}
+        <div className="bg-gray-900 border border-teal-800 rounded-xl p-4 mb-4">
+          <p className="text-sm text-gray-200 leading-relaxed">Intelligence Reports များသည် GNI အဒောက်ဆုံး output ဖြစ်သဎုး။ အပာအခြက် report တစ်ခုးစီကို article ၄၂၅ ခုး လြန် အကြေဆပ် ၁၁ ခုးကို သုံပံးသပ်ပြီးပြန်း escalation score (0-10)၊ sentiment၊ MAD verdict နှင့် confidence interval ထုတ်စေးသဎုး။ Reports များကို တစ်နေ့ ၂ ကြီမ် 02:00 နှင့် 10:00 UTC တွင့် GitHub Actions မှ တစ်ဆုံးထုတ်မောသဎုး။</p>
+        </div>
         {loading && <div className="text-center py-20 text-gray-400">Loading...</div>}
         {intelMMs[0]?.brief_mm && (
           <div className="bg-amber-950 border border-amber-700 rounded-xl p-4 mb-6">

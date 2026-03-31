@@ -42,7 +42,7 @@ export default function MapPage() {
       <header className="border-b border-gray-800 bg-gray-900">
         <div className="max-w-5xl mx-auto px-4 py-4">
           <div className="mb-1">
-            <h1 className="text-xl font-bold text-white">ကမ္ဘာ့ပြဒါး / World Map</h1>
+            <h1 className="text-xl font-bold text-white">World Map</h1>
             <p className="text-xs text-gray-400">Geopolitical Event Map | {events.length} events</p>
           </div>
           <Nav />

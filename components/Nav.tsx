@@ -3,19 +3,19 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 const PRIMARY = [
-  { href: '/',       label: 'Dashboard', mm: 'နောက်ဆုံး',   color: 'bg-blue-900 hover:bg-blue-700 border-blue-700 text-blue-200' },
-  { href: '/map',    label: 'Map',       mm: 'မြေပုံ',        color: 'bg-blue-900 hover:bg-blue-700 border-blue-700 text-blue-200' },
-  { href: '/market', label: 'Market',    mm: 'စေးကွက်',       color: 'bg-amber-900 hover:bg-amber-700 border-amber-700 text-amber-200' },
-  { href: '/news',   label: 'News',      mm: 'သတင်း',          color: 'bg-green-900 hover:bg-green-700 border-green-700 text-green-200' },
-  { href: '/intel',  label: 'Intel',     mm: 'ထောက်လှမ်းရေး',  color: 'bg-purple-900 hover:bg-purple-700 border-purple-700 text-purple-200' },
+  { href: '/',       label: 'Dashboard', color: 'bg-blue-900 hover:bg-blue-700 border-blue-700 text-blue-200' },
+  { href: '/map',    label: 'Map',       color: 'bg-blue-900 hover:bg-blue-700 border-blue-700 text-blue-200' },
+  { href: '/market', label: 'Market',    color: 'bg-amber-900 hover:bg-amber-700 border-amber-700 text-amber-200' },
+  { href: '/news',   label: 'News',      color: 'bg-green-900 hover:bg-green-700 border-green-700 text-green-200' },
+  { href: '/intel',  label: 'Intel',     color: 'bg-purple-900 hover:bg-purple-700 border-purple-700 text-purple-200' },
 ]
 
 const SECONDARY = [
-  { href: '/reports',     label: 'Reports',     mm: 'အစီရင်ခံးစာ',    color: 'bg-teal-900 hover:bg-teal-700 border-teal-700 text-teal-200' },
-  { href: '/predictions', label: 'Predictions', mm: 'ခန့မှန်းချက်',  color: 'bg-pink-900 hover:bg-pink-700 border-pink-700 text-pink-200' },
-  { href: '/health',      label: 'Health',      mm: 'ကျန်းမာရေး',    color: 'bg-gray-800 hover:bg-gray-700 border-gray-600 text-gray-200' },
-  { href: '/downloads',   label: 'Downloads',   mm: 'ဒောင်းလုဒ်',    color: 'bg-gray-800 hover:bg-gray-700 border-gray-600 text-gray-200' },
-  { href: '/about',       label: 'About',       mm: 'အကြောင်းအရာ',     color: 'bg-gray-800 hover:bg-gray-700 border-gray-600 text-gray-200' },
+  { href: '/reports',     label: 'Reports',     color: 'bg-teal-900 hover:bg-teal-700 border-teal-700 text-teal-200' },
+  { href: '/predictions', label: 'Predictions', color: 'bg-pink-900 hover:bg-pink-700 border-pink-700 text-pink-200' },
+  { href: '/health',      label: 'Health',      color: 'bg-gray-800 hover:bg-gray-700 border-gray-600 text-gray-200' },
+  { href: '/downloads',   label: 'Downloads',   color: 'bg-gray-800 hover:bg-gray-700 border-gray-600 text-gray-200' },
+  { href: '/about',       label: 'About',       color: 'bg-gray-800 hover:bg-gray-700 border-gray-600 text-gray-200' },
 ]
 
 export default function Nav() {
@@ -26,8 +26,7 @@ export default function Nav() {
         {PRIMARY.filter(l => l.href !== path).map(l => (
           <Link key={l.href} href={l.href}
             className={`border rounded-lg px-3 py-1.5 text-xs font-bold transition-colors ${l.color}`}>
-            <span>{l.mm}</span>
-            <span className="opacity-60 ml-1">/ {l.label}</span>
+            {l.label}
           </Link>
         ))}
       </div>
@@ -35,8 +34,7 @@ export default function Nav() {
         {SECONDARY.filter(l => l.href !== path).map(l => (
           <Link key={l.href} href={l.href}
             className={`border rounded-lg px-2 py-1 text-xs transition-colors ${l.color}`}>
-            <span>{l.mm}</span>
-            <span className="opacity-60 ml-1">/ {l.label}</span>
+            {l.label}
           </Link>
         ))}
       </div>

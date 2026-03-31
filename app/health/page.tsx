@@ -43,7 +43,7 @@ export default function HealthPage() {
         <div className="max-w-5xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-1">
             <div>
-              <h1 className="text-xl font-bold text-white">စနစ်ကျန်းမာရေး / Health</h1>
+              <h1 className="text-xl font-bold text-white">Health</h1>
               <p className="text-xs text-gray-400">System self-check | All GNI Myanmar systems</p>
             </div>
             {health && (
