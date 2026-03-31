@@ -61,7 +61,7 @@ export default function ReportsPage() {
       <main className="max-w-5xl mx-auto px-4 py-6">
         {/* MM DESCRIPTION */}
         <div className="bg-gray-900 border border-gray-700 rounded-xl p-4 mb-4">
-          <p className="text-sm text-gray-200 leading-relaxed">အစီရင်ခံးစာများ GNI ရို့အဒောက်ဆုံး output ဖြစ်သဎုး။ အပာအခြက် report တစ်ခုးစီကို article ငေးရား ၄၂၅ ခုးလြန် အကြေဆပ် ၁၁ ခုးကို သုံပံးသပ်ပြီးပြန်း escalation score (0-10)၊ sentiment၊ MAD verdict နှင့် confidence interval ထုတ်စေးသဎုး။ တစ်နေ့ ၂ ကြီမ် 02:00 နှင့် 10:00 UTC တွင့်် GitHub Actions ဖြစ်အထုတ်မောသဎုး။</p>
+          <p className="text-sm text-gray-200 leading-relaxed">အစီရင်ခံးစာများသဎုး GNI ရို့အဒောက်ဆုံး output ဖြစ်သဎုး။ အပာအခြက် report တစ်ခုးစီကို article 425 ခုးပိုးဆေး အကြေဆပ် 11 ခုးကို သုံပံးသပ်ပြီးပြန်း escalation score (0-10)၊ sentiment၊ MAD verdict နှင့် confidence interval ထုတ်စေးသဎုး။ တစ်နေ့ 2 ကြီမ် 02:00 နှင့် 10:00 UTC တွင့်် GitHub Actions ဖြစ် အထုတ်မောသဎုး။</p>
         </div>
         {/* HUB DESCRIPTION */}
         <div className="bg-gray-900 border border-teal-800 rounded-xl p-4 mb-4">

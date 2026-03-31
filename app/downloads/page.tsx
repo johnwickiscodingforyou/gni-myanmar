@@ -1,5 +1,5 @@
 "use client"
-export const dynamic = "force-dynamic"
+// cache-bust-v3
 import { useEffect, useState } from 'react'
 import Nav from '@/components/Nav'
 

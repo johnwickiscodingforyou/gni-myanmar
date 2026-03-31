@@ -62,7 +62,7 @@ export default function PredictionsPage() {
       <main className="max-w-5xl mx-auto px-4 py-6">
         {/* MM INTRO */}
         <div className="bg-gray-900 border border-pink-800 rounded-xl p-4 mb-4">
-          <p className="text-sm text-gray-200 leading-relaxed">Predictions သဎုး GNI အဒောက်ဆုံး MAD agent ငရစ်ကြီးက BULLISH သို့မဿာ BEARISH အလို့ ခန့မှန်းချက်များဖြစ်သဎုး။ အပာအခြက် prediction တစ်ခုးစီကို verify_date ရှိပြန်းပြီး actual သတင်းအခြေအလု့နှင့် GPVS standard ဖြစ် အကြေဆပ်သတ်ပြီး accuracy score ရရသဎုး။ April 10၊ 2026 တွင့်် ပထမ GPVS verification သဎုး နောက်ဆုံးပြီးသဎုး။</p>
+          <p className="text-sm text-gray-200 leading-relaxed">Predictions သဎုး GNI ရို့ MAD agent ငရစ်ကြီးက BULLISH သို့မဿာ BEARISH အလို့ ခန့မှန်းချက်များဖြစ်သဎုး။ အပာအခြက် prediction တစ်ခုးစီကို verify_by ရက်သှိပြန်းပြီး အပာအခြက်သတ်ပြီးပြည့်သဎုး GPVS standard ဖြစ် accuracy score ရရသဎုး။ April 10၊ 2026 တွင့်် ပထမ GPVS verification ဖြစ်သဎုး။</p>
         </div>
         {/* COUNTDOWN */}
         <div className="bg-gray-900 border border-gray-700 rounded-xl p-3 sm:p-4 mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
