@@ -112,7 +112,7 @@ export default function Dashboard() {
         <div className="max-w-5xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between mb-1">
             <div>
-              <h1 className="text-xl font-bold text-white">GNI Myanmar</h1>
+              <h1 className="text-xl font-bold text-white">🌐 GNI Myanmar</h1>
               <p className="text-xs text-gray-400">Global Nexus Insights | Myanmar Intelligence | L7 Autonomous | $0.00/month</p>
             </div>
             {latest && (
