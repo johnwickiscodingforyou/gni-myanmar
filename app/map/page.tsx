@@ -23,14 +23,15 @@ export default function MapPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch('/api/article-events')
+    fetch('/api/article-briefs?geo=true&limit=100')
       .then(r => r.json())
-      .then(d => { setEvents(d.events || d.articles || []); setLoading(false) })
+      .then(d => {
+        const articles = d.articles || []
+        setEvents(articles)
+        setBriefs(articles)
+        setLoading(false)
+      })
       .catch(() => setLoading(false))
-    fetch('/api/article-briefs?geo=true&limit=50')
-      .then(r => r.json())
-      .then(d => setBriefs(d.articles || []))
-      .catch(() => {})
   }, [])
 
   const findBrief = (title: string) =>

@@ -31,7 +31,7 @@ export default function MarketPage() {
     tickers.forEach(({ t, l }) => {
       if (data[t]) return
       setLoading(prev => ({ ...prev, [t]: true }))
-      fetch(`/api/stocks?ticker=${encodeURIComponent(t)}&range=3d`)
+      fetch(`/api/stocks?ticker=${encodeURIComponent(t)}&range=7d`)
         .then(r => r.json())
         .then(d => {
           if (d.price) setData(prev => ({ ...prev, [t]: { t, l, price: d.price, change: d.change || 0, pct: parseFloat(d.changePercent || '0'), chart: d.chartData || [] } }))

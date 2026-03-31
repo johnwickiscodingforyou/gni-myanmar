@@ -17,11 +17,11 @@ export default function NewsPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
   useEffect(() => {
-    fetch('/api/article-briefs?selected=true&limit=100')
+    fetch('/api/article-briefs?selected=true&limit=500')
       .then(r => r.json())
       .then(d => { setSelected(d.articles || []); setLoadingSel(false) })
       .catch(() => setLoadingSel(false))
-    fetch('/api/article-briefs?limit=200')
+    fetch('/api/article-briefs?limit=500')
       .then(r => r.json())
       .then(d => { setCollected(d.articles || []); setLoadingAll(false) })
       .catch(() => setLoadingAll(false))
