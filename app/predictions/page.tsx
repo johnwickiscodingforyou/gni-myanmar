@@ -3,20 +3,21 @@ import { useEffect, useState } from 'react'
 import Nav from '@/components/Nav'
 
 interface Prediction {
-  id: string; direction: string; confidence: number
-  verify_date: string; accuracy_score: number | null
-  agent_name: string; created_at: string
-  asset: string; horizon: string
+  id: string; agent: string; horizon: string
+  prediction: string; verify_by: string | null
+  outcome: string | null; accurate: boolean | null
+  verified_at: string | null; verified_by: string | null
+  created_at: string; report_id: string
 }
 
-function safeDate(d: string) {
+function safeDate(d: string | null) {
   if (!d) return 'TBD'
   const dt = new Date(d)
   if (isNaN(dt.getTime())) return 'TBD'
   return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
-function daysUntil(d: string) {
+function daysUntil(d: string | null) {
   if (!d) return null
   const dt = new Date(d)
   if (isNaN(dt.getTime())) return null
@@ -35,9 +36,9 @@ export default function PredictionsPage() {
       .catch(() => setLoading(false))
   }, [])
 
-  const pending  = predictions.filter(p => !p.accuracy_score)
-  const verified = predictions.filter(p => p.accuracy_score)
-  const correctCount  = verified.filter(p => (p.accuracy_score || 0) >= 70).length
+  const pending  = predictions.filter(p => !p.verified_at)
+  const verified = predictions.filter(p => p.verified_at)
+  const correctCount  = verified.filter(p => p.accurate === true).length
   const accuracyPct   = verified.length >= 5 ? Math.round(correctCount / verified.length * 100) : null
 
   return (
@@ -101,23 +102,19 @@ export default function PredictionsPage() {
             <div className="text-xs text-gray-500 uppercase tracking-wider mb-3">စစ်ဆေးစောင့်ဆိုင်းဆဲ / Pending ({pending.length})</div>
             <div className="space-y-2">
               {pending.slice(0, 30).map(p => {
-                const days = daysUntil(p.verify_date)
+                const days = daysUntil(p.verify_by)
                 return (
                   <div key={p.id} className="bg-gray-900 border border-gray-700 rounded-xl p-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                          p.direction?.toLowerCase() === 'bearish' ? 'bg-red-900 text-red-300' :
-                          p.direction?.toLowerCase() === 'bullish' ? 'bg-green-900 text-green-300' :
-                          'bg-gray-700 text-gray-300'}`}>{p.direction?.toUpperCase() || 'PENDING'}</span>
-                        {p.asset && <span className="text-xs text-blue-300 font-mono">{p.asset}</span>}
+                        <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-blue-900 text-blue-300">{p.agent?.toUpperCase() || 'AGENT'}</span>
                         {p.horizon && <span className="text-xs text-gray-500">{p.horizon}</span>}
                       </div>
                       <div className="text-right">
-                        <div className="text-xs text-white font-bold">{p.confidence && p.confidence > 0 ? Math.round(p.confidence * 100) + '%' : 'N/A'}</div>
-                        <div className="text-xs text-amber-400">{days ? `${days}d` : safeDate(p.verify_date)}</div>
+                        <div className="text-xs text-amber-400">{days ? `${days}d` : safeDate(p.verify_by)}</div>
                       </div>
                     </div>
+                    {p.prediction && <p className="text-xs text-gray-400 mt-2 leading-relaxed">{p.prediction.slice(0, 120)}...</p>}
                   </div>
                 )
               })}
@@ -132,11 +129,14 @@ export default function PredictionsPage() {
                 <div key={p.id} className="bg-gray-900 border border-green-800 rounded-xl p-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${p.direction?.toLowerCase() === 'bearish' ? 'bg-red-900 text-red-300' : 'bg-green-900 text-green-300'}`}>{p.direction?.toUpperCase()}</span>
-                      {p.asset && <span className="text-xs text-blue-300 font-mono">{p.asset}</span>}
+                      <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-blue-900 text-blue-300">{p.agent?.toUpperCase()}</span>
+                      {p.horizon && <span className="text-xs text-gray-500">{p.horizon}</span>}
                     </div>
-                    <span className={`text-sm font-bold ${(p.accuracy_score || 0) >= 70 ? 'text-green-400' : 'text-red-400'}`}>GPVS: {p.accuracy_score}%</span>
+                    <span className={`text-sm font-bold ${p.accurate === true ? 'text-green-400' : 'text-red-400'}`}>
+                      {p.accurate === true ? 'CORRECT' : 'INCORRECT'}
+                    </span>
                   </div>
+                  {p.outcome && <p className="text-xs text-gray-400 mt-1 leading-relaxed">{p.outcome.slice(0, 100)}</p>}
                 </div>
               ))}
             </div>
