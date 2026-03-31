@@ -132,6 +132,44 @@ export default function Dashboard() {
 
         {!loading && latest && (
           <>
+            {/* ORIENTATION + LAST RUN */}
+            <section className="mb-4">
+              <div className="bg-gray-900 border border-gray-700 rounded-xl p-4">
+                <div className="flex items-start justify-between gap-4 flex-wrap">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-gray-200 leading-relaxed mb-1">
+                      GNI Myanmar သဎုး ကမ္ဘာ့ Geopolitics သတင္းများကို GNI Autonomous API ဖြင့်ရယူပြီး Groq AI ဖြင့် တစ်နေ့ ၂ ကြိမ် update ဖြစ်သဎု့။ Myanmar reader များ Geopolitics ကို ဆွပ်ကူစွာ နားလဎည့နိုင္ ရည္ရွယ်သဎုး။
+                    </p>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <div className="text-xs text-gray-500 mb-1">Last updated</div>
+                    <div className="text-xs font-bold text-green-400">
+                      {latest.created_at ? (() => {
+                        const ms = Date.now() - new Date(latest.created_at).getTime()
+                        const h = Math.floor(ms / 3600000)
+                        const m = Math.floor((ms % 3600000) / 60000)
+                        if (h > 14) return h + 'h ago'
+                        if (h >= 1) return h + 'h ' + m + 'm ago'
+                        return m + 'm ago'
+                      })() : 'Unknown'}
+                    </div>
+                    <div className={`text-xs mt-1 font-bold ${
+                      (() => {
+                        if (!latest.created_at) return 'text-gray-500'
+                        const h = (Date.now() - new Date(latest.created_at).getTime()) / 3600000
+                        return h > 14 ? 'text-amber-400' : 'text-green-400'
+                      })()
+                    }`}>
+                      {(() => {
+                        if (!latest.created_at) return 'Status unknown'
+                        const h = (Date.now() - new Date(latest.created_at).getTime()) / 3600000
+                        return h > 14 ? 'Pipeline due' : 'Live'
+                      })()}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
             {/* ESCALATION HERO */}
             <section className="mb-4">
               <div className={`rounded-xl border p-5 ${escColor(latest.escalation_level)}`}>
