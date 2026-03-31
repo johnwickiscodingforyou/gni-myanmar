@@ -76,6 +76,12 @@ export default function NewsPage() {
                     {expandedId === a.id && (
                       <div className="bg-amber-950 border border-amber-800 rounded-lg p-3">
                         <p className="text-xs text-amber-100 leading-relaxed">{a.myanmar_brief}</p>
+                        <a
+                          href={`https://t.me/share/url?url=${encodeURIComponent(a.url)}&text=${encodeURIComponent(a.myanmar_brief || a.article_title)}`}
+                          target="_blank" rel="noopener noreferrer"
+                          className="inline-block mt-2 text-xs text-blue-400 border border-blue-800 rounded px-2 py-0.5 hover:bg-blue-950">
+                          Share to Telegram
+                        </a>
                       </div>
                     )}
                   </div>
