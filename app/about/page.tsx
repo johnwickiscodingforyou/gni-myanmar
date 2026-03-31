@@ -17,6 +17,7 @@ export default function AboutPage() {
             <h1 className="text-xl font-bold text-white">About GNI Myanmar</h1>
             <p className="text-xs text-gray-400">System Overview | $0.00/month | Team Geeks | SUM</p>
           </div>
+          <a href="/" className="inline-block mt-2 mb-1 text-xs text-blue-400 border border-blue-800 rounded px-3 py-1 hover:bg-blue-950 transition-colors">← Dashboard</a>
           <Nav />
         </div>
       </header>
