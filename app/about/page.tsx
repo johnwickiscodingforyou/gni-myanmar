@@ -52,6 +52,23 @@ export default function AboutPage() {
           ))}
         </div>
 
+        {/* SPRINT STATS */}
+        <div className="grid grid-cols-3 md:grid-cols-6 gap-3 mb-6">
+          {[
+            { value: '30+',    label: 'Pipeline runs' },
+            { value: '7,000+', label: 'Articles analysed' },
+            { value: '30+',    label: 'Reports generated' },
+            { value: '100%',   label: 'GPVS accuracy' },
+            { value: '66',     label: 'Injection patterns' },
+            { value: '17',     label: 'Sprint days' },
+          ].map(({ value, label }) => (
+            <div key={label} className="bg-gray-900 border border-gray-700 rounded-xl p-3 text-center">
+              <div className="text-xl font-bold text-white">{value}</div>
+              <div className="text-xs text-gray-500 mt-1">{label}</div>
+            </div>
+          ))}
+        </div>
+
         {/* COST COMPARISON */}
         <div className="bg-gray-900 border border-gray-700 rounded-xl p-6 mb-6">
           <div className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-4">Intelligence Cost Comparison</div>
@@ -59,6 +76,7 @@ export default function AboutPage() {
             {[
               { name: 'Bloomberg Terminal', price: '$31,980/yr', color: 'text-red-400',   bar: 'w-full',    note: 'Single seat' },
               { name: 'Stratfor Worldview', price: '$199/yr',    color: 'text-orange-400', bar: 'w-1/12',   note: 'Individual' },
+              { name: 'Oxford Analytica',    price: 'On Request', color: 'text-purple-400', bar: 'w-full',   note: 'Enterprise custom' },
               { name: 'Human Analyst',      price: '$82,000/yr', color: 'text-yellow-400', bar: 'w-full',   note: 'US average salary' },
               { name: 'GNI Myanmar',        price: '$0.00/yr',   color: 'text-green-400',  bar: 'w-0',      note: 'Open. Free. Always.' },
             ].map(({ name, price, color, note }) => (
@@ -71,6 +89,9 @@ export default function AboutPage() {
               </div>
             ))}
           </div>
+          <p className="text-xs text-gray-600 mt-3">
+            Bloomberg Terminal သဎုး 2010 မှ အပီးသဎုး 60% တိုးလာသဎုး ($20,000 သို့ $31,980 သို့)။ နှစ်နှစ် များ ကုန်နှ အထပ်သာကို ပိုရေနေသဎုး။ GNI Myanmar ကို အမြေ $0.00 တွင့်နေးအဎား။
+          </p>
         </div>
 
         {/* TECH STACK */}
@@ -120,6 +141,30 @@ export default function AboutPage() {
           </div>
         </div>
 
+        {/* L4-L7 JOURNEY */}
+        <div className="bg-gray-900 border border-gray-700 rounded-xl p-6 mb-6">
+          <div className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-4">The Journey -- L4 to L7</div>
+          <div className="space-y-3">
+            {[
+              { level: 'L4', day: 'Day 7',  label: 'Diploma baseline',  desc: '5 RSS ခုးလြ အခြက်ရေး 92 articles ၊ basic AI report ၊ map ၊ stocks ၊ transparency' },
+              { level: 'L5', day: 'Day 10', label: 'GPVS + Quality',    desc: 'Prediction validation ၊ quality scoring ၊ source weights ၊ escalation ၊ 13 RSS ၊ 242 articles' },
+              { level: 'L6', day: 'Day 13', label: 'Self-improving',    desc: 'Prompt A/B testing ၊ source credibility learning ၊ historical correlation ၊ weekly digest' },
+              { level: 'L7', day: 'Day 17', label: 'Fully autonomous',  desc: 'MAD Protocol ၊ deception detection ၊ frequency controller ၊ health agent ၊ self-healing' },
+            ].map(({ level, day, label, desc }) => (
+              <div key={level} className="flex items-start gap-4 bg-gray-800 rounded-lg px-4 py-3">
+                <div className="shrink-0 text-center w-12">
+                  <div className="text-lg font-bold text-blue-400">{level}</div>
+                  <div className="text-xs text-gray-500">{day}</div>
+                </div>
+                <div>
+                  <div className="text-sm font-bold text-white mb-1">{label}</div>
+                  <p className="text-xs text-gray-400 leading-relaxed">{desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* SOURCE */}
         <div className="bg-gray-900 border border-gray-700 rounded-xl p-5 mb-6">
           <div className="text-sm font-bold text-white mb-2">Data Source: GNI_Autonomous</div>
@@ -134,6 +179,20 @@ export default function AboutPage() {
           <div className="text-blue-300 text-sm">Higher Diploma in Computer Science</div>
           <div className="text-blue-400 text-xs mt-1">Spring University Myanmar (SUM) | 2026</div>
           <div className="text-gray-500 text-xs mt-2">Pipeline runs autonomously via GitHub Actions (public repo)</div>
+        </div>
+
+        {/* THREE PILLARS */}
+        <div className="grid grid-cols-3 gap-4 mb-6">
+          {[
+            { title: 'Always Free',  sub: '$0.00/month forever', color: 'border-green-700 text-green-400' },
+            { title: 'Always On',    sub: 'Self-healing 24/7',   color: 'border-blue-700 text-blue-400' },
+            { title: 'For Everyone', sub: 'No login required',   color: 'border-purple-700 text-purple-400' },
+          ].map(({ title, sub, color }) => (
+            <div key={title} className={`bg-gray-900 border rounded-xl p-4 text-center ${color}`}>
+              <div className={`text-sm font-bold mb-1 ${color.split(' ')[1]}`}>{title}</div>
+              <div className="text-xs text-gray-500">{sub}</div>
+            </div>
+          ))}
         </div>
 
         <div className="bg-yellow-950 border border-yellow-800 rounded-xl p-4">
