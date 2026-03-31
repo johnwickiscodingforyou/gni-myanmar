@@ -1,4 +1,5 @@
 "use client"
+// v2 build: 2026-03-31 15:04
 import { useEffect } from 'react'
 import Nav from '@/components/Nav'
 
