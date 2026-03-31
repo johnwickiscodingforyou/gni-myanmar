@@ -2,6 +2,7 @@
 export const dynamic = "force-dynamic"
 import { useEffect, useState } from 'react'
 import Nav from '@/components/Nav'
+import { mm } from '@/lib/mm'
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 
 const TABS = [
@@ -56,7 +57,7 @@ export default function MarketPage() {
       </header>
       <main className="max-w-5xl mx-auto px-4 py-4">
         <div className="bg-gray-900 border border-amber-800 rounded-xl p-4 mb-4">
-          <p className="text-sm text-gray-200 leading-relaxed">စေးကွက် page သဎုး Yahoo Finance အခြက်ရေးသဎုး global market data ကို ပြန်ပါသဎုး။ Tab 6 ခုး -- Commodity, Index, Stocks, Forex, Crypto, Bond သဎုး တစ်ခုးစီ အခြက်ရေးသဎုး instruments 4 ခုးပါသဎုး။ 3D Change သဎုး လွန် 3 ရက်အတွင့်် စေးကွက် အပြန်းဖြစ်သဎုး။ Myanmar brief ကို အအံထောက်မွန် Groq AI ဖြစ် ပြန်ပါသဎုး။</p>
+          <p className="text-sm text-gray-200 leading-relaxed">{mm.market_intro}</p>
         </div>
         <div className="flex gap-2 mb-4 flex-wrap">
           {TABS.map((tb, i) => (

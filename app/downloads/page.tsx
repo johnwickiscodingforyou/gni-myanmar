@@ -2,6 +2,7 @@
 // cache-bust-v3
 import { useEffect, useState } from 'react'
 import Nav from '@/components/Nav'
+import { mm } from '@/lib/mm'
 
 const DATASETS = [
   { name: 'reports', label: 'Intelligence Reports', desc: 'GNI intelligence reports with escalation scores, MAD verdicts, and market analysis', formats: ['csv', 'json'] },
@@ -44,7 +45,7 @@ export default function DownloadsPage() {
       <main className="max-w-5xl mx-auto px-4 py-6">
         <div className="bg-blue-950 border border-blue-800 rounded-xl p-4 mb-6">
           <div className="text-xs text-blue-400 font-bold uppercase tracking-wider mb-1">Open Intelligence Policy</div>
-          <p className="text-xs text-blue-200">GNI intelligence datasets are free to download, use, and share. GNI-R-147: GNI insights free forever. No API key required.</p>
+          <p className="text-xs text-blue-200">{mm.downloads_intro}</p>
         </div>
         <div className="space-y-4">
           {DATASETS.map(ds => (

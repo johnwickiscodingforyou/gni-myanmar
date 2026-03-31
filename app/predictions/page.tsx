@@ -2,6 +2,7 @@
 export const dynamic = "force-dynamic"
 import { useEffect, useState } from 'react'
 import Nav from '@/components/Nav'
+import { mm } from '@/lib/mm'
 
 interface Prediction {
   id: string; agent: string; horizon: string
@@ -62,7 +63,7 @@ export default function PredictionsPage() {
       <main className="max-w-5xl mx-auto px-4 py-6">
         {/* MM INTRO */}
         <div className="bg-gray-900 border border-pink-800 rounded-xl p-4 mb-4">
-          <p className="text-sm text-gray-200 leading-relaxed">Predictions သဎုး GNI ရို့ MAD agent ငရစ်ကြီးက BULLISH သို့မဿာ BEARISH အလို့ ခန့မှန်းချက်များဖြစ်သဎုး။ အပာအခြက် prediction တစ်ခုးစီကို verify_by ရက်သှိပြန်းပြီး အပာအခြက်သတ်ပြီးပြည့်သဎုး GPVS standard ဖြစ် accuracy score ရရသဎုး။ April 10၊ 2026 တွင့်် ပထမ GPVS verification ဖြစ်သဎုး။</p>
+          <p className="text-sm text-gray-200 leading-relaxed">{mm.predictions_intro}</p>
         </div>
         {/* COUNTDOWN */}
         <div className="bg-gray-900 border border-gray-700 rounded-xl p-3 sm:p-4 mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">

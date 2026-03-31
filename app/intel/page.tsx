@@ -2,6 +2,7 @@
 export const dynamic = "force-dynamic"
 import { useEffect, useState } from 'react'
 import Nav from '@/components/Nav'
+import { mm } from '@/lib/mm'
 
 interface Report {
   id: string; title: string; escalation_score: number; escalation_level: string
@@ -74,7 +75,7 @@ export default function IntelPage() {
       <main className="max-w-5xl mx-auto px-4 py-4">
         {/* MM DESCRIPTION */}
         <div className="bg-gray-900 border border-gray-700 rounded-xl p-4 mb-4">
-          <p className="text-sm text-gray-200 leading-relaxed">Full Intelligence သဎုး GNI Myanmar အပြည့်ဆုံး analysis hub ဖြစ်သဎုး။ Tab ဆ ခုးပါသဎုး -- Brief (သတင်းချက်ထုတ်စေး), Funnel (အပာအခြက်ရေးအဆောက်), Analysis (အမြေပံသကာအချက်ထုတ်စေး), Pillars (GEO/TECH/FIN ချဆြန်း), MAD (အကြေဆပ် agent ငရစ်ကြီးအဆြေးအနှင့်း verdict Myanmar ဘာသာ), နှင့် Predictions (GPVS ခန့မှန်းချက်) တို့ပါသဎုး။</p>
+          <p className="text-sm text-gray-200 leading-relaxed">{mm.intel_intro}</p>
         </div>
         {/* HUB DESCRIPTION */}
         <div className="bg-gray-900 border border-purple-800 rounded-xl p-4 mb-4">

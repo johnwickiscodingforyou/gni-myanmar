@@ -1,6 +1,7 @@
 "use client"
 import { useEffect, useState } from 'react'
 import Nav from '@/components/Nav'
+import { mm } from '@/lib/mm'
 import dynamic from 'next/dynamic'
 import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from 'recharts'
 
@@ -130,7 +131,7 @@ export default function Dashboard() {
       <main className="max-w-5xl mx-auto px-4 py-6">
         {/* HUB DESCRIPTION */}
         <div className="bg-gray-900 border border-blue-800 rounded-xl p-4 mb-4">
-          <p className="text-sm text-gray-200 leading-relaxed">GNI Myanmar သည် ကမ္ဘာ့ Geopolitics သတင်းအချက်အလက်များကို AI နည်ပညာဖြင့် ခွဲခြမ်းသပ်းဖြာပြီး Myanmar ဘာသာဖြင့် တင်ဆပြသည့် $0.00/month platform ဖြစ်သဎုး။ GNI_Autonomous မှ secure API ဖြင့် data ရယူပြီး Groq AI ဖြင့် တစ်နေ့ ၂ ကြီမ် update ဖြစ်သဎုး။ အပောက်ဆုံး section များတွင့် live reports၊ market data၊ news archive နှင့် MAD predictions များကို ကြည့်ေူပက်နိုင္။</p>
+          <p className="text-sm text-gray-200 leading-relaxed">{mm.dashboard_intro}</p>
         </div>
         {loading && (
           <div className="space-y-4 animate-pulse">

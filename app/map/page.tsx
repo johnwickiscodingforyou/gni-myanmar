@@ -1,6 +1,7 @@
 "use client"
 import { useEffect, useState } from 'react'
 import Nav from '@/components/Nav'
+import { mm } from '@/lib/mm'
 import dynamic from 'next/dynamic'
 
 const FullMap = dynamic(() => import('@/components/MiniMap'), { ssr: false })
@@ -50,7 +51,7 @@ export default function MapPage() {
       </header>
       <main className="max-w-5xl mx-auto px-4 py-4">
         <div className="bg-gray-900 border border-blue-800 rounded-xl p-4 mb-4">
-          <p className="text-sm text-gray-200 leading-relaxed">ကမ္ဘာ့အပေသဎုး GNI Myanmar အဒောက်ဆုံး geo-tagged articles ကို မြေပုံနှစ် pin တွင့်် ကြည့်ပြည့်သဎုး။ အပာအခြက် pin ကို နှစ်ကြည့်သဎုးအခါ Myanmar ဘာသာ brief ကို အပောက်သပြည့်ပါသဎုး။ အပာအခြက် article card ကို click ဖြစ်အချက် Myanmar brief ကို အပောက်သတွင့်် ဖြစ်ပါသဎုး။</p>
+          <p className="text-sm text-gray-200 leading-relaxed">{mm.map_intro}</p>
         </div>
         {loading && (
           <div className="space-y-4 animate-pulse">
