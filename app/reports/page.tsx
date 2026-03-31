@@ -79,11 +79,10 @@ export default function ReportsPage() {
               <div className="flex items-start justify-between gap-3 mb-3">
                 <h2 className="text-base font-bold text-white leading-snug">{r.title}</h2>
                 <div className="flex flex-col items-end gap-1 shrink-0">
-                  {r.escalation_level && (
-                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${escColor(r.escalation_level)}`}>
-                      {r.escalation_level}
-                    </span>
-                  )}
+                  {(() => {
+                    const lvl = r.escalation_level || (r.risk_level === 'High' ? 'HIGH' : r.risk_level === 'Critical' ? 'CRITICAL' : r.risk_level === 'Medium' ? 'MODERATE' : r.risk_level?.toUpperCase() || '')
+                    return lvl ? <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${escColor(lvl)}`}>{lvl}</span> : null
+                  })()}
                   <span className={`text-xs font-bold ${r.mad_verdict?.toLowerCase() === 'bearish' ? 'text-red-400' : 'text-green-400'}`}>
                     {r.mad_verdict?.toUpperCase()}
                   </span>
