@@ -37,7 +37,7 @@ export default function NewsPage() {
         <div className="max-w-5xl mx-auto px-4 py-4">
           <div className="mb-1">
             <h1 className="text-xl font-bold text-white">📰 News Archive</h1>
-            <p className="text-xs text-gray-400">365-day archive | Selected + Collected articles</p>
+            <p className="text-xs text-gray-400">What are the key articles driving GNI intelligence analysis?</p>
           </div>
           <a href="/" className="inline-block mt-2 mb-1 text-xs text-blue-400 border border-blue-800 rounded px-3 py-1 hover:bg-blue-950 transition-colors">← Dashboard</a>
           <Nav />

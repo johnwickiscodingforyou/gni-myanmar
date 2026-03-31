@@ -46,7 +46,7 @@ export default function HealthPage() {
           <div className="flex items-center justify-between mb-1">
             <div>
               <h1 className="text-xl font-bold text-white">🏥 Health</h1>
-              <p className="text-xs text-gray-400">System self-check | All GNI Myanmar systems</p>
+              <p className="text-xs text-gray-400">Is GNI Myanmar running correctly right now?</p>
             </div>
             {health && (
               <div className={`flex items-center gap-2 text-sm font-bold ${health.status === 'healthy' ? 'text-green-400' : 'text-red-400'}`}>

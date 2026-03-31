@@ -53,7 +53,7 @@ export default function ReportsPage() {
           <div className="flex items-center justify-between mb-1">
             <div>
               <h1 className="text-xl font-bold text-white">📋 Intelligence Reports</h1>
-              <p className="text-xs text-gray-400">Intelligence Reports Archive | {reports.length} reports</p>
+              <p className="text-xs text-gray-400">What has GNI reported and what escalation trends are emerging?</p>
             </div>
           </div>
           <a href="/" className="inline-block mt-2 mb-1 text-xs text-blue-400 border border-blue-800 rounded px-3 py-1 hover:bg-blue-950 transition-colors">← Dashboard</a>
