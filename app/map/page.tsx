@@ -49,7 +49,16 @@ export default function MapPage() {
         </div>
       </header>
       <main className="max-w-5xl mx-auto px-4 py-4">
-        {loading && <div className="text-center py-20 text-gray-400">Loading map...</div>}
+        {loading && (
+          <div className="space-y-4 animate-pulse">
+              <div className="bg-gray-800 rounded-xl w-full" style={{height:"500px"}}></div>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="bg-gray-800 rounded-xl h-20"></div>
+                <div className="bg-gray-800 rounded-xl h-20"></div>
+                <div className="bg-gray-800 rounded-xl h-20"></div>
+              </div>
+            </div>
+        )}
         {!loading && (
           <>
             <div className="bg-gray-900 border border-gray-700 rounded-xl overflow-hidden mb-4" style={{ height: '500px' }}>

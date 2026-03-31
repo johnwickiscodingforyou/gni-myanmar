@@ -128,7 +128,17 @@ export default function Dashboard() {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-6">
-        {loading && <div className="text-center py-20 text-gray-400">Loading...</div>}
+        {loading && (
+          <div className="space-y-4 animate-pulse">
+              <div className="bg-gray-800 rounded-xl h-32 w-full"></div>
+              <div className="bg-gray-800 rounded-xl h-24 w-full"></div>
+              <div className="bg-gray-800 rounded-xl h-24 w-full"></div>
+              <div className="flex gap-3">
+                <div className="bg-gray-800 rounded-xl h-16 flex-1"></div>
+                <div className="bg-gray-800 rounded-xl h-16 flex-1"></div>
+              </div>
+            </div>
+        )}
 
         {!loading && latest && (
           <>

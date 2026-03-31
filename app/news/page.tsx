@@ -48,7 +48,13 @@ export default function NewsPage() {
             <div className="text-sm font-bold text-white">GNI ရွေးချယ်ထားသော သတင်းများ / Selected Articles</div>
             <span className="text-xs text-amber-400 border border-amber-800 rounded px-2 py-0.5">{selected.length} articles</span>
           </div>
-          {loadingSel && <div className="text-xs text-gray-500 py-4">Loading...</div>}
+          {loadingSel && (
+          <div className="space-y-2 animate-pulse">
+              <div className="bg-gray-800 rounded-xl h-12 w-full"></div>
+              <div className="bg-gray-800 rounded-xl h-12 w-full"></div>
+              <div className="bg-gray-800 rounded-xl h-12 w-3/4"></div>
+            </div>
+          )}
           <div className="space-y-3">
             {selected.map(a => (
               <div key={a.id} className="bg-gray-900 border border-amber-900 rounded-xl p-4">
@@ -81,7 +87,13 @@ export default function NewsPage() {
             <div className="text-sm font-bold text-white">စုဆောင်းထားသော သတင်းများ / Collected Articles</div>
             <span className="text-xs text-gray-400 border border-gray-700 rounded px-2 py-0.5">{allCollected.length} articles</span>
           </div>
-          {loadingAll && <div className="text-xs text-gray-500 py-4">Loading...</div>}
+          {loadingAll && (
+          <div className="space-y-2 animate-pulse">
+              <div className="bg-gray-800 rounded-xl h-12 w-full"></div>
+              <div className="bg-gray-800 rounded-xl h-12 w-full"></div>
+              <div className="bg-gray-800 rounded-xl h-12 w-3/4"></div>
+            </div>
+          )}
           <div className="bg-gray-900 border border-gray-700 rounded-xl overflow-hidden">
             {(showAll ? allCollected : allCollected.slice(0, 30)).map((a, i) => (
               <div key={a.id} className={`flex items-start gap-3 px-4 py-3 ${i % 2 === 0 ? 'bg-gray-900' : 'bg-gray-800'} hover:bg-gray-700 transition-colors border-b border-gray-800`}>
