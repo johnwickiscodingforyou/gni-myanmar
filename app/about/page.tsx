@@ -58,7 +58,7 @@ export default function AboutPage() {
           {[
             { value: '30+',    label: 'Pipeline runs' },
             { value: '7,000+', label: 'Articles analysed' },
-            { value: '30+',    label: 'Reports generated' },
+            { value: '10+',    label: 'Reports generated' },
             { value: '100%',   label: 'GPVS accuracy' },
             { value: '66',     label: 'Injection patterns' },
             { value: '17',     label: 'Sprint days' },
@@ -197,12 +197,12 @@ export default function AboutPage() {
         </div>
 
         <div className="bg-yellow-950 border border-yellow-800 rounded-xl p-4">
-          <p className="text-yellow-200 text-xs">Disclaimer: GNI reports are for informational purposes only and do not constitute financial advice. Higher Diploma in Computer Science | Spring University Myanmar (SUM) | Team Geeks</p>
+          <p className="text-yellow-200 text-xs">Disclaimer: GNI reports are for informational purposes only. Not financial advice. Higher Diploma in Computer Science | Spring University Myanmar (SUM)</p>
         </div>
 
       </main>
       <footer className="border-t border-gray-800 mt-8">
-        <div className="max-w-5xl mx-auto px-4 py-4 text-center text-xs text-gray-600">About GNI Myanmar | Higher Diploma in Computer Science | Spring University Myanmar (SUM)</div>
+        <div className="max-w-5xl mx-auto px-4 py-4 text-center text-xs text-gray-600">Global Nexus Insights Myanmar | Higher Diploma in Computer Science | Spring University Myanmar (SUM)</div>
       </footer>
     </div>
   )

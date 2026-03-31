@@ -2,6 +2,7 @@
 export const dynamic = "force-dynamic"
 import { useEffect, useState } from 'react'
 import Nav from '@/components/Nav'
+import { mm } from '@/lib/mm'
 
 interface HealthData {
   status: string
@@ -58,6 +59,9 @@ export default function HealthPage() {
         </div>
       </header>
       <main className="max-w-5xl mx-auto px-4 py-6">
+        <div className="bg-gray-900 border border-gray-700 rounded-xl p-4 mb-4">
+          <p className="text-sm text-gray-200 leading-relaxed">{mm.health_intro}</p>
+        </div>
         {loading && <div className="text-center py-20 text-gray-400">Running health checks...</div>}
         {health && (
           <>

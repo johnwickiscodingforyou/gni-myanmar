@@ -106,7 +106,7 @@ export default function MarketPage() {
       </main>
       <div className="max-w-5xl mx-auto px-4 pb-4">
         <div className="bg-yellow-950 border border-yellow-800 rounded-xl p-3">
-          <p className="text-xs text-yellow-300">Disclaimer: Market data is for informational purposes only. Not financial advice.</p>
+          <p className="text-xs text-yellow-300">Disclaimer: GNI reports are for informational purposes only. Not financial advice. Higher Diploma in Computer Science | Spring University Myanmar (SUM)</p>
         </div>
       </div>
       <footer className="border-t border-gray-800 mt-4">
