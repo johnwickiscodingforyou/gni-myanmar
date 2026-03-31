@@ -22,6 +22,15 @@ interface PipelineRun { articles_collected: number; articles_after_funnel: numbe
 
 const TABS = ['Brief', 'Funnel', 'Analysis', 'Pillars', 'MAD', 'Predictions']
 
+const CARDS = [
+  { num: '01', emoji: '🗞️', label: 'Brief',       desc: 'Myanmar 30-second intel brief and plain narrative summary.',       t: 0, c: 'border-amber-800 text-amber-400' },
+  { num: '02', emoji: '🔬', label: 'Funnel',      desc: 'Article funnel — collected, filtered, and selected counts.',       t: 1, c: 'border-blue-800 text-blue-400' },
+  { num: '03', emoji: '📊', label: 'Analysis',    desc: 'Primary analysis with escalation score and confidence interval.',  t: 2, c: 'border-purple-800 text-purple-400' },
+  { num: '04', emoji: '🏛️', label: 'Pillars',     desc: 'GEO, TECH, FIN pillar breakdown with Myanmar translations.',      t: 3, c: 'border-green-800 text-green-400' },
+  { num: '05', emoji: '🤖', label: 'MAD',         desc: 'Multi-agent debate verdict and Myanmar analysis.',                t: 4, c: 'border-red-800 text-red-400' },
+  { num: '06', emoji: '🎯', label: 'Predictions', desc: 'GPVS forecast — first verification April 10, 2026.',              t: 5, c: 'border-teal-800 text-teal-400' },
+]
+
 export default function IntelPage() {
   const [report, setReport] = useState<Report | null>(null)
   const [pillars, setPillars] = useState<Pillar[]>([])
@@ -78,23 +87,38 @@ export default function IntelPage() {
         <div className="bg-gray-900 border border-gray-700 rounded-xl p-4 mb-4">
           <p className="text-sm text-gray-200 leading-relaxed">{mm.intel_intro}</p>
         </div>
-        {/* HUB DESCRIPTION */}
-        <div className="bg-gray-900 border border-purple-800 rounded-xl p-4 mb-4">
-          <p className="text-sm text-gray-200 leading-relaxed">Full Intelligence သည် GNI Myanmar အပြည့်ဆုံး analysis hub ဖြစ်သဎုး။ Tab ၆ ခုပါဝင်သဎုး -- Brief (Myanmar ဘာသာ သတင်းချက်ထုတ်စေး), Funnel (အပာအခြက်ရေးတွက်လပ်သဎုးကို သိုးသဎုးကိုပြ), Analysis (အမြေပံသကာအချက်ထုတ်စေး), Pillars (GEO/TECH/FIN ချဆြန်းခွေ), MAD (Myanmar ဘာသာ agent ၄ ဦးအကြေဆပ် debate verdict), နှင့် Predictions (GPVS forecast) တို့ပါသဎုး။</p>
-        </div>
         {loading && (
           <div className="space-y-4 animate-pulse">
-              <div className="bg-gray-800 rounded-xl h-32 w-full"></div>
-              <div className="bg-gray-800 rounded-xl h-24 w-full"></div>
-              <div className="bg-gray-800 rounded-xl h-24 w-full"></div>
-              <div className="flex gap-3">
-                <div className="bg-gray-800 rounded-xl h-16 flex-1"></div>
-                <div className="bg-gray-800 rounded-xl h-16 flex-1"></div>
-              </div>
+            <div className="bg-gray-800 rounded-xl h-32 w-full"></div>
+            <div className="bg-gray-800 rounded-xl h-24 w-full"></div>
+            <div className="bg-gray-800 rounded-xl h-24 w-full"></div>
+            <div className="flex gap-3">
+              <div className="bg-gray-800 rounded-xl h-16 flex-1"></div>
+              <div className="bg-gray-800 rounded-xl h-16 flex-1"></div>
             </div>
+          </div>
         )}
         {!loading && report && (
           <>
+            {/* INTEL CARD GRID */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+              {CARDS.map(({ num, emoji, label, desc, t, c }) => (
+                <button key={num} onClick={() => setTab(t)}
+                  className={[
+                    'bg-gray-900 border rounded-xl p-3 text-left hover:bg-gray-800 transition-colors',
+                    c,
+                    tab === t ? 'ring-1 ring-purple-500' : ''
+                  ].join(' ')}>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs text-gray-600 font-mono">{num}</span>
+                    <span className="text-base">{emoji}</span>
+                    <span className={'text-xs font-bold ' + c.split(' ')[1]}>{label}</span>
+                    <span className="text-xs text-green-600 ml-auto">LIVE</span>
+                  </div>
+                  <p className="text-xs text-gray-500 leading-relaxed">{desc}</p>
+                </button>
+              ))}
+            </div>
             {/* TAB BAR */}
             <div className="flex gap-2 mb-4 flex-wrap">
               {TABS.map((t, i) => (
