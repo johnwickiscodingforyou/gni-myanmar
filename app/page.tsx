@@ -200,7 +200,7 @@ export default function Dashboard() {
               </section>
             )}
 
-{/* ESCALATION HERO */}
+            {/* ESCALATION HERO */}
             <section className="mb-4">
               <div className={`rounded-xl border p-5 ${escColor(latest.escalation_level)}`}>
                 <div className="flex items-center justify-between mb-3">
@@ -267,6 +267,44 @@ export default function Dashboard() {
                     <a href="/market" className="text-xs text-amber-400 border border-amber-800 rounded px-2 py-0.5">Markets</a>
                   </div>
                   <div style={{ height: '220px' }}><MiniChart /></div>
+                </div>
+              </div>
+            </section>
+
+            {/* PIPELINE vs MAD STRIP — QS style */}
+            <section className="mb-4">
+              <div className="bg-gray-900 border border-gray-700 rounded-xl p-3">
+                <div className="flex items-center justify-between flex-wrap gap-3">
+                  <div className="flex items-center gap-4 flex-wrap">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-gray-500 uppercase tracking-wider">Pipeline:</span>
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded ${
+                        latest.sentiment?.toLowerCase() === 'bearish' ? 'bg-red-900 text-red-300' :
+                        latest.sentiment?.toLowerCase() === 'bullish' ? 'bg-green-900 text-green-300' :
+                        'bg-gray-700 text-gray-300'
+                      }`}>{latest.sentiment?.toUpperCase() || 'N/A'}</span>
+                    </div>
+                    <span className="text-gray-700">|</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-gray-500 uppercase tracking-wider">MAD:</span>
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded ${
+                        latest.mad_verdict?.toLowerCase() === 'bearish' ? 'bg-red-900 text-red-300' :
+                        latest.mad_verdict?.toLowerCase() === 'bullish' ? 'bg-green-900 text-green-300' :
+                        'bg-gray-700 text-gray-300'
+                      }`}>{latest.mad_verdict?.toUpperCase() || 'PENDING'}</span>
+                    </div>
+                    <span className="text-gray-700">|</span>
+                    {isDivergence ? (
+                      <span className="text-xs font-bold text-yellow-400 flex items-center gap-1">
+                        ⚠️ DIVERGENCE
+                      </span>
+                    ) : (
+                      <span className="text-xs font-bold text-green-400 flex items-center gap-1">
+                        ✅ ALIGNED
+                      </span>
+                    )}
+                  </div>
+                  <a href="/intel" className="text-xs text-blue-400 border border-blue-800 rounded px-3 py-1 hover:bg-blue-950 transition-colors">See Full Intel →</a>
                 </div>
               </div>
             </section>
