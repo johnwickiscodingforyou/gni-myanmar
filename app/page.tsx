@@ -114,7 +114,7 @@ export default function Dashboard() {
         <div className="max-w-5xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between mb-1">
             <div>
-              <h1 className="text-xl font-bold text-white">🌐 GNI Myanmar</h1>
+              <h1 className="text-2xl md:text-3xl font-bold text-white">🌐 GNI Myanmar</h1>
               <p className="text-xs text-gray-400">What is happening in the world right now, and what does it mean for Myanmar?</p>
             </div>
             {latest && (
@@ -131,7 +131,7 @@ export default function Dashboard() {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-6">
-        {/* HUB DESCRIPTION — mm.ts only, no duplicate */}
+        {/* HUB DESCRIPTION */}
         <div className="bg-gray-900 border border-blue-800 rounded-xl p-4 mb-4">
           <p className="text-sm text-gray-200 leading-relaxed">{mm.dashboard_intro}</p>
         </div>
@@ -221,6 +221,31 @@ export default function Dashboard() {
               </section>
             )}
 
+            {/* MAP + CHART — moved up for visual impact */}
+            <section className="mb-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-gray-900 border border-gray-700 rounded-xl overflow-hidden">
+                  <div className="flex items-center justify-between px-4 py-2 border-b border-gray-700">
+                    <div className="text-xs font-bold text-white">ကမ္ဘာ့ပြဒါး / World Map</div>
+                    <a href="/map" className="text-xs text-blue-400 border border-blue-800 rounded px-2 py-0.5">Full Map</a>
+                  </div>
+                  <div style={{ height: '220px' }}>
+                    {mapEvents.length > 0
+                      ? <MiniMap events={mapEvents.slice(0, 20)} height="220px" />
+                      : <div className="flex items-center justify-center h-full text-xs text-gray-600">Loading map...</div>
+                    }
+                  </div>
+                </div>
+                <div className="bg-gray-900 border border-gray-700 rounded-xl overflow-hidden">
+                  <div className="flex items-center justify-between px-4 py-2 border-b border-gray-700">
+                    <div className="text-xs font-bold text-white">Bitcoin — 1 Year</div>
+                    <a href="/market" className="text-xs text-amber-400 border border-amber-800 rounded px-2 py-0.5">Markets</a>
+                  </div>
+                  <div style={{ height: '220px' }}><MiniChart /></div>
+                </div>
+              </div>
+            </section>
+
             {/* DIVERGENCE SIGNAL */}
             {isDivergence && (
               <section className="mb-4">
@@ -238,7 +263,6 @@ export default function Dashboard() {
             <section className="mb-4">
               <div className="text-xs text-gray-500 uppercase tracking-wider mb-2">MAD စီရင်ချက် / MAD Verdict</div>
               <div className="bg-gray-900 border border-gray-700 rounded-xl p-4">
-                {/* Verdict + confidence progress bar */}
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     <span className={['text-base font-bold px-4 py-1.5 rounded-full border shrink-0', vc.badge].join(' ')}>
@@ -256,23 +280,18 @@ export default function Dashboard() {
                   </div>
                   <a href="/intel" className="text-xs text-blue-400 border border-blue-800 rounded px-3 py-1 ml-3 shrink-0">Full Intel</a>
                 </div>
-
-                {/* ACTION RECOMMENDATION — English label only */}
                 {latest.mad_action_recommendation && (
                   <div className="bg-blue-950 border border-blue-800 rounded-lg p-3 mb-3">
                     <div className="text-xs text-blue-400 font-bold uppercase tracking-wider mb-1">Action Recommendation</div>
                     <p className="text-sm text-white leading-relaxed">{latest.mad_action_recommendation}</p>
                   </div>
                 )}
-
-                {/* BLIND SPOT — English label only */}
                 {latest.mad_blind_spot && (
                   <div className="bg-purple-950 border border-purple-800 rounded-lg p-3 mb-3">
                     <div className="text-xs text-purple-400 font-bold uppercase tracking-wider mb-1">Blind Spot</div>
                     <p className="text-xs text-gray-300 leading-relaxed">{latest.mad_blind_spot}</p>
                   </div>
                 )}
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {latest.mad_black_swan_case && (
                     <div className="bg-gray-800 border border-gray-700 rounded-lg p-3">
@@ -299,31 +318,6 @@ export default function Dashboard() {
                 </div>
               </section>
             )}
-
-            {/* MAP + CHART */}
-            <section className="mb-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-gray-900 border border-gray-700 rounded-xl overflow-hidden">
-                  <div className="flex items-center justify-between px-4 py-2 border-b border-gray-700">
-                    <div className="text-xs font-bold text-white">ကမ္ဘာ့ပြဒါး / World Map</div>
-                    <a href="/map" className="text-xs text-blue-400 border border-blue-800 rounded px-2 py-0.5">Full Map</a>
-                  </div>
-                  <div style={{ height: '220px' }}>
-                    {mapEvents.length > 0
-                      ? <MiniMap events={mapEvents.slice(0, 20)} height="220px" />
-                      : <div className="flex items-center justify-center h-full text-xs text-gray-600">Loading map...</div>
-                    }
-                  </div>
-                </div>
-                <div className="bg-gray-900 border border-gray-700 rounded-xl overflow-hidden">
-                  <div className="flex items-center justify-between px-4 py-2 border-b border-gray-700">
-                    <div className="text-xs font-bold text-white">Bitcoin — 1 Year</div>
-                    <a href="/market" className="text-xs text-amber-400 border border-amber-800 rounded px-2 py-0.5">Markets</a>
-                  </div>
-                  <div style={{ height: '220px' }}><MiniChart /></div>
-                </div>
-              </div>
-            </section>
 
             {/* LATEST REPORT */}
             <section className="mb-4">
