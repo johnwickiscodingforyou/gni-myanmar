@@ -47,10 +47,10 @@ export default function MiniMap({ events, height = '220px' }: Props) {
                         ev.bias?.toLowerCase() === 'bullish' ? '#22c55e' : '#3b82f6'
 
           const circleIcon = L.divIcon({
-            html: `<div style="width:10px;height:10px;border-radius:50%;background:${color};border:2px solid white;box-shadow:0 0 4px rgba(0,0,0,0.5)"></div>`,
+            html: `<div style="width:12px;height:12px;border-radius:50%;background:${color};border:2px solid rgba(255,255,255,0.8);box-shadow:0 0 6px ${color},0 0 12px ${color}40"></div>`,
             className: '',
-            iconSize: [10, 10],
-            iconAnchor: [5, 5],
+            iconSize: [12, 12],
+            iconAnchor: [6, 6],
           })
 
           L.marker([ev.lat, ev.lng], { icon: circleIcon })

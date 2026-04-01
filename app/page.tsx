@@ -313,19 +313,22 @@ export default function Dashboard() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-gray-900 border border-gray-700 rounded-xl overflow-hidden">
                   <div className="flex items-center justify-between px-4 py-2 border-b border-gray-700">
-                    <div className="text-xs font-bold text-white">ကမ္ဘာ့ပြဒါး / World Map</div>
-                    <a href="/map" className="text-xs text-blue-400 border border-blue-800 rounded px-2 py-0.5">Full Map</a>
+                    <div className="text-xs font-bold text-white">Geopolitical Event Map</div>
+                    <div className="flex items-center gap-2">
+  {mapEvents.length > 0 && <span className="text-xs text-gray-500">{mapEvents.length} events</span>}
+  <a href="/map" className="text-xs text-blue-400 border border-blue-800 rounded px-2 py-0.5">Full Map</a>
+</div>
                   </div>
                   <div style={{ height: '220px' }}>
                     {mapEvents.length > 0
-                      ? <MiniMap events={mapEvents.slice(0, 20)} height="220px" />
-                      : <div className="flex items-center justify-center h-full text-xs text-gray-600">Loading map...</div>
+                      ? <MiniMap events={mapEvents.slice(0, 50)} height="220px" />
+                      : <div className="flex items-center justify-center h-full"><span className="animate-pulse text-xs text-gray-600">Loading map data...</span></div>
                     }
                   </div>
                 </div>
                 <div className="bg-gray-900 border border-gray-700 rounded-xl overflow-hidden">
                   <div className="flex items-center justify-between px-4 py-2 border-b border-gray-700">
-                    <div className="text-xs font-bold text-white">Bitcoin — 1 Year</div>
+                    <div className="text-xs font-bold text-white">Bitcoin — 10 Year</div>
                     <a href="/market" className="text-xs text-amber-400 border border-amber-800 rounded px-2 py-0.5">Markets</a>
                   </div>
                   <div style={{ height: '220px' }}><MiniChart /></div>

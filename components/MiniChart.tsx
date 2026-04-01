@@ -10,7 +10,7 @@ export default function MiniChart() {
   const [pct, setPct] = useState<string | null>(null)
 
   useEffect(() => {
-    fetch('/api/stocks?ticker=BTC-USD&range=1y')
+    fetch('/api/stocks?ticker=BTC-USD&range=max')
       .then(r => r.json())
       .then(d => {
         if (d.chartData) {
@@ -43,8 +43,8 @@ export default function MiniChart() {
           <AreaChart data={data} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="btcGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.4} />
-                <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
+                <stop offset="5%" stopColor="#f7931a" stopOpacity={0.4} />
+                <stop offset="95%" stopColor="#f7931a" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
@@ -54,7 +54,7 @@ export default function MiniChart() {
               tickFormatter={v => '$' + (v/1000).toFixed(0) + 'k'} width={36} domain={['auto','auto']} />
             <Tooltip contentStyle={{ backgroundColor: '#111827', border: '1px solid #374151', borderRadius: '8px', fontSize: '10px' }}
               formatter={(v) => ['$' + Number(v).toLocaleString(), 'BTC']} />
-            <Area type="monotone" dataKey="close" stroke="#f59e0b" strokeWidth={2} fill="url(#btcGrad)" dot={false} />
+            <Area type="monotone" dataKey="close" stroke="#f7931a" strokeWidth={2} fill="url(#btcGrad)" dot={false} />
           </AreaChart>
         </ResponsiveContainer>
       </div>
