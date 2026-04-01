@@ -12,6 +12,12 @@ interface Prediction {
   created_at: string; report_id: string
 }
 
+interface PredMM {
+  myanmar_brief: string
+  translation_provider: string
+  cached: boolean
+}
+
 function safeDate(d: string | null) {
   if (!d) return 'TBD'
   const dt = new Date(d)
@@ -27,6 +33,82 @@ function daysUntil(d: string | null) {
   return days > 0 ? days : null
 }
 
+function PredictionCard({ p }: { p: Prediction }) {
+  const [mmData, setMmData] = useState<PredMM | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [shown, setShown] = useState(false)
+  const days = daysUntil(p.verify_by)
+
+  const tgLink = (text: string) =>
+    `https://t.me/share/url?url=${encodeURIComponent('https://gni-myanmar.vercel.app/predictions')}&text=${encodeURIComponent(text)}`
+
+  async function handleShowMM() {
+    if (shown && mmData) { setShown(false); return }
+    if (mmData) { setShown(true); return }
+    setLoading(true)
+    setShown(true)
+    try {
+      const res = await fetch('/api/translate-prediction', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prediction_id: p.id, prediction_text: p.prediction })
+      })
+      const data = await res.json()
+      if (data.myanmar_brief) setMmData(data)
+    } catch {}
+    setLoading(false)
+  }
+
+  return (
+    <div className="bg-gray-900 border border-gray-700 rounded-xl p-3">
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-blue-900 text-blue-300">{p.agent?.toUpperCase() || 'AGENT'}</span>
+          {p.horizon && <span className="text-xs text-gray-500">{p.horizon}</span>}
+        </div>
+        <div className="text-right">
+          <div className="text-xs text-amber-400">{days ? `${days}d` : safeDate(p.verify_by)}</div>
+        </div>
+      </div>
+
+      {/* English prediction */}
+      {p.prediction && (
+        <p className="text-xs text-gray-300 mt-1 mb-3 leading-relaxed">{p.prediction}</p>
+      )}
+
+      {/* Myanmar toggle */}
+      <div>
+        <button
+          onClick={handleShowMM}
+          className="text-xs text-amber-400 hover:text-amber-300 border border-amber-800 rounded px-2 py-0.5 mb-2 transition-colors">
+          {shown ? 'Hide Myanmar' : 'Show Myanmar'}
+        </button>
+
+        {shown && loading && (
+          <div className="flex items-center gap-2 mt-1">
+            <span className="text-xs text-amber-500 border border-amber-800 rounded px-2 py-0.5 animate-pulse">
+              Myanmar Translation on the way...
+            </span>
+          </div>
+        )}
+
+        {shown && !loading && mmData && (
+          <div className="bg-amber-950 border border-amber-800 rounded-lg p-3 mt-1">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-xs font-bold text-amber-400">MM</span>
+              <span className="text-xs text-green-600 border border-green-800 rounded px-1.5 py-0.5">Translated</span>
+              <span className="text-xs text-gray-600 border border-gray-700 rounded px-1.5 py-0.5">{mmData.translation_provider.toUpperCase()}</span>
+            </div>
+            <p className="text-xs text-amber-100 leading-relaxed">{mmData.myanmar_brief}</p>
+            
+              <a href={tgLink(mmData.myanmar_brief)} target="_blank" rel="noopener noreferrer" className="inline-block mt-2 text-xs text-blue-400 border border-blue-800 rounded px-2 py-0.5 hover:bg-blue-950">Share to Telegram</a>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export default function PredictionsPage() {
   const [predictions, setPredictions] = useState<Prediction[]>([])
   const [loading, setLoading] = useState(true)
@@ -40,8 +122,8 @@ export default function PredictionsPage() {
 
   const pending  = predictions.filter(p => !p.verified_at)
   const verified = predictions.filter(p => p.verified_at)
-  const correctCount  = verified.filter(p => p.accurate === true).length
-  const accuracyPct   = verified.length >= 5 ? Math.round(correctCount / verified.length * 100) : null
+  const correctCount = verified.filter(p => p.accurate === true).length
+  const accuracyPct  = verified.length >= 5 ? Math.round(correctCount / verified.length * 100) : null
 
   return (
     <div className="min-h-screen bg-gray-950">
@@ -62,11 +144,9 @@ export default function PredictionsPage() {
         </div>
       </header>
       <main className="max-w-5xl mx-auto px-4 py-6">
-        {/* MM INTRO */}
         <div className="bg-gray-900 border border-pink-800 rounded-xl p-4 mb-4">
           <p className="text-sm text-gray-200 leading-relaxed">{mm.predictions_intro}</p>
         </div>
-        {/* COUNTDOWN */}
         <div className="bg-gray-900 border border-gray-700 rounded-xl p-3 sm:p-4 mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
             <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Next GPVS Verification</div>
@@ -104,23 +184,9 @@ export default function PredictionsPage() {
           <section className="mb-6">
             <div className="text-xs text-gray-500 uppercase tracking-wider mb-3">စစ်ဆေးစောင့်ဆိုင်းဆဲ / Pending ({pending.length})</div>
             <div className="space-y-2">
-              {pending.slice(0, 30).map(p => {
-                const days = daysUntil(p.verify_by)
-                return (
-                  <div key={p.id} className="bg-gray-900 border border-gray-700 rounded-xl p-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-blue-900 text-blue-300">{p.agent?.toUpperCase() || 'AGENT'}</span>
-                        {p.horizon && <span className="text-xs text-gray-500">{p.horizon}</span>}
-                      </div>
-                      <div className="text-right">
-                        <div className="text-xs text-amber-400">{days ? `${days}d` : safeDate(p.verify_by)}</div>
-                      </div>
-                    </div>
-                    {p.prediction && <p className="text-xs text-gray-400 mt-2 leading-relaxed">{p.prediction.slice(0, 120)}...</p>}
-                  </div>
-                )
-              })}
+              {pending.slice(0, 30).map(p => (
+                <PredictionCard key={p.id} p={p} />
+              ))}
             </div>
           </section>
         )}
@@ -147,7 +213,6 @@ export default function PredictionsPage() {
         )}
       </main>
       <div className="max-w-5xl mx-auto px-4 pb-4">
-        {/* FUTURE ROADMAP */}
         <div className="bg-gray-900 border border-gray-700 rounded-xl p-5 mb-4">
           <div className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-3">Coming as GPVS Accumulates</div>
           <div className="space-y-3">
