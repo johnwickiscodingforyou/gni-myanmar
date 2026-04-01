@@ -175,7 +175,32 @@ export default function Dashboard() {
               </div>
             </section>
 
-            {/* ESCALATION HERO */}
+            {/* MONITORING BADGE — QS style */}
+            {latest.mad_action_recommendation && (
+              <section className="mb-4">
+                <div className={`rounded-xl border p-3 flex items-center justify-between gap-3 flex-wrap ${
+                  latest.escalation_level?.toUpperCase() === 'CRITICAL' ? 'bg-red-950 border-red-700' :
+                  latest.escalation_level?.toUpperCase() === 'HIGH'     ? 'bg-orange-950 border-orange-700' :
+                  latest.escalation_level?.toUpperCase() === 'ELEVATED' ? 'bg-yellow-950 border-yellow-700' :
+                  'bg-green-950 border-green-700'
+                }`}>
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <span className={`text-xs font-bold px-3 py-1 rounded-full shrink-0 ${
+                      latest.escalation_level?.toUpperCase() === 'CRITICAL' ? 'bg-red-600 text-white' :
+                      latest.escalation_level?.toUpperCase() === 'HIGH'     ? 'bg-orange-600 text-white' :
+                      latest.escalation_level?.toUpperCase() === 'ELEVATED' ? 'bg-yellow-600 text-white' :
+                      'bg-green-600 text-white'
+                    }`}>
+                      {latest.escalation_level?.toUpperCase() || 'MONITORING'}
+                    </span>
+                    <p className="text-xs text-gray-200 leading-relaxed truncate">{latest.mad_action_recommendation}</p>
+                  </div>
+                  <a href="/intel" className="text-xs text-blue-400 border border-blue-800 rounded px-3 py-1 shrink-0 hover:bg-blue-950 transition-colors">Full Intel →</a>
+                </div>
+              </section>
+            )}
+
+{/* ESCALATION HERO */}
             <section className="mb-4">
               <div className={`rounded-xl border p-5 ${escColor(latest.escalation_level)}`}>
                 <div className="flex items-center justify-between mb-3">
