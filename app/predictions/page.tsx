@@ -54,7 +54,7 @@ export default function PredictionsPage() {
             </div>
             <div className="text-xs text-gray-400 text-right">
               <div><span className="text-amber-400 font-bold">{pending.length}</span> pending</div>
-              <div><span className="text-green-400 font-bold">{verified.length}</span> verified</div>
+              <div><span className="text-green-400 font-bold">{verified.length === 0 ? 'Verification begins April 10, 2026' : verified.length + ' verified'}</span></div>
             </div>
           </div>
           <a href="/" className="inline-block mt-2 mb-1 text-xs text-blue-400 border border-blue-800 rounded px-3 py-1 hover:bg-blue-950 transition-colors">← Dashboard</a>

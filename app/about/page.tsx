@@ -60,7 +60,7 @@ export default function AboutPage() {
             { value: '30+',    label: 'Pipeline runs' },
             { value: '7,000+', label: 'Articles analysed' },
             { value: '10+',    label: 'Reports generated' },
-            { value: '100%',   label: 'GPVS accuracy' },
+            { value: '100%',   label: 'GPVS accuracy (3 verified)' },
             { value: '66',     label: 'Injection patterns' },
             { value: '17',     label: 'Sprint days' },
           ].map(({ value, label }) => (
