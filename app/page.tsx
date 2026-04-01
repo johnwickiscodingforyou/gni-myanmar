@@ -257,7 +257,7 @@ export default function Dashboard() {
                     </span>
                     <p className="text-xs text-gray-200 leading-relaxed truncate">{latest.mad_action_recommendation}</p>
                   </div>
-                  <a href="/intel" className="text-xs text-blue-400 border border-blue-800 rounded px-3 py-1 shrink-0 hover:bg-blue-950 transition-colors">Full Intel →</a>
+                  <a href="/brief" className="text-xs text-amber-400 border border-amber-800 rounded px-3 py-1 shrink-0 hover:bg-amber-950 transition-colors">30-sec Brief →</a>
                 </div>
               </section>
             )}
