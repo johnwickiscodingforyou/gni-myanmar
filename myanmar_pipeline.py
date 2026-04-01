@@ -882,8 +882,25 @@ def run():
             'mad_mm':             mad_mm,
             'brief_mm':           brief_mm,
             'pipeline_success':   True,
+            'mad_r1_bull':        mad_r1.get('BULL_R1'),
+            'mad_r1_bear':        mad_r1.get('BEAR_R1'),
+            'mad_r1_swan':        mad_r1.get('SWAN_R1'),
+            'mad_r1_ostrich':     mad_r1.get('OSTRICH_R1'),
+            'mad_arb1':           arb1.get('1'),
+            'mad_r2_bull':        mad_r2.get('BULL_R2'),
+            'mad_r2_bear':        mad_r2.get('BEAR_R2'),
+            'mad_r2_swan':        mad_r2.get('SWAN_R2'),
+            'mad_r2_ostrich':     mad_r2.get('OSTRICH_R2'),
+            'mad_arb2':           arb2.get('2'),
+            'mad_r3_bull':        mad_r3.get('BULL_R3'),
+            'mad_r3_bear':        mad_r3.get('BEAR_R3'),
+            'mad_r3_swan':        mad_r3.get('SWAN_R3'),
+            'mad_r3_ostrich':     mad_r3.get('OSTRICH_R3'),
+            'mad_verdict_mm':     mad_r3.get('VERDICT'),
+            'mad_translation_status':   'translated' if mad_r3.get('VERDICT') else 'pending',
+            'mad_translation_provider': r3_prov or r1_prov or None,
         }).execute()
-        log('  OK: debate_summaries saved')
+        log('  OK: debate_summaries saved — all 3 rounds + arbitrators')
     except Exception as e:
         log(f'  ERROR: {e}')
 
