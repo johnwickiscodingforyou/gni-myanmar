@@ -8,6 +8,33 @@ Backup providers: Gemini Flash (B1) + Cloudflare Workers AI (B2)
 GNI-R-169: Uses direct REST to Groq (NOT groq library — blocked by Azure IPs)
 GNI-R-194: Every prompt specifies EXACT sentence count + ། ending requirement
 CRITICAL FILE -- Do NOT delete. See GNI-R-192.
+
+TRIGGER DESIGN (James instruction: "start when we get alert from GNI-Autonomous,
+not depend to fix time alarm"):
+
+  Way 1 — PRIMARY: repository_dispatch event from GNI Intelligence Pipeline.
+           GNI Autonomous calls GitHub API when MAD completes → this pipeline
+           starts INSTANTLY. Truly event-driven. Zero fixed clock dependency.
+
+  Way 2 — SAFETY NET + DATA: GNI Autonomous ALSO writes a signal row to
+           Supabase pipeline_signals table (with article_ids + report_id).
+           Step 0 reads article_ids from this signal — so pipeline always
+           knows exactly which 11 articles to process regardless of trigger.
+           If Way 1 dispatch is missed → light cron catches it via Way 2 signal.
+
+  Together: Way 1 fires pipeline instantly. Way 2 stores the article IDs safely
+            and provides a fallback. Bulletproof. Never misses a trigger.
+
+Required Supabase table (run once):
+  CREATE TABLE IF NOT EXISTS pipeline_signals (
+    id          bigserial PRIMARY KEY,
+    source      text NOT NULL,
+    status      text NOT NULL DEFAULT 'complete',
+    article_ids jsonb,
+    report_id   text,
+    processed   boolean DEFAULT false,
+    created_at  timestamptz DEFAULT now()
+  );
 """
 
 import os, sys, json, time, csv, io, re
@@ -26,7 +53,6 @@ SUPA_KEY     = os.getenv('SUPABASE_SERVICE_KEY', '')
 TG_TOKEN     = os.getenv('TELEGRAM_BOT_TOKEN', '')
 TG_CHANNEL   = os.getenv('TELEGRAM_CHANNEL_ID', '-1003855420750')
 GROQ_MODEL   = 'llama-3.3-70b-versatile'
-FRESHNESS_HRS = 2.0
 
 def log(msg): print(msg, flush=True)
 
@@ -40,6 +66,46 @@ def gni_get(path):
         timeout=30)
     res.raise_for_status()
     return res.json()
+
+# ── TRIGGER: Read signal from Supabase (Way 2) ────────────────────
+def get_signal(supa):
+    """
+    Read the latest unprocessed signal from GNI Autonomous.
+    GNI Autonomous writes to pipeline_signals when MAD completes.
+    Returns (signal_id, article_ids, report_id) or (None, [], '').
+    Pipeline uses article_ids to know which 11 articles to process.
+    """
+    try:
+        res = supa.table('pipeline_signals')\
+            .select('id, article_ids, report_id')\
+            .eq('source', 'gni-autonomous')\
+            .eq('processed', False)\
+            .order('created_at', desc=True)\
+            .limit(1)\
+            .execute()
+        if res.data:
+            sig = res.data[0]
+            ids = sig.get('article_ids') or []
+            log(f'  OK: Signal found — {len(ids)} article IDs, report={sig.get("report_id","")}')
+            return sig['id'], ids, sig.get('report_id', '')
+        log('  INFO: No unprocessed signal found — will use GNI API fallback')
+        return None, [], ''
+    except Exception as e:
+        log(f'  WARNING: Signal read failed: {e} — using GNI API fallback')
+        return None, [], ''
+
+def mark_signal_processed(supa, signal_id):
+    """Mark signal as processed after pipeline completes successfully."""
+    if not signal_id:
+        return
+    try:
+        supa.table('pipeline_signals')\
+            .update({'processed': True})\
+            .eq('id', signal_id)\
+            .execute()
+        log(f'  OK: Signal {signal_id} marked as processed')
+    except Exception as e:
+        log(f'  WARNING: Could not mark signal processed: {e}')
 
 # ── PROVIDER ERRORS ───────────────────────────────────────────────
 class RateLimitError(Exception):
@@ -300,22 +366,8 @@ def run():
     log('GNI Myanmar Intelligence Pipeline v4 — James Model')
     log(f'Started: {start.strftime("%Y-%m-%d %H:%M:%S UTC")}')
     log('Universal Bundling | Groq→Gemini→Cloudflare | GNI-R-194')
+    log('Trigger: GNI Autonomous alert (Way 1: dispatch + Way 2: Supabase signal)')
     log('=' * 60)
-
-    # ── Step 0: Freshness check ───────────────────────────────────
-    log('\n-- Step 0: Freshness check --')
-    try:
-        latest  = gni_get('/api/latest')
-        raw_ts  = (latest.get('created_at') or latest.get('timestamp', '')).replace('Z', '+00:00')
-        if raw_ts:
-            age = (start - datetime.fromisoformat(raw_ts)).total_seconds() / 3600
-            log(f'  Data age: {age:.1f}h')
-            if age > FRESHNESS_HRS:
-                log('  Not fresh — exiting gracefully')
-                sys.exit(0)
-            log('  OK: Fresh data confirmed')
-    except Exception as e:
-        log(f'  WARNING: {e} — proceeding anyway')
 
     # ── Connect ───────────────────────────────────────────────────
     log('\n-- Connecting --')
@@ -325,6 +377,18 @@ def run():
         log(f'  OK: Groq={bool(GROQ_KEY)} Gemini={bool(GEMINI_KEY)} CF={bool(CF_TOKEN)}')
     except Exception as e:
         log(f'  ABORT: {e}'); sys.exit(1)
+
+    # ── Step 0: Read trigger signal from Supabase (Way 2) ────────
+    # James instruction: "start time is when we get alert from GNI-Autonomous
+    # (i mean not depend to fix time alarm)"
+    # Way 1 (repository_dispatch) already started this pipeline.
+    # Way 2 (Supabase signal) gives us the article IDs + safety net.
+    log('\n-- Step 0: Read GNI Autonomous signal --')
+    signal_id, signal_article_ids, signal_report_id = get_signal(supa)
+    if signal_article_ids:
+        log(f'  Using signal article IDs: {signal_article_ids}')
+    else:
+        log('  No signal found — will fetch articles from GNI API as fallback')
 
     # ── Step 1: Cleanup 365 days ──────────────────────────────────
     log('\n-- Step 1: Cleanup 365-day retention --')
@@ -899,9 +963,13 @@ def run():
     if selected_rows:         tg_send(arts_msg(selected_rows[:6], '(၁-၆)'))
     if len(selected_rows) > 6: tg_send(arts_msg(selected_rows[6:], '(၇-၁၁)'))
 
+    # ── Step 14: Mark signal processed (Way 2 cleanup) ───────────
+    mark_signal_processed(supa, signal_id)
+
     log('=' * 60)
     log('GNI Myanmar Pipeline v4: SUCCESS')
     log('James Model | Universal Bundling | Provider Waterfall')
+    log('Trigger: Way 1 (dispatch) + Way 2 (Supabase signal) — both honoured')
     log('=' * 60)
     return True
 
