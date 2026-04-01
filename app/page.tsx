@@ -66,6 +66,7 @@ export default function Dashboard() {
   const [mapEvents, setMapEvents] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [baseline, setBaseline] = useState<{percentile:number;total_non_zero:number} | null>(null)
+  const [pillars, setPillars] = useState<any[]>([])
 
   const KEY_TICKERS = [
     { ticker: 'SPY',     label: 'S&P 500' },
@@ -90,6 +91,11 @@ export default function Dashboard() {
       .then(d => { if (d.summaries?.[0]) setIntelMM(d.summaries[0]) })
       .catch(() => {})
 
+    fetch('/api/pillar-reports')
+      .then(r => r.json())
+      .then(d => { if (d.reports) setPillars(d.reports) })
+      .catch(() => {})
+
     KEY_TICKERS.forEach(({ ticker, label }) => {
       fetch(`/api/stocks?ticker=${encodeURIComponent(ticker)}&range=7d`)
         .then(r => r.json())
@@ -107,6 +113,17 @@ export default function Dashboard() {
     latest.mad_verdict.toLowerCase() !== 'neutral'
   const confidence = latest?.mad_confidence ? Math.round(latest.mad_confidence * 100) : 0
   const vc = verdictBg(latest?.mad_verdict)
+
+  const pillarOrder = ['geo', 'tech', 'fin']
+  const pillarIcons: Record<string,string> = { geo: '🌍', tech: '💻', fin: '💰' }
+  const pillarColors: Record<string,string> = {
+    geo:  'border-blue-800 bg-blue-950',
+    tech: 'border-purple-800 bg-purple-950',
+    fin:  'border-amber-800 bg-amber-950',
+  }
+  const latestPillars = pillarOrder
+    .map(p => pillars.find(r => r.pillar === p))
+    .filter(Boolean)
 
   return (
     <div className="min-h-screen bg-gray-950">
@@ -174,6 +191,51 @@ export default function Dashboard() {
                 </div>
               </div>
             </section>
+
+            {/* PILLAR CARDS — GEO / TECH / FIN */}
+            {latestPillars.length > 0 && (
+              <section className="mb-4">
+                <div className="text-xs text-gray-500 uppercase tracking-wider mb-2">Three Pillar Intelligence Reports</div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  {latestPillars.map((p: any) => {
+                    const score = p.sentiment_score || 0
+                    const up = score >= 0
+                    return (
+                      <div key={p.pillar} className={`rounded-xl border p-3 ${pillarColors[p.pillar] || 'border-gray-700 bg-gray-900'}`}>
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-base">{pillarIcons[p.pillar] || '📊'}</span>
+                            <span className="text-xs font-bold text-white uppercase tracking-wider">{p.pillar}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className={`text-xs font-bold px-2 py-0.5 rounded ${p.sentiment?.toLowerCase() === 'bearish' ? 'bg-red-900 text-red-300' : p.sentiment?.toLowerCase() === 'bullish' ? 'bg-green-900 text-green-300' : 'bg-gray-700 text-gray-300'}`}>
+                              {p.sentiment?.toUpperCase()}
+                            </span>
+                            <span className={`text-xs font-bold ${up ? 'text-green-400' : 'text-red-400'}`}>
+                              {up ? '+' : ''}{score.toFixed(2)}
+                            </span>
+                          </div>
+                        </div>
+                        <p className="text-xs text-gray-300 leading-relaxed mb-2 line-clamp-2">{p.summary}</p>
+                        {p.weakness_identified && (
+                          <div className="mb-2">
+                            <span className="text-xs text-gray-500 uppercase tracking-wider">Weakness: </span>
+                            <span className="text-xs text-gray-400 line-clamp-1">{p.weakness_identified}</span>
+                          </div>
+                        )}
+                        {p.tickers_affected?.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {p.tickers_affected.slice(0, 4).map((t: string) => (
+                              <span key={t} className="text-xs font-mono bg-gray-800 text-gray-400 px-1.5 py-0.5 rounded">{t}</span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              </section>
+            )}
 
             {/* MONITORING BADGE — QS style */}
             {latest.mad_action_recommendation && (
@@ -246,7 +308,7 @@ export default function Dashboard() {
               </section>
             )}
 
-            {/* MAP + CHART — moved up for visual impact */}
+            {/* MAP + CHART */}
             <section className="mb-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-gray-900 border border-gray-700 rounded-xl overflow-hidden">
@@ -295,13 +357,9 @@ export default function Dashboard() {
                     </div>
                     <span className="text-gray-700">|</span>
                     {isDivergence ? (
-                      <span className="text-xs font-bold text-yellow-400 flex items-center gap-1">
-                        ⚠️ DIVERGENCE
-                      </span>
+                      <span className="text-xs font-bold text-yellow-400 flex items-center gap-1">⚠️ DIVERGENCE</span>
                     ) : (
-                      <span className="text-xs font-bold text-green-400 flex items-center gap-1">
-                        ✅ ALIGNED
-                      </span>
+                      <span className="text-xs font-bold text-green-400 flex items-center gap-1">✅ ALIGNED</span>
                     )}
                   </div>
                   <a href="/intel" className="text-xs text-blue-400 border border-blue-800 rounded px-3 py-1 hover:bg-blue-950 transition-colors">See Full Intel →</a>
