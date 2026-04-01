@@ -44,11 +44,11 @@ const escEmoji = (level: string) => {
   }
 }
 
-const verdictColor = (v: string) => {
+const verdictBg = (v: string) => {
   switch (v?.toLowerCase()) {
-    case 'bearish': return 'bg-red-900 border border-red-700 text-red-300'
-    case 'bullish': return 'bg-green-900 border border-green-700 text-green-300'
-    default:        return 'bg-gray-700 border border-gray-600 text-gray-300'
+    case 'bearish': return { bar: 'bg-red-500', track: 'bg-red-950', text: 'text-red-300', badge: 'bg-red-900 border-red-700 text-red-300' }
+    case 'bullish': return { bar: 'bg-green-500', track: 'bg-green-950', text: 'text-green-300', badge: 'bg-green-900 border-green-700 text-green-300' }
+    default:        return { bar: 'bg-gray-500', track: 'bg-gray-800', text: 'text-gray-300', badge: 'bg-gray-700 border-gray-600 text-gray-300' }
   }
 }
 
@@ -98,13 +98,15 @@ export default function Dashboard() {
     })
   }, [])
 
-  const latest = reports[0]
+  const latest = reports.find(r => r.escalation_score > 0) || reports[0]
   const sparkData = [...reports].reverse().map((r, i) => ({ i, score: r.escalation_score || 0 }))
   const certainty = latest ? Math.round((1 - (latest.confidence_interval_width || 0) / 1.6) * 100) : 0
   const isDivergence = latest && latest.sentiment && latest.mad_verdict &&
     latest.sentiment.toLowerCase() !== latest.mad_verdict.toLowerCase() &&
     latest.sentiment.toLowerCase() !== 'neutral' &&
     latest.mad_verdict.toLowerCase() !== 'neutral'
+  const confidence = latest?.mad_confidence ? Math.round(latest.mad_confidence * 100) : 0
+  const vc = verdictBg(latest?.mad_verdict)
 
   return (
     <div className="min-h-screen bg-gray-950">
@@ -124,68 +126,55 @@ export default function Dashboard() {
               </div>
             )}
           </div>
-          <a href="/" className="inline-block mt-2 mb-1 text-xs text-blue-400 border border-blue-800 rounded px-3 py-1 hover:bg-blue-950 transition-colors">← Dashboard</a>
           <Nav />
         </div>
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-6">
-        {/* HUB DESCRIPTION */}
+        {/* HUB DESCRIPTION — mm.ts only, no duplicate */}
         <div className="bg-gray-900 border border-blue-800 rounded-xl p-4 mb-4">
           <p className="text-sm text-gray-200 leading-relaxed">{mm.dashboard_intro}</p>
         </div>
+
         {loading && (
           <div className="space-y-4 animate-pulse">
-              <div className="bg-gray-800 rounded-xl h-32 w-full"></div>
-              <div className="bg-gray-800 rounded-xl h-24 w-full"></div>
-              <div className="bg-gray-800 rounded-xl h-24 w-full"></div>
-              <div className="flex gap-3">
-                <div className="bg-gray-800 rounded-xl h-16 flex-1"></div>
-                <div className="bg-gray-800 rounded-xl h-16 flex-1"></div>
-              </div>
+            <div className="bg-gray-800 rounded-xl h-32 w-full"></div>
+            <div className="bg-gray-800 rounded-xl h-24 w-full"></div>
+            <div className="bg-gray-800 rounded-xl h-24 w-full"></div>
+            <div className="flex gap-3">
+              <div className="bg-gray-800 rounded-xl h-16 flex-1"></div>
+              <div className="bg-gray-800 rounded-xl h-16 flex-1"></div>
             </div>
+          </div>
         )}
 
         {!loading && latest && (
           <>
-            {/* ORIENTATION + LAST RUN */}
+            {/* FRESHNESS INDICATOR */}
             <section className="mb-4">
               <div className="bg-gray-900 border border-gray-700 rounded-xl p-4">
-                <div className="flex items-start justify-between gap-4 flex-wrap">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-gray-200 leading-relaxed mb-1">
-                      GNI Myanmar သဎုး ကမ္ဘာ့ Geopolitics သတင္းများကို GNI Autonomous API ဖြင့်ရယူပြီး Groq AI ဖြင့် တစ်နေ့ ၂ ကြိမ် update ဖြစ်သဎု့။ Myanmar reader များ Geopolitics ကို ဆွပ်ကူစွာ နားလဎည့နိုင္ ရည္ရွယ်သဎုး။
-                    </p>
+                <div className="flex items-center justify-between flex-wrap gap-3">
+                  <div className="flex items-center gap-2">
+                    {(() => {
+                      const h = latest.created_at ? (Date.now() - new Date(latest.created_at).getTime()) / 3600000 : 99
+                      const dot = h < 6 ? 'bg-green-400' : h < 14 ? 'bg-amber-400' : 'bg-red-400'
+                      const label = h < 6 ? 'Live' : h < 14 ? 'Pipeline due soon' : 'Pipeline overdue'
+                      const age = h < 1 ? Math.floor((Date.now() - new Date(latest.created_at).getTime()) / 60000) + 'm ago'
+                        : Math.floor(h) + 'h ago'
+                      return (
+                        <>
+                          <span className={['w-2 h-2 rounded-full shrink-0', dot].join(' ')}></span>
+                          <span className="text-xs text-gray-300 font-bold">{label}</span>
+                          <span className="text-xs text-gray-500">— last updated {age}</span>
+                        </>
+                      )
+                    })()}
                   </div>
-                  <div className="shrink-0 text-right">
-                    <div className="text-xs text-gray-500 mb-1">Last updated</div>
-                    <div className="text-xs font-bold text-green-400">
-                      {latest.created_at ? (() => {
-                        const ms = Date.now() - new Date(latest.created_at).getTime()
-                        const h = Math.floor(ms / 3600000)
-                        const m = Math.floor((ms % 3600000) / 60000)
-                        if (h > 14) return h + 'h ago'
-                        if (h >= 1) return h + 'h ' + m + 'm ago'
-                        return m + 'm ago'
-                      })() : 'Unknown'}
-                    </div>
-                    <div className={`text-xs mt-1 font-bold ${
-                      (() => {
-                        if (!latest.created_at) return 'text-gray-500'
-                        const h = (Date.now() - new Date(latest.created_at).getTime()) / 3600000
-                        return h > 14 ? 'text-amber-400' : 'text-green-400'
-                      })()
-                    }`}>
-                      {(() => {
-                        if (!latest.created_at) return 'Status unknown'
-                        const h = (Date.now() - new Date(latest.created_at).getTime()) / 3600000
-                        return h > 14 ? 'Pipeline due' : 'Live'
-                      })()}
-                    </div>
-                  </div>
+                  <div className="text-xs text-gray-500">Pipeline: 02:00 + 10:00 UTC daily</div>
                 </div>
               </div>
             </section>
+
             {/* ESCALATION HERO */}
             <section className="mb-4">
               <div className={`rounded-xl border p-5 ${escColor(latest.escalation_level)}`}>
@@ -213,7 +202,6 @@ export default function Dashboard() {
                     )}
                   </div>
                 </div>
-                {/* Certainty + Quality + Consensus row */}
                 <div className="flex flex-wrap gap-3 text-xs opacity-80">
                   {certainty > 0 && <span>Model Certainty: <b>{certainty}%</b></span>}
                   {latest.quality_score > 0 && <span>Quality: <b>{latest.quality_score >= 8 ? 'Excellent' : latest.quality_score >= 6 ? 'Good' : 'Fair'} ({latest.quality_score?.toFixed(1)})</b></span>}
@@ -246,34 +234,45 @@ export default function Dashboard() {
               </section>
             )}
 
-            {/* MAD VERDICT */}
+            {/* MAD VERDICT — QS style with progress bar */}
             <section className="mb-4">
               <div className="text-xs text-gray-500 uppercase tracking-wider mb-2">MAD စီရင်ချက် / MAD Verdict</div>
               <div className="bg-gray-900 border border-gray-700 rounded-xl p-4">
+                {/* Verdict + confidence progress bar */}
                 <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <span className={`text-base font-bold px-4 py-1.5 rounded-full ${verdictColor(latest.mad_verdict)}`}>
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <span className={['text-base font-bold px-4 py-1.5 rounded-full border shrink-0', vc.badge].join(' ')}>
                       {latest.mad_verdict?.toUpperCase()}
                     </span>
-                    <div>
-                      <div className="text-xs text-gray-500">ယုံကြည်မှု / Confidence</div>
-                      <div className="text-white font-bold text-lg">{latest.mad_confidence ? Math.round(latest.mad_confidence * 100) + '%' : 'N/A'}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs text-gray-400">Confidence</span>
+                        <span className={['text-sm font-bold', vc.text].join(' ')}>{confidence}%</span>
+                      </div>
+                      <div className={['w-full rounded-full h-2', vc.track].join(' ')}>
+                        <div className={['h-2 rounded-full transition-all', vc.bar].join(' ')} style={{ width: `${confidence}%` }}></div>
+                      </div>
                     </div>
                   </div>
-                  <a href="/intel" className="text-xs text-blue-400 border border-blue-800 rounded px-3 py-1">Full Intel</a>
+                  <a href="/intel" className="text-xs text-blue-400 border border-blue-800 rounded px-3 py-1 ml-3 shrink-0">Full Intel</a>
                 </div>
+
+                {/* ACTION RECOMMENDATION — English label only */}
                 {latest.mad_action_recommendation && (
                   <div className="bg-blue-950 border border-blue-800 rounded-lg p-3 mb-3">
-                    <div className="text-xs text-blue-400 font-bold uppercase tracking-wider mb-1">အကြံပြုချက် / Action Recommendation</div>
+                    <div className="text-xs text-blue-400 font-bold uppercase tracking-wider mb-1">Action Recommendation</div>
                     <p className="text-sm text-white leading-relaxed">{latest.mad_action_recommendation}</p>
                   </div>
                 )}
+
+                {/* BLIND SPOT — English label only */}
                 {latest.mad_blind_spot && (
                   <div className="bg-purple-950 border border-purple-800 rounded-lg p-3 mb-3">
-                    <div className="text-xs text-purple-400 font-bold uppercase tracking-wider mb-1">မမြင်နိုင်သောအချက် / Blind Spot</div>
+                    <div className="text-xs text-purple-400 font-bold uppercase tracking-wider mb-1">Blind Spot</div>
                     <p className="text-xs text-gray-300 leading-relaxed">{latest.mad_blind_spot}</p>
                   </div>
                 )}
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {latest.mad_black_swan_case && (
                     <div className="bg-gray-800 border border-gray-700 rounded-lg p-3">
@@ -403,19 +402,19 @@ export default function Dashboard() {
               </section>
             )}
 
-            {/* SUB-PAGE INTRO ROWS */}
+            {/* SUB-PAGE CARDS */}
             <section className="mb-4">
               <div className="text-xs text-gray-500 uppercase tracking-wider mb-2">Analysis Pages</div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {[
-                  { num:"01", href:"/map",         label:"World Map",    desc:"ကမ္ဘာ့အပေသဎုး geo-tagged articles ကို မြေပုံနှစ် pin တွင့်် မြေမြေ ကြည့်သဎုး။ Myanmar brief ပါသဎုး။",   color:"border-blue-800 text-blue-400" },
-                  { num:"02", href:"/market",      label:"Markets",      desc:"Commodity, Index, Stocks, Forex, Crypto, Bond tab 6 ခုးပါသဎုး။ Yahoo Finance အခြက်ရေး။ Myanmar brief ပါသဎုး။",       color:"border-amber-800 text-amber-400" },
-                  { num:"03", href:"/news",        label:"News Archive",  desc:"အကြေဆပ်ချ articles 120+ နှင့် collected 900+ ပါသဎုး။ Myanmar brief toggle ဖြစ်ကြည့်နိုင္။",      color:"border-green-800 text-green-400" },
-                  { num:"04", href:"/intel",       label:"Full Intel",    desc:"အပြည့်ဆုံး analysis hub။ Brief, Funnel, Analysis, Pillars, MAD, Predictions tab 6 ခုးပါသဎုး။ Myanmar translation ပါသဎုး။",    color:"border-purple-800 text-purple-400" },
-                  { num:"05", href:"/reports",     label:"Reports",       desc:"အစီရင်ခံးစာ archive။ Escalation score, MAD verdict, Myanmar brief ပါသဎုး။ တစ်နေ့ 2 ကြီမ် အကြေဆပ်သဎုး။",      color:"border-teal-800 text-teal-400" },
-                  { num:"06", href:"/predictions", label:"Predictions",   desc:"MAD agent ခန့မှန်းချက်များ။ GPVS accuracy track လုပ်သဎုး။ April 10 verification ဖြစ်သဎုး။",    color:"border-pink-800 text-pink-400" },
-                  { num:"07", href:"/downloads",   label:"Downloads",     desc:"Reports, predictions, articles CSV နှင့် JSON ဖြစ် ဒောင်းလုဒ်နိုင္။ Free ဖြစ်သဎုး။",      color:"border-gray-600 text-gray-400" },
-                  { num:"08", href:"/about",       label:"About",         desc:"GNI Myanmar အကြေဆပ်, tech stack, cost breakdown, L4-L7 journey နှင့် pipeline chain တို့ပါသဎုး။",          color:"border-gray-600 text-gray-400" },
+                  { num:"01", href:"/map",         label:"World Map",    desc:"ကမ္ဘာ့ geopolitical ဖြစ်ရပ်များကို မြေပုံပေါ်တွင် မြင်ယောင်ကြည့်ရှုနိုင်သည်။ Myanmar brief ပါဝင်သည်။", color:"border-blue-800 text-blue-400" },
+                  { num:"02", href:"/market",      label:"Markets",      desc:"Commodity, Index, Stocks, Forex, Crypto, Bond tab ၆ ခုပါသည်။ Yahoo Finance မှ live data ။", color:"border-amber-800 text-amber-400" },
+                  { num:"03", href:"/news",        label:"News Archive", desc:"Selected articles 120+ နှင့် collected articles 900+ ပါဝင်သည်။ Myanmar brief toggle ဖြင့် ဖတ်နိုင်သည်။", color:"border-green-800 text-green-400" },
+                  { num:"04", href:"/intel",       label:"Full Intel",   desc:"အပြည့်အစုံ analysis hub ။ Brief, Funnel, Analysis, Pillars, MAD, Predictions tab ၆ ခုပါသည်။", color:"border-purple-800 text-purple-400" },
+                  { num:"05", href:"/reports",     label:"Reports",      desc:"Intelligence reports archive ။ Escalation score, MAD verdict, Myanmar brief ပါဝင်သည်။", color:"border-teal-800 text-teal-400" },
+                  { num:"06", href:"/predictions", label:"Predictions",  desc:"MAD agent ခန့်မှန်းချက်များ ။ GPVS accuracy track လုပ်သည်။ April 10 verification ဖြစ်မည်။", color:"border-pink-800 text-pink-400" },
+                  { num:"07", href:"/downloads",   label:"Downloads",    desc:"Reports, predictions, articles CSV နှင့် JSON ဖြင့် ဒေါင်းလုဒ်ယူနိုင်သည်။ Free — API key မလိုပါ။", color:"border-indigo-800 text-indigo-400" },
+                  { num:"08", href:"/about",       label:"About",        desc:"GNI Myanmar အကြောင်း၊ tech stack, cost breakdown, L4-L7 journey နှင့် pipeline chain ပါဝင်သည်။", color:"border-rose-800 text-rose-400" },
                 ].map(({ num, href, label, desc, color }) => (
                   <a key={href} href={href} className={`bg-gray-900 border rounded-xl p-3 hover:bg-gray-800 transition-colors ${color}`}>
                     <div className="flex items-center gap-2 mb-1">
@@ -428,7 +427,8 @@ export default function Dashboard() {
                 ))}
               </div>
             </section>
-                        {/* PREVIOUS REPORTS */}
+
+            {/* PREVIOUS REPORTS */}
             {reports.length > 1 && (
               <section className="mb-6">
                 <div className="text-xs text-gray-500 uppercase tracking-wider mb-2">ယခင်အစီရင်ခံစာများ / Previous Reports</div>
