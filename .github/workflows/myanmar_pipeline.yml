@@ -1,5 +1,4 @@
-python3 << 'PYEOF'
-content = '''name: GNI Myanmar Intelligence Pipeline
+name: GNI Myanmar Intelligence Pipeline
 
 # TRIGGER DESIGN
 # James instruction: "start when we get alert from GNI-Autonomous
@@ -37,15 +36,15 @@ jobs:
       - name: Set up Python 3.11
         uses: actions/setup-python@v5.3.0
         with:
-          python-version: \'3.11\'
+          python-version: '3.11'
 
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install \\
-            supabase \\
-            python-dotenv \\
-            requests \\
+          pip install \
+            supabase \
+            python-dotenv \
+            requests \
             reportlab
           # NOTE: groq library intentionally NOT installed
           # GNI-R-169: uses direct REST to Groq API
@@ -65,10 +64,3 @@ jobs:
           TELEGRAM_BOT_TOKEN:    ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHANNEL_ID:   ${{ secrets.TELEGRAM_CHANNEL_ID }}
           GITHUB_ACTIONS:        "true"
-'''
-
-with open('.github/workflows/myanmar_pipeline.yml', 'w', encoding='utf-8') as f:
-    f.write(content)
-print('OK: File written successfully')
-print(f'Lines: {len(content.splitlines())}')
-PYEOF
