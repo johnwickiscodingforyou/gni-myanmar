@@ -52,7 +52,7 @@ jobs:
           # Backup providers: Gemini Flash (B1) + Cloudflare Workers AI (B2)
 
       - name: Run Myanmar Intelligence Pipeline
-        run: python myanmar_pipeline.py
+        run: python myanmar_management.py
         env:
           GNI_API_KEY:           ${{ secrets.GNI_API_KEY }}
           GROQ_API_KEY:          ${{ secrets.GROQ_API_KEY }}
