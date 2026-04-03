@@ -12,7 +12,7 @@ CRITICAL FILE -- Do NOT delete. See GNI-R-192.
 S17 ADDITIONS:
 - cerebras_gen()    -- PRIMARY for Pipeline 4 (MAD) -- 1M TPD free
 - openrouter_gen()  -- PRIMARY for Pipeline 5 (Market) -- 50 RPD free
-- huggingface_gen() -- BACKUP 1 for all pipelines
+- cerebras_gen() -- BACKUP 1 for Intel/Articles/Market (14,400 RPD free forever)
 - github_models_gen()-- BACKUP 2 for all pipelines
 - smart_gen() now accepts pipeline= param for dedicated waterfall
 - gemini fixed: 2.0-flash -> 2.5-flash (2.0 RETIRED March 3 2026)
@@ -32,7 +32,7 @@ CF_TOKEN   = os.getenv("CF_API_TOKEN", "")
 CF_ACCOUNT = os.getenv("CF_ACCOUNT_ID", "")
 CEREBRAS_KEY  = os.getenv("CEREBRAS_API_KEY", "")
 OPENROUTER_KEY = os.getenv("OPENROUTER_API_KEY", "")
-HF_KEY     = os.getenv("HF_API_KEY", "")
+
 GH_KEY     = os.getenv("GH_MODELS_KEY", "")
 SUPA_URL   = os.getenv("SUPABASE_URL", "")
 SUPA_KEY   = os.getenv("SUPABASE_SERVICE_KEY", "")
@@ -154,28 +154,7 @@ def openrouter_gen(prompt, max_tokens=600):
     r.raise_for_status()
     return r.json()["choices"][0]["message"]["content"].strip(), {}
 
-def huggingface_gen(prompt, max_tokens=600):
-    """BACKUP 1 for all pipelines. ~$0.10 monthly credits. router.huggingface.co/v1
-    OpenAI-compatible REST."""
-    if not HF_KEY:
-        raise Exception("HF_API_KEY not set")
-    r = requests.post(
-        "https://router.huggingface.co/v1/chat/completions",
-        headers={"Authorization": f"Bearer {HF_KEY}",
-                 "Content-Type": "application/json"},
-        json={"model": "meta-llama/Llama-3.3-70B-Instruct",
-              "max_tokens": max_tokens,
-              "temperature": 0.3,
-              "messages": [{"role": "user", "content": prompt}]},
-        timeout=60)
-    if r.status_code == 429:
-        raise RateLimitError(int(r.headers.get("retry-after", 60)))
-    if r.status_code == 402:
-        raise Exception("HuggingFace monthly credits exhausted")
-    if r.status_code == 503:
-        raise CapacityError()
-    r.raise_for_status()
-    return r.json()["choices"][0]["message"]["content"].strip(), {}
+
 
 def github_models_gen(prompt, max_tokens=600):
     """BACKUP 2 for all pipelines. 10-15 RPM | 50-150 RPD free.
@@ -229,25 +208,24 @@ def cloudflare_gen(prompt, max_tokens=1024):
 PIPELINE_PROVIDERS = {
     "intel":    [
         ("gemini",     lambda p, t: gemini_gen(p, t * 3)),
-        ("huggingface",lambda p, t: huggingface_gen(p, t)),
+        ("cerebras",   lambda p, t: cerebras_gen(p, t)),
         ("github",     lambda p, t: github_models_gen(p, t)),
         ("cloudflare", lambda p, t: cloudflare_gen(p, min(t * 2, 512))),
     ],
     "articles": [
         ("groq",       lambda p, t: groq_rest(p, t)),
-        ("huggingface",lambda p, t: huggingface_gen(p, t)),
+        ("cerebras",   lambda p, t: cerebras_gen(p, t)),
         ("github",     lambda p, t: github_models_gen(p, t)),
         ("cloudflare", lambda p, t: cloudflare_gen(p, min(t * 2, 512))),
     ],
     "mad": [
         ("cerebras",   lambda p, t: cerebras_gen(p, t)),
-        ("huggingface",lambda p, t: huggingface_gen(p, t)),
         ("github",     lambda p, t: github_models_gen(p, t)),
         ("cloudflare", lambda p, t: cloudflare_gen(p, min(t * 2, 512))),
     ],
     "market": [
         ("openrouter", lambda p, t: openrouter_gen(p, t)),
-        ("huggingface",lambda p, t: huggingface_gen(p, t)),
+        ("cerebras",   lambda p, t: cerebras_gen(p, t)),
         ("github",     lambda p, t: github_models_gen(p, t)),
         ("cloudflare", lambda p, t: cloudflare_gen(p, min(t * 2, 512))),
     ],
@@ -498,7 +476,7 @@ def check_health(supa):
     health["gemini_key"]     = "SET" if GEMINI_KEY      else "MISSING"
     health["cerebras_key"]   = "SET" if CEREBRAS_KEY    else "MISSING"
     health["openrouter_key"] = "SET" if OPENROUTER_KEY  else "MISSING"
-    health["hf_key"]         = "SET" if HF_KEY          else "MISSING"
+    
     health["gh_key"]         = "SET" if GH_KEY          else "MISSING"
     health["cf_token"]       = "SET" if CF_TOKEN        else "MISSING"
     return health
