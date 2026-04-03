@@ -162,7 +162,7 @@ def huggingface_gen(prompt, max_tokens=600):
         "https://router.huggingface.co/v1/chat/completions",
         headers={"Authorization": f"Bearer {HF_KEY}",
                  "Content-Type": "application/json"},
-        json={"model": "meta-llama/Llama-3.3-70B-Instruct",
+        json={"model": "Llama-3.3-70B-Instruct",
               "max_tokens": max_tokens,
               "temperature": 0.3,
               "messages": [{"role": "user", "content": prompt}]},

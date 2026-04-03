@@ -129,105 +129,156 @@ def run_articles(supa, run_date, run_ts):
         log(f"  ERROR: {e}")
 
     log("\n-- P2: Myanmar translation bundle [ART:1..11] --")
-    valid = [r for r in article_rows if r["is_selected"] and r.get("english_conclusion")]
+    import time as _time
 
-    if valid:
+    TOKENS_PER_ARTICLE = 600   # ~300 input + ~300 output for 5 sentences
+    MAX_BATCH          = 4     # never more than 4 -- prevents Groq truncation
+    TIMEOUT_SAFE_MIN   = 22    # exit cleanly before 25min YML timeout
+    loop_attempt       = 0
+    max_attempts       = 5
+
+    # Build url->row map for quick lookup
+    url_to_row = {r["url"]: r for r in article_rows if r["is_selected"] and r.get("english_conclusion")}
+
+    while loop_attempt < max_attempts:
+        loop_attempt += 1
+        elapsed_min = (datetime.now(timezone.utc) - start).total_seconds() / 60
+
+        # Safety check -- stop before YML timeout
+        if elapsed_min >= TIMEOUT_SAFE_MIN:
+            log(f"  SAFE STOP: {elapsed_min:.1f} min elapsed -- approaching timeout")
+            log(f"  Writing needs_rerun signal -- management will re-dispatch")
+            write_signal(supa, "articles_pipeline", "needs_rerun")
+            break
+
+        # Fetch pending articles from Supabase
+        try:
+            pend_res = supa.table("article_briefs")\
+                .select("url, english_conclusion")\
+                .eq("is_selected", True)\
+                .eq("translation_status", "pending")\
+                .order("created_at", desc=False)\
+                .execute()
+            pending = pend_res.data or []
+        except Exception as e:
+            log(f"  WARNING: Could not fetch pending: {e}")
+            pending = [r for r in url_to_row.values() if r.get("translation_status") == "pending"]
+
+        if not pending:
+            log(f"  All articles translated! Loop {loop_attempt} done.")
+            break
+
+        log(f"\n  Loop {loop_attempt}/{max_attempts} -- {len(pending)} articles pending")
+
+        # Calculate exact batch size from current quota
         quota = check_quota()
-        batch_size = max(1, min(11, int(quota * 0.7 / 600)))
-        log(f"  Quota: {quota} tokens. Batch size: {batch_size} articles.")
+        safe_quota  = int(quota * 0.75)
+        batch_size  = min(MAX_BATCH, max(0, safe_quota // TOKENS_PER_ARTICLE))
+        tokens_used = batch_size * TOKENS_PER_ARTICLE
 
-        start_idx = 0
-        while start_idx < len(valid):
-            end_idx   = min(start_idx + batch_size, len(valid))
-            batch     = valid[start_idx:end_idx]
-            batch_num = list(range(start_idx + 1, end_idx + 1))
+        log(f"  Groq quota: {quota} tokens | Safe: {safe_quota} | Batch: {batch_size} articles")
 
-            batch_bundle = "\n".join(
-                f"[ART:{batch_num[j]}] {batch[j]['english_conclusion']}"
-                for j in range(len(batch))
-            )
+        if batch_size == 0:
+            wait_sec = int(TOKENS_PER_ARTICLE / 6000 * 60) + 90
+            log(f"  Quota too low -- sleeping {wait_sec}s for recharge...")
+            _time.sleep(wait_sec)
+            continue
 
-            prompt = (
-                f"TRANSLATE ALL ITEMS INTO MYANMAR LANGUAGE (Burmese Unicode).\n"
-                f"Keep each [ART:N] marker exactly as shown in your response.\n"
-                f"Each item: EXACTLY 5 complete sentences. Each sentence ends with Myanmar full stop.\n"
-                f"No extra text outside the [ART:N] sections. No disclaimers. No notes.\n\n"
-                f"{batch_bundle}"
-            )
+        # Build batch from pending
+        batch = pending[:batch_size]
+        batch_bundle = "\n".join(
+            f"[ART:{j+1}] {row['english_conclusion']}"
+            for j, row in enumerate(batch)
+        )
 
-            log(f"  Translating articles {batch_num[0]}-{batch_num[-1]} ({len(batch)*5} sentences)...")
-            result_text, provider = smart_gen(prompt, min_sent=1, max_tokens=len(batch)*400, pipeline="articles")
+        prompt = (
+            f"TRANSLATE ALL ITEMS INTO MYANMAR LANGUAGE (Burmese Unicode).\n"
+            f"Keep each [ART:N] marker exactly as shown in your response.\n"
+            f"Each item: EXACTLY 5 complete sentences. Each sentence ends with Myanmar full stop ။\n"
+            f"No extra text outside the [ART:N] sections. No disclaimers. No notes.\n\n"
+            f"{batch_bundle}"
+        )
 
-            if result_text:
-                parsed = parse_bundle(result_text, "ART")
-                saved_in_batch = 0
-                retry_articles = []
+        log(f"  Translating {batch_size} articles ({batch_size*5} sentences)...")
+        result_text, provider = smart_gen(
+            prompt, min_sent=1, max_tokens=batch_size*400, pipeline="articles")
 
-                for j, row in enumerate(batch):
-                    key     = str(batch_num[j])
-                    mm_text = parsed.get(key, "")
-                    if mm_text and quality_ok(f"ART:{key}", mm_text, 5):
-                        row["myanmar_conclusion"]   = mm_text
-                        row["myanmar_brief"]        = mm_text
-                        row["translation_status"]   = "translated"
-                        row["translation_provider"] = provider
-                        try:
-                            supa.table("article_briefs").update({
-                                "myanmar_conclusion":   mm_text,
-                                "myanmar_brief":        mm_text,
-                                "translation_status":   "translated",
-                                "translation_provider": provider,
-                            }).eq("url", row["url"]).execute()
-                            log(f"    [{provider.upper()}] ART:{key} saved (5 sentences)")
-                            saved_in_batch += 1
-                        except Exception as e:
-                            log(f"    WARNING: ART:{key} save failed: {e}")
-                    else:
-                        log(f"    ART:{key} quality failed -- will retry individually")
-                        retry_articles.append((key, row))
+        saved_this_loop = 0
+        if result_text:
+            parsed = parse_bundle(result_text, "ART")
+            for j, row in enumerate(batch):
+                key     = str(j + 1)
+                mm_text = parsed.get(key, "")
+                if mm_text and quality_ok(f"ART:{key}", mm_text, 5):
+                    try:
+                        supa.table("article_briefs").update({
+                            "myanmar_conclusion":   mm_text,
+                            "myanmar_brief":        mm_text,
+                            "translation_status":   "translated",
+                            "translation_provider": provider,
+                        }).eq("url", row["url"]).execute()
+                        # Update local map too
+                        if row["url"] in url_to_row:
+                            url_to_row[row["url"]]["translation_status"] = "translated"
+                        log(f"    [{provider.upper()}] ART:{key} saved -- website updated!")
+                        saved_this_loop += 1
+                    except Exception as e:
+                        log(f"    WARNING: ART:{key} save failed: {e}")
+                else:
+                    log(f"    ART:{key} below quality -- stays pending for next loop")
 
-                for key, row in retry_articles:
-                    import time as _time
-                    _time.sleep(5)
-                    log(f"  Retrying ART:{key} individually...")
-                    retry_prompt = (
-                        f"TRANSLATE INTO MYANMAR LANGUAGE (Burmese Unicode).\n"
-                        f"Keep [ART:{key}] marker exactly as shown.\n"
-                        f"EXACTLY 5 sentences. Each sentence ends with Myanmar full stop.\n"
-                        f"No extra text outside the marker.\n\n"
-                        f"[ART:{key}] {row.get('english_conclusion', '')}"
-                    )
-                    retry_text, retry_prov = smart_gen(retry_prompt, min_sent=5, max_tokens=400, pipeline="articles")
-                    if retry_text:
-                        retry_parsed = parse_bundle(retry_text, "ART")
-                        mm_text = retry_parsed.get(key, retry_text)
-                        if mm_text and quality_ok(f"ART:{key}-retry", mm_text, 5):
-                            row["myanmar_conclusion"]   = mm_text
-                            row["myanmar_brief"]        = mm_text
-                            row["translation_status"]   = "translated"
-                            row["translation_provider"] = retry_prov
-                            try:
-                                supa.table("article_briefs").update({
-                                    "myanmar_conclusion":   mm_text,
-                                    "myanmar_brief":        mm_text,
-                                    "translation_status":   "translated",
-                                    "translation_provider": retry_prov,
-                                }).eq("url", row["url"]).execute()
-                                log(f"    [{retry_prov.upper()}] ART:{key} retry saved!")
-                                saved_in_batch += 1
-                            except Exception as e:
-                                log(f"    WARNING: ART:{key} retry save failed: {e}")
+            log(f"  Loop {loop_attempt} saved: {saved_this_loop}/{batch_size} articles")
+        else:
+            log(f"  Translation failed -- {batch_size} articles stay pending")
 
-                log(f"  Batch done: {saved_in_batch}/{len(batch)} articles saved")
-            else:
-                log(f"  WARNING: Batch {batch_num[0]}-{batch_num[-1]} failed all providers")
+        # Check remaining pending
+        try:
+            remaining_res = supa.table("article_briefs")\
+                .select("url")\
+                .eq("is_selected", True)\
+                .eq("translation_status", "pending")\
+                .execute()
+            remaining_count = len(remaining_res.data or [])
+        except Exception:
+            remaining_count = len(pending) - saved_this_loop
 
-            start_idx = end_idx
-            if start_idx < len(valid):
-                log("  Batch done. Waiting 10s before next batch...")
-                import time; time.sleep(10)
+        if remaining_count == 0:
+            log(f"  All articles translated!")
+            break
 
-    write_signal(supa, "articles_pipeline", "complete")
+        # Calculate dynamic wait time for quota recharge
+        wait_sec = max(90, int(tokens_used / 6000 * 60) + 90)
+        log(f"  {remaining_count} articles still pending")
+        log(f"  Tokens used: {tokens_used} | Recharge wait: {wait_sec}s")
+
+        # Check timeout before sleeping
+        elapsed_min = (datetime.now(timezone.utc) - start).total_seconds() / 60
+        if elapsed_min + (wait_sec / 60) >= TIMEOUT_SAFE_MIN:
+            log(f"  SAFE STOP: sleeping would exceed timeout -- exiting now")
+            write_signal(supa, "articles_pipeline", "needs_rerun")
+            break
+
+        log(f"  Sleeping {wait_sec}s for Groq quota recharge...")
+        _time.sleep(wait_sec)
+
+    # Final signal
+    try:
+        final_res = supa.table("article_briefs")\
+            .select("url")\
+            .eq("is_selected", True)\
+            .eq("translation_status", "pending")\
+            .execute()
+        still_pending = len(final_res.data or [])
+    except Exception:
+        still_pending = 0
+
+    if still_pending == 0:
+        write_signal(supa, "articles_pipeline", "complete")
+        log(f"  Signal: articles_pipeline:complete")
+    else:
+        write_signal(supa, "articles_pipeline", "needs_rerun")
+        log(f"  Signal: articles_pipeline:needs_rerun ({still_pending} articles pending)")
+        log(f"  Management will re-dispatch when needed.")
 
     elapsed = round((datetime.now(timezone.utc) - start).total_seconds(), 2)
     translated = sum(1 for r in article_rows if r.get("translation_status") == "translated")
