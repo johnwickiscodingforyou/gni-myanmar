@@ -1,13 +1,43 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
+
 export const metadata: Metadata = {
   title: 'GNI Myanmar | Global Nexus Insights',
-  description: 'Global Nexus Insights - Myanmar Intelligence | $0.00/month | L7 Autonomous',
+  description: 'Myanmar-language geopolitical intelligence platform. Daily AI analysis of global events — free forever at $0.00/month. L7 Autonomous.',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
     title: 'GNI Myanmar',
+  },
+  openGraph: {
+    title: 'GNI Myanmar | Global Nexus Insights',
+    description: 'Myanmar-language geopolitical intelligence. Daily AI analysis of global events — free forever. $0.00/month.',
+    url: 'https://gni-myanmar.vercel.app',
+    siteName: 'GNI Myanmar',
+    images: [
+      {
+        url: 'https://gni-myanmar.vercel.app/icon-512.png',
+        width: 512,
+        height: 512,
+        alt: 'GNI Myanmar',
+      },
+    ],
+    locale: 'my_MM',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'GNI Myanmar | Global Nexus Insights',
+    description: 'Myanmar-language geopolitical intelligence. Free forever. $0.00/month.',
+    images: ['https://gni-myanmar.vercel.app/icon-512.png'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  alternates: {
+    canonical: 'https://gni-myanmar.vercel.app',
   },
 }
 
@@ -17,6 +47,7 @@ export const viewport = {
   maximumScale: 1,
   themeColor: '#1D4ED8',
 }
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="my">
