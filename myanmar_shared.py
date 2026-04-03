@@ -106,7 +106,7 @@ def gemini_gen(prompt, max_tokens=2000):
     r.raise_for_status()
     parts = r.json()["candidates"][0]["content"]["parts"]
     text = " ".join(p.get("text", "") for p in parts).strip()
-    log(f"    [GEMINI-DEBUG] parts={len(parts)} text_preview={repr(text[:150])}")
+    
     return text, {}
 
 def cerebras_gen(prompt, max_tokens=600):
@@ -272,7 +272,7 @@ def smart_gen(prompt, min_sent=5, max_tokens=600, pipeline="default"):
                 text, headers = pfn(prompt, max_tokens)
                 text = strip_disclaimers(text)
                 n = count_sentences(text)
-                log(f"    [{pname.upper()}-AFTER-STRIP] n={n} preview={repr(text[:100])}")
+                
                 if n >= min_sent:
                     log(f"    [{pname.upper()}] OK ({n} sentences) attempt {attempt+1}")
                     return text, pname
