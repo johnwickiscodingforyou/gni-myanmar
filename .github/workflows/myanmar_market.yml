@@ -1,16 +1,17 @@
-name: Myanmar Management Pipeline
+name: Myanmar Market Pipeline
 
 on:
-  schedule:
-    - cron: '*/30 * * * *'
-  repository_dispatch:
-    types: [mad-pipeline-complete]
   workflow_dispatch:
+    inputs:
+      run_date:
+        description: 'Run date (YYYY-MM-DD)'
+        required: false
+        default: ''
 
 jobs:
-  management:
+  market:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -21,12 +22,9 @@ jobs:
       - name: Install dependencies
         run: pip install requests supabase
 
-      - name: Run Management Pipeline
+      - name: Run Market Pipeline
         env:
           GNI_API_KEY:            ${{ secrets.GNI_API_KEY }}
-          GROQ_API_KEY:           ${{ secrets.GROQ_API_KEY }}
-          GEMINI_API_KEY:         ${{ secrets.GEMINI_API_KEY }}
-          CEREBRAS_API_KEY:       ${{ secrets.CEREBRAS_API_KEY }}
           OPENROUTER_API_KEY:     ${{ secrets.OPENROUTER_API_KEY }}
           HF_API_KEY:             ${{ secrets.HF_API_KEY }}
           GH_MODELS_KEY:          ${{ secrets.GH_MODELS_KEY }}
@@ -36,5 +34,4 @@ jobs:
           SUPABASE_SERVICE_KEY:   ${{ secrets.SUPABASE_SERVICE_KEY }}
           TELEGRAM_BOT_TOKEN:     ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHANNEL_ID:    ${{ secrets.TELEGRAM_CHANNEL_ID }}
-          MYANMAR_DISPATCH_PAT:   ${{ secrets.MYANMAR_DISPATCH_PAT }}
-        run: python myanmar_management.py
+        run: python myanmar_market.py

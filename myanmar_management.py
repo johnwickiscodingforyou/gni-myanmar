@@ -2,28 +2,115 @@
 """
 myanmar_management.py -- GNI Myanmar Pipeline 1: Management
 Conductor pipeline. Health check every 30 min.
-Orchestrates Pipelines 2->3->4->5 when GNI Autonomous alert arrives.
-James Model V4 | Team Geeks | Session 16 | April 2026
+S17: Now dispatches Pipelines 2+3+4+5 IN PARALLEL via GitHub Actions API.
+All 4 pipelines run simultaneously = ~15 min total (was 60 min sequential).
+James Model V4 | Team Geeks | Session 17 | April 2026
 GNI-R-193: Never touch GNI_Autonomous pipelines without critical reason.
 GNI-R-198: Double quotes only inside heredoc
 GNI-R-199: No strftime format codes -- use isoformat()
 CRITICAL FILE -- Do NOT delete. See GNI-R-192.
 """
 
-import sys, time
+import os, sys, time, requests
 from datetime import datetime, timezone
 from myanmar_shared import (
-    log, get_supa, gni_get, check_quota, write_signal,
-    read_signal, wait_for_signal, tg_send, check_health
+    log, get_supa, gni_get, check_quota,
+    read_signal, write_signal, tg_send,
+    check_health, esc_emoji
 )
-from myanmar_intel    import run_intel
-from myanmar_articles import run_articles
-from myanmar_mad      import run_mad
-from myanmar_market   import run_market
 
-PIPELINE_GAP = 120
+GITHUB_REPO  = "johnwickiscodingforyou/gni-myanmar"
+DISPATCH_PAT = os.getenv("MYANMAR_DISPATCH_PAT", "")
+GITHUB_API   = "https://api.github.com"
+
+# Pipelines to dispatch + their signal source names
+PIPELINES = [
+    ("myanmar_intel.yml",    "intel_pipeline"),
+    ("myanmar_articles.yml", "articles_pipeline"),
+    ("myanmar_mad.yml",      "mad_pipeline"),
+    ("myanmar_market.yml",   "market_pipeline"),
+]
+
+
+def dispatch_workflow(workflow_file, inputs=None):
+    """Fire a GitHub Actions workflow_dispatch event."""
+    if not DISPATCH_PAT:
+        log(f"  WARNING: MYANMAR_DISPATCH_PAT not set -- cannot dispatch {workflow_file}")
+        return False
+    url = f"{GITHUB_API}/repos/{GITHUB_REPO}/actions/workflows/{workflow_file}/dispatches"
+    payload = {"ref": "main"}
+    if inputs:
+        payload["inputs"] = inputs
+    r = requests.post(
+        url,
+        headers={
+            "Authorization": f"Bearer {DISPATCH_PAT}",
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+        },
+        json=payload,
+        timeout=15,
+    )
+    if r.status_code == 204:
+        log(f"  OK: Dispatched {workflow_file}")
+        return True
+    else:
+        log(f"  WARNING: Dispatch failed {workflow_file} -- HTTP {r.status_code}: {r.text[:120]}")
+        return False
+
+
+def wait_all_pipelines(supa, timeout_min=45, poll_sec=30):
+    """
+    Poll pipeline_signals until all 4 pipelines report complete.
+    Returns dict of {source: signal_row} for completed pipelines.
+    """
+    sources   = {yml: src for yml, src in PIPELINES}
+    pending   = set(src for _, src in PIPELINES)
+    completed = {}
+    waited    = 0
+    max_wait  = timeout_min * 60
+
+    log(f"\n  Waiting for all 4 pipelines (max {timeout_min} min, poll every {poll_sec}s)...")
+
+    while pending and waited < max_wait:
+        time.sleep(poll_sec)
+        waited += poll_sec
+
+        for source in list(pending):
+            try:
+                res = supa.table("pipeline_signals")\
+                    .select("*")\
+                    .eq("source", source)\
+                    .eq("status", "complete")\
+                    .eq("processed", False)\
+                    .order("created_at", desc=True)\
+                    .limit(1)\
+                    .execute()
+                if res.data:
+                    sig = res.data[0]
+                    supa.table("pipeline_signals")\
+                        .update({"processed": True})\
+                        .eq("id", sig["id"])\
+                        .execute()
+                    completed[source] = sig
+                    pending.discard(source)
+                    log(f"  OK: {source} complete ({waited//60}m {waited%60}s elapsed)")
+            except Exception as e:
+                log(f"  WARNING: Signal check {source}: {e}")
+
+        if pending:
+            log(f"  Still waiting: {sorted(pending)} ({waited//60}m elapsed)")
+
+    if pending:
+        log(f"  TIMEOUT: {sorted(pending)} did not complete in {timeout_min} min. Proceeding.")
+    else:
+        log(f"  All 4 pipelines completed in {waited//60}m {waited%60}s!")
+
+    return completed
+
 
 def get_gni_signal(supa):
+    """Read unprocessed GNI Autonomous alert from pipeline_signals."""
     try:
         res = supa.table("pipeline_signals")\
             .select("id, article_ids, report_id")\
@@ -33,8 +120,8 @@ def get_gni_signal(supa):
             .limit(1)\
             .execute()
         if res.data:
-            sig = res.data[0]
-            ids = sig.get("article_ids") or []
+            sig  = res.data[0]
+            ids  = sig.get("article_ids") or []
             log(f"  OK: GNI signal found -- {len(ids)} article IDs")
             return sig["id"], ids, sig.get("report_id", "")
         log("  INFO: No unprocessed GNI signal found")
@@ -43,8 +130,10 @@ def get_gni_signal(supa):
         log(f"  WARNING: Signal read failed: {e}")
         return None, [], ""
 
+
 def mark_processed(supa, signal_id):
-    if not signal_id: return
+    if not signal_id:
+        return
     try:
         supa.table("pipeline_signals")\
             .update({"processed": True})\
@@ -54,16 +143,19 @@ def mark_processed(supa, signal_id):
     except Exception as e:
         log(f"  WARNING: Could not mark signal: {e}")
 
-def fetch_report(signal_report_id=""):
+
+def fetch_report():
     try:
         reps = gni_get("/api/reports").get("reports", [])
         if reps:
             rep = reps[0]
-            log(f"  OK: {rep.get('escalation_score',0)}/10 {rep.get('escalation_level','')} | {rep.get('mad_verdict','')}")
+            log(f"  OK: {rep.get('escalation_score',0)}/10 "
+                f"{rep.get('escalation_level','')} | {rep.get('mad_verdict','')}")
             return rep
     except Exception as e:
         log(f"  WARNING: {e}")
     return {}
+
 
 def run_health_check(supa):
     log("\n-- Health Check --")
@@ -73,83 +165,71 @@ def run_health_check(supa):
         log(f"  [{status}] {k}: {v}")
     return health
 
+
 def run_conductor(supa, signal_id, run_date, run_ts):
     start = datetime.now(timezone.utc)
     log("\n" + "=" * 60)
-    log("Management Pipeline -- CONDUCTOR MODE")
+    log("Management Pipeline -- CONDUCTOR MODE (PARALLEL)")
     log(f"Started: {start.isoformat()}")
+    log("Dispatching all 4 pipelines simultaneously...")
     log("=" * 60)
-
-    results = {}
 
     log("\n-- Fetching latest report from GNI Autonomous --")
     report_data = fetch_report()
+    esc_score   = report_data.get("escalation_score", 0)
+    esc_level   = report_data.get("escalation_level", "UNKNOWN")
+    mad_verd    = report_data.get("mad_verdict", "")
+    mad_conf    = report_data.get("mad_confidence", 0)
+    conf_pct    = round((mad_conf or 0) * 100)
 
-    log(f"\n-- Step 1: Pipeline 2 -- Intel Translation --")
-    quota = check_quota()
-    log(f"  Quota before Intel: {quota} tokens")
-    try:
-        results["intel"] = run_intel(supa, run_date, run_ts, report_data)
-        log(f"  Intel done: {results['intel'].get('fields',0)}/5 fields")
-    except Exception as e:
-        log(f"  ERROR Intel: {e}")
-        results["intel"] = {"success": False}
+    log("\n-- Dispatching all 4 pipelines in parallel --")
+    dispatched = []
+    for workflow_file, source in PIPELINES:
+        ok = dispatch_workflow(workflow_file)
+        if ok:
+            dispatched.append(source)
+        time.sleep(2)  # small gap to avoid GitHub API rate limit
 
-    log(f"\n  Waiting {PIPELINE_GAP}s before Articles pipeline...")
-    time.sleep(PIPELINE_GAP)
+    log(f"\n  Dispatched: {len(dispatched)}/4 pipelines")
+    log(f"  {dispatched}")
 
-    log(f"\n-- Step 2: Pipeline 3 -- Article Translation --")
-    quota = check_quota()
-    log(f"  Quota before Articles: {quota} tokens")
-    try:
-        results["articles"] = run_articles(supa, run_date, run_ts)
-        log(f"  Articles done: {results['articles'].get('translated',0)}/11")
-    except Exception as e:
-        log(f"  ERROR Articles: {e}")
-        results["articles"] = {"success": False}
+    if not dispatched:
+        log("  ERROR: No pipelines dispatched. DISPATCH_PAT may be invalid.")
+        log("  Marking signal processed and exiting.")
+        mark_processed(supa, signal_id)
+        return {}
 
-    log(f"\n  Waiting {PIPELINE_GAP}s before MAD pipeline...")
-    time.sleep(PIPELINE_GAP)
-
-    log(f"\n-- Step 3: Pipeline 4 -- MAD Translation --")
-    quota = check_quota()
-    log(f"  Quota before MAD: {quota} tokens")
-    try:
-        results["mad"] = run_mad(supa, run_date, run_ts, report_data)
-        log(f"  MAD done: success={results['mad'].get('success',False)}")
-    except Exception as e:
-        log(f"  ERROR MAD: {e}")
-        results["mad"] = {"success": False}
-
-    log(f"\n  Waiting {PIPELINE_GAP//2}s before Market pipeline...")
-    time.sleep(PIPELINE_GAP // 2)
-
-    log(f"\n-- Step 4: Pipeline 5 -- Market + Predictions --")
-    quota = check_quota()
-    log(f"  Quota before Market: {quota} tokens")
-    try:
-        results["market"] = run_market(
-            supa, run_date, run_ts, report_data,
-            intel_result=results.get("intel", {})
-        )
-        log(f"  Market done: {results['market'].get('fields',0)}/3 fields")
-    except Exception as e:
-        log(f"  ERROR Market: {e}")
-        results["market"] = {"success": False}
+    log("\n-- Monitoring pipeline_signals for completion --")
+    completed = wait_all_pipelines(supa, timeout_min=45, poll_sec=30)
 
     elapsed = round((datetime.now(timezone.utc) - start).total_seconds(), 2)
 
     log("\n" + "=" * 60)
     log("CONDUCTOR MODE COMPLETE")
-    log(f"Total time: {elapsed}s")
-    log(f"Intel:    {results.get('intel',{}).get('fields',0)}/5 fields")
-    log(f"Articles: {results.get('articles',{}).get('translated',0)}/11 translated")
-    log(f"MAD:      {results.get('mad',{}).get('success',False)}")
-    log(f"Market:   {results.get('market',{}).get('fields',0)}/3 fields")
+    log(f"Total time: {elapsed}s ({round(elapsed/60, 1)} min)")
+    log(f"Completed: {len(completed)}/4 pipelines")
+    for src in [s for _, s in PIPELINES]:
+        status = "DONE" if src in completed else "TIMEOUT/MISSING"
+        log(f"  {src}: {status}")
     log("=" * 60)
 
     mark_processed(supa, signal_id)
-    return results
+
+    log("\n-- Telegram summary --")
+    emoji = esc_emoji(esc_level)
+    done_count = len(completed)
+    tg_send(
+        f"{emoji} <b>GNI Myanmar | {esc_level} {esc_score}/10</b>\n\n"
+        f"MAD verdict: <b>{mad_verd.upper()}</b> ({conf_pct}% confidence)\n\n"
+        f"Parallel pipeline complete: {done_count}/4 pipelines done in "
+        f"{round(elapsed/60, 1)} min\n\n"
+        f"<a href='https://gni-myanmar.vercel.app'>Dashboard</a> | "
+        f"<a href='https://gni-myanmar.vercel.app/news'>News</a> | "
+        f"<a href='https://gni-myanmar.vercel.app/intel'>Intel</a>\n\n"
+        f"#GNI #Myanmar #GlobalIntelligence"
+    )
+
+    return completed
 
 
 def run():
@@ -158,9 +238,9 @@ def run():
     run_ts   = start.isoformat()
 
     log("=" * 60)
-    log("GNI Myanmar Management Pipeline v1")
+    log("GNI Myanmar Management Pipeline v2 (Parallel)")
     log(f"Started: {run_ts}")
-    log("Conductor | Health Monitor | Pipeline Orchestrator")
+    log("Conductor | Health Monitor | Parallel Dispatcher")
     log("=" * 60)
 
     try:
@@ -181,7 +261,7 @@ def run():
         log(f"\n-- Health check done: {elapsed}s --")
         return True
 
-    log(f"  Alert found! Starting conductor mode...")
+    log(f"  Alert found! Starting parallel conductor mode...")
     run_conductor(supa, signal_id, run_date, run_ts)
     return True
 
