@@ -273,6 +273,7 @@ def run_articles(supa, run_date, run_ts):
             remaining_res = supa.table("article_briefs")\
                 .select("url")\
                 .eq("is_selected", True)\
+                .eq("run_date", str(run_date))\
                 .eq("translation_status", "pending")\
                 .execute()
             remaining_count = len(remaining_res.data or [])
@@ -303,6 +304,7 @@ def run_articles(supa, run_date, run_ts):
         final_res = supa.table("article_briefs")\
             .select("url")\
             .eq("is_selected", True)\
+            .eq("run_date", str(run_date))\
             .eq("translation_status", "pending")\
             .execute()
         still_pending = len(final_res.data or [])
