@@ -318,7 +318,11 @@ def run_articles(supa, run_date, run_ts):
         log(f"  Management will re-dispatch when needed.")
 
     elapsed = round((datetime.now(timezone.utc) - start).total_seconds(), 2)
-    translated = sum(1 for r in article_rows if r.get("translation_status") == "translated")
+    try:
+        trans_res = supa.table("article_briefs").select("url").eq("run_date", str(run_date)).eq("is_selected", True).eq("translation_status", "translated").execute()
+        translated = len(trans_res.data or [])
+    except Exception:
+        translated = 0
     log(f"\n-- Pipeline 3 Articles done: {elapsed}s --")
     log(f"  Articles translated: {translated}/{len(selected)}")
     return {"success": True, "translated": translated, "article_urls": article_urls}
