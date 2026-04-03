@@ -106,7 +106,7 @@ export default function Dashboard() {
       .then(d => { if (d.reports) setPillars(d.reports) })
       .catch(() => {})
 
-    fetch('/api/stocks?ticker=BTC-USD&range=10y')
+    fetch('/api/stocks?ticker=BTC-USD&range=5y')
       .then(r => r.json())
       .then(d => {
         if (d.chartData) {
