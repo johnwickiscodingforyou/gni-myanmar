@@ -219,12 +219,12 @@ export default function Dashboard() {
             <section className="mb-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-gray-900 border border-gray-700 rounded-xl overflow-hidden">
-                  <div className="flex items-center justify-between px-4 py-2 border-b border-gray-700">
-                    <div className="text-xs font-bold text-white">Geopolitical Event Map</div>
-                    <div className="flex items-center gap-2">
-                      {mapEvents.length > 0 && <span className="text-xs text-gray-500">{mapEvents.length} events</span>}
-                      <a href="/map" className="text-xs text-blue-400 border border-blue-800 rounded px-2 py-0.5">Full Map</a>
+                  <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700">
+                    <div>
+                      <div className="text-sm font-bold text-white">🗺️ Geopolitical Event Map</div>
+                      <div className="text-xs text-gray-400">Live Events — Click Pins for Details</div>
                     </div>
+                    <a href="/map" className="text-xs font-bold text-white bg-blue-700 hover:bg-blue-600 rounded-lg px-3 py-1.5 transition-colors">Full Map →</a>
                   </div>
                   <div style={{ height: '220px' }}>
                     {mapEvents.length > 0
@@ -234,19 +234,23 @@ export default function Dashboard() {
                   </div>
                 </div>
                 <div className="bg-gray-900 border border-gray-700 rounded-xl overflow-hidden">
-                  <div className="flex items-center justify-between px-4 py-2 border-b border-gray-700">
+                  <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700">
                     <div>
-                      <div className="text-xs font-bold text-white">Bitcoin — 10 Year</div>
-                      {btcPrice && (
-                        <div className="text-xs text-gray-400 flex items-center gap-2 mt-0.5">
-                          <span className="text-white font-bold">${btcPrice.price?.toLocaleString()}</span>
-                          <span className={`font-bold ${btcUp ? 'text-green-400' : 'text-red-400'}`}>
-                            10Y: {btcUp ? '+' : ''}{btcPrice.changePercent}%
-                          </span>
-                        </div>
-                      )}
+                      <div className="text-sm font-bold text-white">📈 Bitcoin (BTC) — 10 Year</div>
+                      <div className="text-xs text-gray-400 flex items-center gap-2">
+                        {btcPrice ? (
+                          <>
+                            <span className="text-white font-bold">${btcPrice.price?.toLocaleString()}</span>
+                            <span className={`font-bold ${btcUp ? 'text-green-400' : 'text-red-400'}`}>
+                              10Y: {btcUp ? '+' : ''}{btcPrice.changePercent}%
+                            </span>
+                          </>
+                        ) : (
+                          <span>Loading...</span>
+                        )}
+                      </div>
                     </div>
-                    <a href="/market" className="text-xs text-amber-400 border border-amber-800 rounded px-2 py-0.5">Markets</a>
+                    <a href="/market" className="text-xs font-bold text-white bg-blue-700 hover:bg-blue-600 rounded-lg px-3 py-1.5 transition-colors">Markets →</a>
                   </div>
                   <div style={{ height: '220px', padding: '8px' }}>
                     {btcData.length > 0 ? (
