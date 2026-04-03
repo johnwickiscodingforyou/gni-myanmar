@@ -15,11 +15,11 @@ interface StockData {
 interface MarketBrief { category: string; myanmar_brief: string; run_date: string }
 
 const RANGES = [
-  { label: '3D',  value: '5d'  },
+  { label: '3D',  value: '3d'  },
   { label: '7D',  value: '7d'  },
-  { label: '1M',  value: '1mo' },
+  { label: '1M',  value: '1m'  },
   { label: '1Y',  value: '1y'  },
-  { label: '10Y', value: '5y'  },
+  { label: '10Y', value: '10y' },
 ]
 
 const CATEGORIES = [
@@ -115,7 +115,7 @@ function formatPrice(price: number) {
 
 function formatDate(dateStr: string, range: string) {
   const date = new Date(dateStr)
-  if (range === '5d' || range === '7d' || range === '1mo') return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  if (range === '3d' || range === '7d' || range === '1m') return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
   return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' })
 }
 
@@ -189,7 +189,7 @@ export default function MarketPage() {
   const isRangePositive = stockData ? parseFloat(stockData.rangeChangePercent || stockData.changePercent) >= 0 : true
   const chartColor = isRangePositive ? '#22c55e' : '#ef4444'
   const chartData = stockData?.chartData?.map(d => ({ ...d, date: formatDate(d.date, selectedRange) })) || []
-  const tickCount = selectedRange === '5d' ? 5 : selectedRange === '7d' ? 7 : 8
+  const tickCount = selectedRange === '3d' ? 3 : selectedRange === '7d' ? 7 : 8
   const currentNote = CATEGORY_TICKERS[selectedCategory]?.find(t => t.ticker === selectedTicker)?.note || ''
   const currentLabel = CATEGORY_TICKERS[selectedCategory]?.find(t => t.ticker === selectedTicker)?.label || selectedTicker
   const currentBrief = briefs.find(b => b.category === selectedCategory)
