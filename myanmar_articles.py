@@ -156,14 +156,17 @@ def run_articles(supa, run_date, run_ts):
             )
 
             log(f"  Translating articles {batch_num[0]}-{batch_num[-1]} ({len(batch)*5} sentences)...")
-            result_text, provider = smart_gen(prompt, min_sent=len(batch)*3, max_tokens=len(batch)*300, pipeline="articles")
+            result_text, provider = smart_gen(prompt, min_sent=1, max_tokens=len(batch)*400, pipeline="articles")
 
             if result_text:
                 parsed = parse_bundle(result_text, "ART")
+                saved_in_batch = 0
+                retry_articles = []
+
                 for j, row in enumerate(batch):
                     key     = str(batch_num[j])
                     mm_text = parsed.get(key, "")
-                    if mm_text and quality_ok(f"ART:{key}", mm_text, 4):
+                    if mm_text and quality_ok(f"ART:{key}", mm_text, 5):
                         row["myanmar_conclusion"]   = mm_text
                         row["myanmar_brief"]        = mm_text
                         row["translation_status"]   = "translated"
@@ -175,9 +178,47 @@ def run_articles(supa, run_date, run_ts):
                                 "translation_status":   "translated",
                                 "translation_provider": provider,
                             }).eq("url", row["url"]).execute()
-                            log(f"    [{provider.upper()}] ART:{key} saved")
+                            log(f"    [{provider.upper()}] ART:{key} saved (5 sentences)")
+                            saved_in_batch += 1
                         except Exception as e:
                             log(f"    WARNING: ART:{key} save failed: {e}")
+                    else:
+                        log(f"    ART:{key} quality failed -- will retry individually")
+                        retry_articles.append((key, row))
+
+                for key, row in retry_articles:
+                    import time as _time
+                    _time.sleep(5)
+                    log(f"  Retrying ART:{key} individually...")
+                    retry_prompt = (
+                        f"TRANSLATE INTO MYANMAR LANGUAGE (Burmese Unicode).\n"
+                        f"Keep [ART:{key}] marker exactly as shown.\n"
+                        f"EXACTLY 5 sentences. Each sentence ends with Myanmar full stop.\n"
+                        f"No extra text outside the marker.\n\n"
+                        f"[ART:{key}] {row.get('english_conclusion', '')}"
+                    )
+                    retry_text, retry_prov = smart_gen(retry_prompt, min_sent=5, max_tokens=400, pipeline="articles")
+                    if retry_text:
+                        retry_parsed = parse_bundle(retry_text, "ART")
+                        mm_text = retry_parsed.get(key, retry_text)
+                        if mm_text and quality_ok(f"ART:{key}-retry", mm_text, 5):
+                            row["myanmar_conclusion"]   = mm_text
+                            row["myanmar_brief"]        = mm_text
+                            row["translation_status"]   = "translated"
+                            row["translation_provider"] = retry_prov
+                            try:
+                                supa.table("article_briefs").update({
+                                    "myanmar_conclusion":   mm_text,
+                                    "myanmar_brief":        mm_text,
+                                    "translation_status":   "translated",
+                                    "translation_provider": retry_prov,
+                                }).eq("url", row["url"]).execute()
+                                log(f"    [{retry_prov.upper()}] ART:{key} retry saved!")
+                                saved_in_batch += 1
+                            except Exception as e:
+                                log(f"    WARNING: ART:{key} retry save failed: {e}")
+
+                log(f"  Batch done: {saved_in_batch}/{len(batch)} articles saved")
             else:
                 log(f"  WARNING: Batch {batch_num[0]}-{batch_num[-1]} failed all providers")
 
