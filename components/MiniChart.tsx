@@ -10,7 +10,7 @@ export default function MiniChart() {
   const [pct, setPct] = useState<string | null>(null)
 
   useEffect(() => {
-    fetch('/api/stocks?ticker=BTC-USD&range=max')
+    fetch('/api/stocks?ticker=BTC-USD&range=5y')
       .then(r => r.json())
       .then(d => {
         if (d.chartData) {

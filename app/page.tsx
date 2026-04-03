@@ -81,9 +81,17 @@ export default function Dashboard() {
       .then(d => { setReports(d.reports || []); setBaseline(d.baseline); setLoading(false) })
       .catch(() => setLoading(false))
 
-    fetch('/api/article-events')
+    fetch('/api/article-briefs?geo=true&limit=200')
       .then(r => r.json())
-      .then(d => setMapEvents(d.events || d.articles || []))
+      .then(d => setMapEvents((d.articles || []).map((a: any) => ({
+        id: a.id,
+        title: a.article_title,
+        lat: a.lat,
+        lng: a.lng,
+        location_name: a.source,
+        source: a.source,
+        bias: a.escalation_score > 6 ? 'bearish' : a.escalation_score > 3 ? 'neutral' : 'bullish',
+      }))))
       .catch(() => {})
 
     fetch('/api/intel-mm')
