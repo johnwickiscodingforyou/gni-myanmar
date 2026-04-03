@@ -3,10 +3,9 @@ import { useEffect, useState } from 'react'
 import Nav from '@/components/Nav'
 import { mm } from '@/lib/mm'
 import dynamic from 'next/dynamic'
-import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from 'recharts'
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 
 const MiniMap = dynamic(() => import('@/components/MiniMap'), { ssr: false })
-const MiniChart = dynamic(() => import('@/components/MiniChart'), { ssr: false })
 
 interface Report {
   id: string; title: string; summary: string
@@ -23,6 +22,7 @@ interface Report {
 }
 
 interface IntelMM { brief_mm: string; mad_mm: string; run_date: string }
+interface BtcPoint { date: string; close: number }
 
 const escColor = (level: string) => {
   switch (level?.toUpperCase()) {
@@ -67,6 +67,8 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [baseline, setBaseline] = useState<{percentile:number;total_non_zero:number} | null>(null)
   const [pillars, setPillars] = useState<any[]>([])
+  const [btcData, setBtcData] = useState<BtcPoint[]>([])
+  const [btcPrice, setBtcPrice] = useState<{price:number;changePercent:string} | null>(null)
 
   const KEY_TICKERS = [
     { ticker: 'SPY',     label: 'S&P 500' },
@@ -104,6 +106,19 @@ export default function Dashboard() {
       .then(d => { if (d.reports) setPillars(d.reports) })
       .catch(() => {})
 
+    fetch('/api/stocks?ticker=BTC-USD&range=10y')
+      .then(r => r.json())
+      .then(d => {
+        if (d.chartData) {
+          setBtcData(d.chartData.map((x: BtcPoint) => ({
+            date: new Date(x.date).toLocaleDateString('en-US', { month: 'short', year: '2-digit' }),
+            close: x.close,
+          })))
+          setBtcPrice({ price: d.price, changePercent: d.changePercent })
+        }
+      })
+      .catch(() => {})
+
     KEY_TICKERS.forEach(({ ticker, label }) => {
       fetch(`/api/stocks?ticker=${encodeURIComponent(ticker)}&range=7d`)
         .then(r => r.json())
@@ -121,6 +136,7 @@ export default function Dashboard() {
     latest.mad_verdict.toLowerCase() !== 'neutral'
   const confidence = latest?.mad_confidence ? Math.round(latest.mad_confidence * 100) : 0
   const vc = verdictBg(latest?.mad_verdict)
+  const btcUp = btcPrice ? parseFloat(btcPrice.changePercent) >= 0 : true
 
   const pillarOrder = ['geo', 'tech', 'fin']
   const pillarIcons: Record<string,string> = { geo: '🌍', tech: '💻', fin: '💰' }
@@ -156,7 +172,6 @@ export default function Dashboard() {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-6">
-        {/* HUB DESCRIPTION */}
         <div className="bg-gray-900 border border-blue-800 rounded-xl p-4 mb-4">
           <p className="text-sm text-gray-200 leading-relaxed">{mm.dashboard_intro}</p>
         </div>
@@ -200,7 +215,7 @@ export default function Dashboard() {
               </div>
             </section>
 
-            {/* MAP + CHART — S19: moved above Pillar Cards, B1: removed .slice(0,50) */}
+            {/* MAP + CHART — S19-3: BTC inline fetch range=10y, no MiniChart component */}
             <section className="mb-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-gray-900 border border-gray-700 rounded-xl overflow-hidden">
@@ -220,15 +235,53 @@ export default function Dashboard() {
                 </div>
                 <div className="bg-gray-900 border border-gray-700 rounded-xl overflow-hidden">
                   <div className="flex items-center justify-between px-4 py-2 border-b border-gray-700">
-                    <div className="text-xs font-bold text-white">Bitcoin — 10 Year</div>
+                    <div>
+                      <div className="text-xs font-bold text-white">Bitcoin — 10 Year</div>
+                      {btcPrice && (
+                        <div className="text-xs text-gray-400 flex items-center gap-2 mt-0.5">
+                          <span className="text-white font-bold">${btcPrice.price?.toLocaleString()}</span>
+                          <span className={`font-bold ${btcUp ? 'text-green-400' : 'text-red-400'}`}>
+                            10Y: {btcUp ? '+' : ''}{btcPrice.changePercent}%
+                          </span>
+                        </div>
+                      )}
+                    </div>
                     <a href="/market" className="text-xs text-amber-400 border border-amber-800 rounded px-2 py-0.5">Markets</a>
                   </div>
-                  <div style={{ height: '220px' }}><MiniChart /></div>
+                  <div style={{ height: '220px', padding: '8px' }}>
+                    {btcData.length > 0 ? (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={btcData} margin={{ top: 5, right: 5, left: 0, bottom: 5 }}>
+                          <defs>
+                            <linearGradient id="btcGradient" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.4} />
+                              <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
+                          <XAxis dataKey="date" tick={{ fill: '#6b7280', fontSize: 9 }} tickLine={false} axisLine={false}
+                            interval={Math.floor(btcData.length / 6)} />
+                          <YAxis tick={{ fill: '#6b7280', fontSize: 9 }} tickLine={false} axisLine={false}
+                            tickFormatter={v => `$${(v/1000).toFixed(0)}k`} width={40} domain={['auto','auto']} />
+                          <Tooltip
+                            contentStyle={{ backgroundColor: '#111827', border: '1px solid #374151', borderRadius: '8px', color: '#f9fafb', fontSize: '11px' }}
+                            formatter={(value) => [`$${Number(value).toLocaleString()}`, 'BTC']}
+                          />
+                          <Area type="monotone" dataKey="close" stroke="#f59e0b" strokeWidth={2}
+                            fill="url(#btcGradient)" dot={false} activeDot={{ r: 4, fill: '#f59e0b' }} />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div className="flex items-center justify-center h-full">
+                        <span className="animate-pulse text-xs text-gray-600">Loading BTC chart...</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </section>
 
-            {/* PILLAR CARDS — GEO / TECH / FIN */}
+            {/* PILLAR CARDS */}
             {latestPillars.length > 0 && (
               <section className="mb-4">
                 <div className="text-xs text-gray-500 uppercase tracking-wider mb-2">Three Pillar Intelligence Reports</div>
@@ -273,7 +326,7 @@ export default function Dashboard() {
               </section>
             )}
 
-            {/* MONITORING BADGE — QS style */}
+            {/* MONITORING BADGE */}
             {latest.mad_action_recommendation && (
               <section className="mb-4">
                 <div className={`rounded-xl border p-3 flex items-center justify-between gap-3 flex-wrap ${
@@ -344,7 +397,7 @@ export default function Dashboard() {
               </section>
             )}
 
-            {/* PIPELINE vs MAD STRIP — QS style */}
+            {/* PIPELINE vs MAD STRIP */}
             <section className="mb-4">
               <div className="bg-gray-900 border border-gray-700 rounded-xl p-3">
                 <div className="flex items-center justify-between flex-wrap gap-3">
@@ -391,7 +444,7 @@ export default function Dashboard() {
               </section>
             )}
 
-            {/* MAD VERDICT — QS style with progress bar */}
+            {/* MAD VERDICT */}
             <section className="mb-4">
               <div className="text-xs text-gray-500 uppercase tracking-wider mb-2">MAD စီရင်ချက် / MAD Verdict</div>
               <div className="bg-gray-900 border border-gray-700 rounded-xl p-4">
