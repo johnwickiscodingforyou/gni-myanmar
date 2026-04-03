@@ -4,7 +4,7 @@ import Nav from '@/components/Nav'
 import { mm } from '@/lib/mm'
 import dynamic from 'next/dynamic'
 
-const FullMap = dynamic(() => import('@/components/MiniMap'), { ssr: false })
+const MapView = dynamic(() => import('@/components/MiniMap'), { ssr: false })
 
 interface Article {
   id: string; article_title: string; url: string; source: string
@@ -17,8 +17,6 @@ interface MapEvent {
   location_name: string; source: string; bias: string; url?: string
 }
 
-const DAYS_FILTERS = [1, 3, 7, 14]
-
 export default function MapPage() {
   const [events, setEvents] = useState<MapEvent[]>([])
   const [briefs, setBriefs] = useState<Article[]>([])
@@ -27,7 +25,6 @@ export default function MapPage() {
   const [daysFilter, setDaysFilter] = useState(7)
   const [allEvents, setAllEvents] = useState<MapEvent[]>([])
 
-  // Fetch all events once (limit=200)
   useEffect(() => {
     fetch('/api/article-briefs?geo=true&limit=200')
       .then(r => r.json())
@@ -42,7 +39,10 @@ export default function MapPage() {
           location_name: a.source,
           source: a.source,
           url: a.url,
-          bias: !a.escalation_score ? 'neutral' : a.escalation_score >= 7 ? 'bearish' : a.escalation_score >= 4 ? 'neutral' : 'bullish',
+          bias: !a.escalation_score ? 'neutral'
+            : a.escalation_score >= 7 ? 'bearish'
+            : a.escalation_score >= 4 ? 'neutral'
+            : 'bullish',
         }))
         setAllEvents(mapped)
         setEvents(mapped)
@@ -51,8 +51,6 @@ export default function MapPage() {
       .catch(() => setLoading(false))
   }, [])
 
-  // Apply days filter — filter by recency using array position as proxy
-  // (article_briefs ordered by created_at desc, so first = newest)
   useEffect(() => {
     if (allEvents.length === 0) return
     const limits: Record<number, number> = { 1: 20, 3: 60, 7: 120, 14: 200 }
@@ -63,132 +61,115 @@ export default function MapPage() {
     briefs.find(b => b.article_title?.toLowerCase().includes(title?.toLowerCase().slice(0, 30)))
 
   return (
-    <div className="min-h-screen bg-gray-950">
+    <div className="min-h-screen bg-gray-950 text-gray-100">
+
+      {/* HEADER — matches QS: title + description + days filter inside */}
       <header className="border-b border-gray-800 bg-gray-900">
         <div className="max-w-5xl mx-auto px-4 py-4">
-          <div className="mb-1">
-            <h1 className="text-xl font-bold text-white">🗺 World Map</h1>
-            <p className="text-xs text-gray-400">Where are geopolitical events happening right now?</p>
+          <a href="/" className="inline-block mb-2 text-xs text-blue-400 border border-blue-800 rounded px-3 py-1 hover:bg-blue-950 transition-colors">← Dashboard</a>
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <h1 className="text-xl font-bold text-white">🗺 World Map</h1>
+              <p className="text-xs text-gray-400 mt-0.5 max-w-xl">
+                {mm.map_intro}
+              </p>
+            </div>
+            {/* DAYS FILTER — top right like QS */}
+            <div className="flex gap-2 shrink-0">
+              {[1, 3, 7, 14].map(d => (
+                <button key={d} onClick={() => setDaysFilter(d)}
+                  className={`text-xs px-3 py-1.5 rounded-lg transition-colors ${
+                    daysFilter === d ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                  }`}>
+                  {d}d
+                </button>
+              ))}
+            </div>
           </div>
-          <a href="/" className="inline-block mt-2 mb-1 text-xs text-blue-400 border border-blue-800 rounded px-3 py-1 hover:bg-blue-950 transition-colors">← Dashboard</a>
           <Nav />
         </div>
       </header>
 
-      {/* LEGEND — QS style */}
-      <div className="bg-gray-900 border-b border-gray-800 px-4 py-2 flex items-center justify-between flex-wrap gap-3">
-        <div className="flex gap-4 text-xs text-gray-400">
-          <span className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-full bg-red-500 inline-block shrink-0"></span>
-            Bearish / High Risk
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-full bg-blue-500 inline-block shrink-0"></span>
-            Neutral / Medium Risk
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-full bg-green-500 inline-block shrink-0"></span>
-            Bullish / Low Risk
-          </span>
-          <span className="text-gray-600 hidden md:inline">📰 = articles | Click pin for details</span>
-        </div>
-        {/* DAYS FILTER — QS style */}
-        <div className="flex gap-2">
-          {DAYS_FILTERS.map(d => (
-            <button
-              key={d}
-              onClick={() => setDaysFilter(d)}
-              className={`text-xs px-3 py-1.5 rounded-lg transition-colors ${
-                daysFilter === d
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
-              }`}
-            >
-              {d}d
-            </button>
-          ))}
-        </div>
+      {/* LEGEND — full width like QS */}
+      <div className="bg-gray-900 border-b border-gray-800 px-4 py-2 flex items-center gap-6 text-xs text-gray-400 flex-wrap">
+        <span className="flex items-center gap-1.5">
+          <span className="w-3 h-3 rounded-full bg-red-600 inline-block shrink-0"></span>
+          Bearish / High Risk
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="w-3 h-3 rounded-full bg-yellow-500 inline-block shrink-0"></span>
+          Neutral / Medium Risk
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="w-3 h-3 rounded-full bg-green-500 inline-block shrink-0"></span>
+          Bullish / Low Risk
+        </span>
+        <span className="text-gray-600 hidden md:inline">📰 = articles | Click pin for details</span>
       </div>
 
-      <main className="max-w-5xl mx-auto px-4 py-4">
-        <div className="bg-gray-900 border border-blue-800 rounded-xl p-4 mb-4">
-          <p className="text-sm text-gray-200 leading-relaxed">{mm.map_intro}</p>
+      {/* LOADING */}
+      {loading && (
+        <div className="flex items-center justify-center h-96 text-gray-400 animate-pulse">
+          <p>Loading events...</p>
         </div>
+      )}
 
-        {loading && (
-          <div className="space-y-4 animate-pulse">
-            <div className="bg-gray-800 rounded-xl w-full" style={{ height: '500px' }}></div>
-            <div className="grid grid-cols-3 gap-3">
-              <div className="bg-gray-800 rounded-xl h-20"></div>
-              <div className="bg-gray-800 rounded-xl h-20"></div>
-              <div className="bg-gray-800 rounded-xl h-20"></div>
+      {/* FULL SCREEN MAP — QS style: MapView directly, height passed as prop */}
+      {!loading && (
+        <MapView events={events} height="calc(100vh - 140px)" />
+      )}
+
+      {/* BELOW MAP — source cards */}
+      {!loading && (
+        <div className="max-w-5xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-xs text-gray-500">
+              Showing <span className="text-white font-bold">{events.length}</span> events
+              {daysFilter < 14 && <span> (last {daysFilter}d)</span>}
             </div>
+            <div className="text-xs text-gray-600">{allEvents.length} total geo-tagged articles</div>
           </div>
-        )}
 
-        {!loading && (
-          <>
-            {/* EVENT COUNT STRIP */}
-            <div className="flex items-center justify-between mb-3">
-              <div className="text-xs text-gray-500">
-                Showing <span className="text-white font-bold">{events.length}</span> events
-                {daysFilter < 14 && <span> (last {daysFilter}d)</span>}
-              </div>
-              <div className="text-xs text-gray-600">
-                {allEvents.length} total geo-tagged articles
-              </div>
-            </div>
+          <div className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Sources in current analysis</div>
+          <div className="text-xs text-gray-600 mb-3">Click a card to see Myanmar brief</div>
 
-            {/* FULL MAP */}
-            <div className="bg-gray-900 border border-gray-700 rounded-xl overflow-hidden mb-4" style={{ height: '500px' }}>
-              {events.length > 0
-                ? <FullMap events={events} height="500px" />
-                : <div className="flex items-center justify-center h-full text-gray-500 text-sm">No geo-tagged events available</div>
-              }
-            </div>
-
-            {/* SOURCE CARDS */}
-            <div className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">
-              Sources in current analysis
-            </div>
-            <div className="text-xs text-gray-600 mb-3">Click a card to see Myanmar brief</div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {events.slice(0, 24).map(ev => {
-                const brief = findBrief(ev.title)
-                const bias = ev.bias?.toLowerCase()
-                const dotColor = bias === 'bearish' ? 'bg-red-500' : bias === 'bullish' ? 'bg-green-500' : 'bg-blue-500'
-                return (
-                  <div
-                    key={ev.id || ev.title}
-                    onClick={() => setSelected(brief || null)}
-                    className="bg-gray-900 border border-gray-700 rounded-xl p-3 cursor-pointer hover:border-blue-600 transition-colors"
-                  >
-                    <div className="flex items-start gap-2 mb-1">
-                      <span className={`w-2 h-2 rounded-full shrink-0 mt-1 ${dotColor}`}></span>
-                      <div className="text-xs font-bold text-white leading-snug">{ev.title?.slice(0, 75)}{ev.title?.length > 75 ? '...' : ''}</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {events.slice(0, 24).map(ev => {
+              const brief = findBrief(ev.title)
+              const bias = ev.bias?.toLowerCase()
+              const dotColor = bias === 'bearish' ? 'bg-red-500' : bias === 'bullish' ? 'bg-green-500' : 'bg-yellow-500'
+              return (
+                <div key={ev.id || ev.title}
+                  onClick={() => setSelected(brief || null)}
+                  className="bg-gray-900 border border-gray-700 rounded-xl p-3 cursor-pointer hover:border-blue-600 transition-colors">
+                  <div className="flex items-start gap-2 mb-1">
+                    <span className={`w-2 h-2 rounded-full shrink-0 mt-1 ${dotColor}`}></span>
+                    <div className="text-xs font-bold text-white leading-snug">
+                      {ev.title?.slice(0, 75)}{(ev.title?.length || 0) > 75 ? '...' : ''}
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-gray-500 ml-4">
-                      <span>{ev.source}</span>
-                      {ev.location_name && ev.location_name !== ev.source && (
-                        <span className="text-gray-600">· {ev.location_name}</span>
-                      )}
-                    </div>
-                    {brief?.myanmar_brief && (
-                      <div className="mt-2 ml-4 text-xs text-amber-200 leading-relaxed line-clamp-2">{brief.myanmar_brief}</div>
-                    )}
                   </div>
-                )
-              })}
-            </div>
+                  <div className="flex items-center gap-2 text-xs text-gray-500 ml-4">
+                    <span>{ev.source}</span>
+                  </div>
+                  {brief?.myanmar_brief && (
+                    <div className="mt-2 ml-4 text-xs text-amber-200 leading-relaxed line-clamp-2">{brief.myanmar_brief}</div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
 
-            {events.length > 24 && (
-              <div className="text-center mt-3 text-xs text-gray-600">
-                Showing 24 of {events.length} events — use time filter to narrow results
-              </div>
-            )}
-          </>
-        )}
-      </main>
+          {events.length > 24 && (
+            <div className="text-center mt-3 text-xs text-gray-600">
+              Showing 24 of {events.length} events — use time filter to narrow results
+            </div>
+          )}
+
+          <div className="bg-yellow-950 border border-yellow-800 rounded-xl p-3 mt-4">
+            <p className="text-xs text-yellow-300">Disclaimer: GNI reports are for informational purposes only. Not financial advice. Higher Diploma in Computer Science | Spring University Myanmar (SUM)</p>
+          </div>
+        </div>
+      )}
 
       {/* MYANMAR BRIEF SLIDE-UP PANEL — unique to GNI Myanmar! */}
       {selected?.myanmar_brief && (
@@ -205,9 +186,8 @@ export default function MapPage() {
                   </a>
                 )}
               </div>
-              <button
-                onClick={() => setSelected(null)}
-                className="text-gray-400 hover:text-white text-lg shrink-0 border border-gray-700 rounded px-2 py-0.5 hover:border-gray-500 transition-colors">
+              <button onClick={() => setSelected(null)}
+                className="text-gray-400 hover:text-white shrink-0 border border-gray-700 rounded px-2 py-0.5 hover:border-gray-500 transition-colors">
                 ✕
               </button>
             </div>
@@ -215,13 +195,7 @@ export default function MapPage() {
         </div>
       )}
 
-      <div className="max-w-5xl mx-auto px-4 pb-4">
-        <div className="bg-yellow-950 border border-yellow-800 rounded-xl p-3">
-          <p className="text-xs text-yellow-300">Disclaimer: GNI reports are for informational purposes only. Not financial advice. Higher Diploma in Computer Science | Spring University Myanmar (SUM)</p>
-        </div>
-      </div>
-
-      <footer className="border-t border-gray-800 mt-4">
+      <footer className="border-t border-gray-800">
         <div className="max-w-5xl mx-auto px-4 py-4 text-center text-xs text-gray-600">
           GNI Myanmar | World Map | Higher Diploma in Computer Science | Spring University Myanmar (SUM)
         </div>
