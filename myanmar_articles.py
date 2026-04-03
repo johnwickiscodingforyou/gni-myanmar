@@ -56,6 +56,42 @@ def run_articles(supa, run_date, run_ts):
         has_geo = lat is not None and lng is not None
         log(f"  [P1:{i+1}] {title[:60]}")
 
+        # Check if english_conclusion already exists for this URL
+        existing_eng = None
+        try:
+            ex_res = supa.table("article_briefs")\
+                .select("english_conclusion, translation_status")\
+                .eq("url", url[:1000])\
+                .eq("run_date", str(run_date))\
+                .limit(1).execute()
+            if ex_res.data and ex_res.data[0].get("english_conclusion"):
+                existing_eng = ex_res.data[0]["english_conclusion"]
+                log(f"    P1 already done -- skipping smart_gen")
+        except Exception as e:
+            log(f"    WARNING: existing check failed: {e}")
+
+        if existing_eng:
+            row = {
+                "run_date":             str(run_date),
+                "run_timestamp":        run_ts,
+                "article_title":        title[:500],
+                "url":                  url[:1000],
+                "source":               source[:100],
+                "is_selected":          True,
+                "has_geo":              has_geo,
+                "lat":                  float(lat) if lat else None,
+                "lng":                  float(lng) if lng else None,
+                "escalation_score":     float(esc) if esc else None,
+                "myanmar_brief":        None,
+                "english_conclusion":   existing_eng,
+                "myanmar_conclusion":   None,
+                "translation_status":   ex_res.data[0].get("translation_status", "pending"),
+                "translation_provider": None,
+            }
+            article_rows.append(row)
+            article_urls.append(url)
+            continue
+
         prompt = (
             f"Article title: {title}\n"
             f"Source: {source}\n"
