@@ -94,11 +94,18 @@ export default function MiniMap({ events, height = '220px' }: Props) {
         zoom={2}
         style={{ height, width: '100%' }}
         scrollWheelZoom={true}
+        zoomControl={true}
         className="gni-mini-map"
         attributionControl={false}
       >
+        <style>{`
+          .gni-mini-map .leaflet-tile {
+            filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
+          }
+        `}</style>
         <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           maxZoom={10}
         />
 
