@@ -102,6 +102,8 @@ export default function MiniMap({ events, height = '220px' }: Props) {
           .gni-mini-map .leaflet-tile {
             filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
           }
+          .gni-mini-map { background: #1f2937 !important; }
+          .gni-mini-map .leaflet-container { background: #1f2937; }
         `}</style>
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'

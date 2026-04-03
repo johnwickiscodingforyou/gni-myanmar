@@ -42,7 +42,7 @@ export default function MapPage() {
           location_name: a.source,
           source: a.source,
           url: a.url,
-          bias: a.escalation_score > 6 ? 'bearish' : a.escalation_score > 3 ? 'neutral' : 'bullish',
+          bias: !a.escalation_score ? 'neutral' : a.escalation_score >= 7 ? 'bearish' : a.escalation_score >= 4 ? 'neutral' : 'bullish',
         }))
         setAllEvents(mapped)
         setEvents(mapped)
