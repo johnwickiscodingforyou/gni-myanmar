@@ -367,9 +367,13 @@ def repetition_detected(text, min_len=15, max_repeats=3):
 
 def count_sentences(text):
     if not text: return 0
-    mm = text.count("།")
+    mm_104a = text.count("\u104A")  # ။ Myanmar sign little section
+    mm_104b = text.count("\u104B")  # ၊ Myanmar sign section  
+    mm_0f0d = text.count("\u0F0D")  # ། Tibetan mark shad (fallback)
+    mm_e18b = text.count("\xe1\x81\x8b") if isinstance(text, bytes) else 0
     en = len(re.findall(r"[.!?](?:\s|$)", text))
-    return max(mm, en)
+    log(f"    [COUNT] 104A={mm_104a} 104B={mm_104b} 0F0D={mm_0f0d} en={en}")
+    return max(mm_104a, mm_104b, mm_0f0d, en)
 
 def quality_ok(label, text, min_sent=5):
     if not text:
