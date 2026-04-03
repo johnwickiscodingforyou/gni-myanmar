@@ -58,7 +58,7 @@ def run_intel(supa, run_date, run_ts, report_data):
         log(f"  WARNING: {e}")
 
     log("\n-- P4: Intel fields bundle [INTEL:*] --")
-    wait_for_quota(3000, "Intel bundle")
+    log("  Skipping Groq quota check -- Intel uses Gemini primary")
 
     brief_def = "Global tensions remain elevated with multiple pressure points."
     act_def   = "Monitor escalation indicators closely."

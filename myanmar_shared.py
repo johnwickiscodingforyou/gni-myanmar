@@ -86,23 +86,27 @@ def groq_rest(prompt, max_tokens=600):
 
 def gemini_gen(prompt, max_tokens=2000):
     """PRIMARY for Pipeline 2 (Intel). 250,000 TPM | 10 RPM | 500 RPD free.
-    FIXED S17: gemini-2.0-flash RETIRED March 3 2026 -> now gemini-2.5-flash"""
+    FIXED S17: gemini-2.0-flash RETIRED March 3 2026 -> now gemini-2.5-flash-preview-04-17
+    FIXED S17b: thinking mode disabled (thinkingBudget=0) + join all parts"""
     if not GEMINI_KEY:
         raise Exception("GEMINI_API_KEY not set")
     r = requests.post(
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-04-17:generateContent",
         headers={"Content-Type": "application/json"},
         params={"key": GEMINI_KEY},
         json={"contents": [{"parts": [{"text": prompt}]}],
               "generationConfig": {"maxOutputTokens": max_tokens,
-                                   "temperature": 0.3}},
-        timeout=45)
+                                   "temperature": 0.3},
+              "thinkingConfig": {"thinkingBudget": 0}},
+        timeout=60)
     if r.status_code == 429:
         raise RateLimitError(60)
     if r.status_code == 503:
         raise CapacityError()
     r.raise_for_status()
-    return r.json()["candidates"][0]["content"]["parts"][0]["text"].strip(), {}
+    parts = r.json()["candidates"][0]["content"]["parts"]
+    text = " ".join(p.get("text", "") for p in parts).strip()
+    return text, {}
 
 def cerebras_gen(prompt, max_tokens=600):
     """PRIMARY for Pipeline 4 (MAD). ~1M TPD free | No RPM cap | 450 TPS on 70B.
