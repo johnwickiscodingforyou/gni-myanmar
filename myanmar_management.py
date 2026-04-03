@@ -108,6 +108,98 @@ def wait_all_pipelines(supa, timeout_min=45, poll_sec=30):
 
     return completed
 
+def check_and_rerun(supa, completed, timeout_min=30, poll_sec=30):
+    """
+    Check for needs_rerun signals after initial pipeline run.
+    Re-dispatch only incomplete pipelines. Wait for completion.
+    Called once after wait_all_pipelines() in run_conductor().
+    """
+    # Build reverse map: signal_source -> yml_file
+    source_to_yml = {src: yml for yml, src in PIPELINES}
+    all_sources   = set(src for _, src in PIPELINES)
+    incomplete    = all_sources - set(completed.keys())
+
+    if not incomplete:
+        log("  check_and_rerun: all pipelines complete -- nothing to rerun")
+        return completed
+
+    log(f"\n-- Rerun Check: {sorted(incomplete)} did not complete --")
+
+    # Check each incomplete pipeline for needs_rerun signal
+    rerun_needed = []
+    for source in incomplete:
+        try:
+            res = supa.table("pipeline_signals")\
+                .select("id")\
+                .eq("source", source)\
+                .eq("status", "needs_rerun")\
+                .eq("processed", False)\
+                .order("created_at", desc=True)\
+                .limit(1).execute()
+            if res.data:
+                sig_id = res.data[0]["id"]
+                # Mark signal as processed
+                supa.table("pipeline_signals")\
+                    .update({"processed": True})\
+                    .eq("id", sig_id).execute()
+                rerun_needed.append(source)
+                log(f"  needs_rerun signal found: {source} -- will re-dispatch")
+            else:
+                log(f"  no needs_rerun signal for {source} -- skipping")
+        except Exception as e:
+            log(f"  WARNING: rerun check {source}: {e}")
+
+    if not rerun_needed:
+        log("  No needs_rerun signals found -- nothing to re-dispatch")
+        return completed
+
+    # Re-dispatch only the pipelines that need it
+    log(f"\n-- Re-dispatching {len(rerun_needed)} pipeline(s) --")
+    for source in rerun_needed:
+        yml = source_to_yml.get(source)
+        if yml:
+            ok = dispatch_workflow(yml)
+            log(f"  {'OK' if ok else 'FAILED'}: re-dispatch {yml}")
+            time.sleep(2)
+
+    # Wait for reruns to complete
+    log(f"\n-- Waiting for reruns (max {timeout_min} min) --")
+    pending  = set(rerun_needed)
+    waited   = 0
+    max_wait = timeout_min * 60
+
+    while pending and waited < max_wait:
+        time.sleep(poll_sec)
+        waited += poll_sec
+        for source in list(pending):
+            try:
+                res = supa.table("pipeline_signals")\
+                    .select("*")\
+                    .eq("source", source)\
+                    .eq("status", "complete")\
+                    .eq("processed", False)\
+                    .order("created_at", desc=True)\
+                    .limit(1).execute()
+                if res.data:
+                    sig = res.data[0]
+                    supa.table("pipeline_signals")\
+                        .update({"processed": True})\
+                        .eq("id", sig["id"]).execute()
+                    completed[source] = sig
+                    pending.discard(source)
+                    log(f"  OK: {source} rerun complete ({waited//60}m elapsed)")
+            except Exception as e:
+                log(f"  WARNING: rerun signal check {source}: {e}")
+        if pending:
+            log(f"  Still waiting reruns: {sorted(pending)} ({waited//60}m elapsed)")
+
+    if pending:
+        log(f"  RERUN TIMEOUT: {sorted(pending)} did not complete in {timeout_min} min")
+    else:
+        log(f"  All reruns completed in {waited//60}m {waited%60}s!")
+
+    return completed
+
 
 def get_gni_signal(supa):
     """Read unprocessed GNI Autonomous alert from pipeline_signals."""
@@ -201,6 +293,7 @@ def run_conductor(supa, signal_id, run_date, run_ts):
 
     log("\n-- Monitoring pipeline_signals for completion --")
     completed = wait_all_pipelines(supa, timeout_min=45, poll_sec=30)
+    completed = check_and_rerun(supa, completed)
 
     elapsed = round((datetime.now(timezone.utc) - start).total_seconds(), 2)
 
