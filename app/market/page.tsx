@@ -14,7 +14,13 @@ interface StockData {
 }
 interface MarketBrief { category: string; myanmar_brief: string; run_date: string }
 
-const RANGES = ['3d', '7d', '1m', '1y', '10y']
+const RANGES = [
+  { label: '3D',  value: '5d'  },
+  { label: '7D',  value: '7d'  },
+  { label: '1M',  value: '1mo' },
+  { label: '1Y',  value: '1y'  },
+  { label: '10Y', value: '5y'  },
+]
 
 const CATEGORIES = [
   { key: 'Commodity', label: 'Commodity', emoji: '🛢️' },
@@ -109,8 +115,7 @@ function formatPrice(price: number) {
 
 function formatDate(dateStr: string, range: string) {
   const date = new Date(dateStr)
-  if (range === '3d' || range === '7d') return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-  if (range === '1m') return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  if (range === '5d' || range === '7d' || range === '1mo') return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
   return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' })
 }
 
@@ -118,6 +123,7 @@ export default function MarketPage() {
   const [selectedCategory, setSelectedCategory] = useState('Commodity')
   const [selectedTicker, setSelectedTicker] = useState('CL=F')
   const [selectedRange, setSelectedRange] = useState('1y')
+  const rangeLabel = RANGES.find(r => r.value === selectedRange)?.label || selectedRange.toUpperCase()
   const [stockData, setStockData] = useState<StockData | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -183,7 +189,7 @@ export default function MarketPage() {
   const isRangePositive = stockData ? parseFloat(stockData.rangeChangePercent || stockData.changePercent) >= 0 : true
   const chartColor = isRangePositive ? '#22c55e' : '#ef4444'
   const chartData = stockData?.chartData?.map(d => ({ ...d, date: formatDate(d.date, selectedRange) })) || []
-  const tickCount = selectedRange === '3d' ? 3 : selectedRange === '7d' ? 7 : 8
+  const tickCount = selectedRange === '5d' ? 5 : selectedRange === '7d' ? 7 : 8
   const currentNote = CATEGORY_TICKERS[selectedCategory]?.find(t => t.ticker === selectedTicker)?.note || ''
   const currentLabel = CATEGORY_TICKERS[selectedCategory]?.find(t => t.ticker === selectedTicker)?.label || selectedTicker
   const currentBrief = briefs.find(b => b.category === selectedCategory)
@@ -281,18 +287,18 @@ export default function MarketPage() {
             {/* Range selector */}
             <div className="flex items-center justify-between mb-3 shrink-0">
               <div className="flex gap-2">
-                {RANGES.map(range => (
-                  <button key={range} onClick={() => setSelectedRange(range)}
+                {RANGES.map(({ label, value }) => (
+                  <button key={value} onClick={() => setSelectedRange(value)}
                     className={`px-3 py-1 rounded-lg text-xs font-bold transition-colors ${
-                      selectedRange === range ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
+                      selectedRange === value ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
                     }`}>
-                    {range.toUpperCase()}
+                    {label}
                   </button>
                 ))}
               </div>
               {stockData && (
                 <div className={`text-xs font-bold px-2 py-1 rounded ${isRangePositive ? 'text-green-400 bg-green-950' : 'text-red-400 bg-red-950'}`}>
-                  {selectedRange.toUpperCase()}: {isRangePositive ? '+' : ''}{stockData.rangeChangePercent || stockData.changePercent}%
+                  {rangeLabel}: {isRangePositive ? '+' : ''}{stockData.rangeChangePercent || stockData.changePercent}%
                 </div>
               )}
             </div>
