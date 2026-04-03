@@ -68,7 +68,7 @@ def run_mad(supa, run_date, run_ts, report_data):
         f"[MAD:SWAN_R1] The black swan unknown risk: {p_swan}\n"
         f"[MAD:OSTRICH_R1] The ignored reality warning: {p_ostr}"
     )
-    r1_text, r1_prov = smart_gen(r1_prompt, min_sent=15, max_tokens=1200)
+    r1_text, r1_prov = smart_gen(r1_prompt, min_sent=15, max_tokens=1200, pipeline="mad")
     mad_r1 = parse_bundle(r1_text or "", "MAD") if r1_text else {}
     log(f"  P3a Round 1: {r1_prov or 'FAILED'} -- {len(mad_r1)} agents")
 
@@ -83,7 +83,7 @@ def run_mad(supa, run_date, run_ts, report_data):
         f"The bear case should quantify downside more precisely with specific indicators. "
         f"All agents must sharpen their final positions for Round 2 with clearer evidence."
     )
-    arb1_text, arb1_prov = smart_gen(arb1_prompt, min_sent=2, max_tokens=300)
+    arb1_text, arb1_prov = smart_gen(arb1_prompt, min_sent=2, max_tokens=300, pipeline="mad")
     arb1 = parse_bundle(arb1_text or "", "ARB") if arb1_text else {}
     log(f"  P3b Arbitrator 1: {arb1_prov or 'FAILED'}")
 
@@ -119,7 +119,7 @@ def run_mad(supa, run_date, run_ts, report_data):
         f"ESG and climate transition costs are not fully reflected in corporate valuations. "
         f"Demographic headwinds in major economies will constrain growth for decades ahead."
     )
-    r2_text, r2_prov = smart_gen(r2_prompt, min_sent=15, max_tokens=1200)
+    r2_text, r2_prov = smart_gen(r2_prompt, min_sent=15, max_tokens=1200, pipeline="mad")
     mad_r2 = parse_bundle(r2_text or "", "MAD") if r2_text else {}
     log(f"  P3c Round 2: {r2_prov or 'FAILED'} -- {len(mad_r2)} agents")
 
@@ -134,7 +134,7 @@ def run_mad(supa, run_date, run_ts, report_data):
         f"Round 3 should focus on the single most important insight from each perspective. "
         f"The final verdict will be determined by the weight of evidence presented in Round 3."
     )
-    arb2_text, arb2_prov = smart_gen(arb2_prompt, min_sent=2, max_tokens=300)
+    arb2_text, arb2_prov = smart_gen(arb2_prompt, min_sent=2, max_tokens=300, pipeline="mad")
     arb2 = parse_bundle(arb2_text or "", "ARB") if arb2_text else {}
     log(f"  P3d Arbitrator 2: {arb2_prov or 'FAILED'}")
 
@@ -176,7 +176,7 @@ def run_mad(supa, run_date, run_ts, report_data):
         f"The blind spot Myanmar readers must watch: {p_blind} "
         f"Overall escalation: {esc_score}/10 ({esc_level}) -- {p_nar}"
     )
-    r3_text, r3_prov = smart_gen(r3_prompt, min_sent=20, max_tokens=1800)
+    r3_text, r3_prov = smart_gen(r3_prompt, min_sent=20, max_tokens=1800, pipeline="mad")
     mad_r3 = parse_bundle(r3_text or "", "MAD") if r3_text else {}
     log(f"  P3e+f Round 3+Verdict: {r3_prov or 'FAILED'} -- {len(mad_r3)} items")
 

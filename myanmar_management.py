@@ -21,7 +21,7 @@ from myanmar_articles import run_articles
 from myanmar_mad      import run_mad
 from myanmar_market   import run_market
 
-PIPELINE_GAP = 300
+PIPELINE_GAP = 120
 
 def get_gni_signal(supa):
     try:

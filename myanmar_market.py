@@ -65,7 +65,7 @@ def run_market(supa, run_date, run_ts, report_data, intel_result=None):
         f"Myanmar investors should maintain diversification and avoid concentrated sector bets."
     )
 
-    mkt_text, mkt_prov = smart_gen(market_prompt, min_sent=12, max_tokens=1500)
+    mkt_text, mkt_prov = smart_gen(market_prompt, min_sent=12, max_tokens=1500, pipeline="market")
     mkt = parse_bundle(mkt_text or "", "MKT") if mkt_text else {}
     log(f"  P5 Market bundle: {mkt_prov or 'FAILED'} -- {len(mkt)} fields")
 

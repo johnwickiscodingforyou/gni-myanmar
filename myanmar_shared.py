@@ -2,12 +2,21 @@
 """
 myanmar_shared.py -- GNI Myanmar Shared Functions
 Used by all 5 Myanmar pipelines.
-Team Geeks | Session 16 | April 2026
+Team Geeks | Session 16-17 | April 2026
 GNI-R-169: Direct REST to Groq (NOT groq library)
 GNI-R-194: Every prompt specifies EXACT sentence count
 GNI-R-198: Double quotes only inside heredoc
-GNI-R-199: No strftime format codes in heredoc -- use isoformat()
+GNI-R-199: No strftime format codes -- use isoformat()
 CRITICAL FILE -- Do NOT delete. See GNI-R-192.
+
+S17 ADDITIONS:
+- cerebras_gen()    -- PRIMARY for Pipeline 4 (MAD) -- 1M TPD free
+- openrouter_gen()  -- PRIMARY for Pipeline 5 (Market) -- 50 RPD free
+- huggingface_gen() -- BACKUP 1 for all pipelines
+- github_models_gen()-- BACKUP 2 for all pipelines
+- smart_gen() now accepts pipeline= param for dedicated waterfall
+- gemini fixed: 2.0-flash -> 2.5-flash (2.0 RETIRED March 3 2026)
+- check_health() updated for all 7 providers
 """
 
 import os, sys, re, time, json
@@ -21,6 +30,10 @@ GROQ_KEY   = os.getenv("GROQ_API_KEY", "")
 GEMINI_KEY = os.getenv("GEMINI_API_KEY", "")
 CF_TOKEN   = os.getenv("CF_API_TOKEN", "")
 CF_ACCOUNT = os.getenv("CF_ACCOUNT_ID", "")
+CEREBRAS_KEY  = os.getenv("CEREBRAS_API_KEY", "")
+OPENROUTER_KEY = os.getenv("OPENROUTER_API_KEY", "")
+HF_KEY     = os.getenv("HF_API_KEY", "")
+GH_KEY     = os.getenv("GH_MODELS_KEY", "")
 SUPA_URL   = os.getenv("SUPABASE_URL", "")
 SUPA_KEY   = os.getenv("SUPABASE_SERVICE_KEY", "")
 TG_TOKEN   = os.getenv("TELEGRAM_BOT_TOKEN", "")
@@ -48,7 +61,12 @@ class RateLimitError(Exception):
 
 class CapacityError(Exception): pass
 
+# ============================================================
+# PROVIDER FUNCTIONS
+# ============================================================
+
 def groq_rest(prompt, max_tokens=600):
+    """PRIMARY for Pipeline 3 (Articles). 6,000 TPM | 500,000 TPD | 30 RPM | 1,000 RPD"""
     if not GROQ_KEY:
         raise Exception("GROQ_API_KEY not set")
     r = requests.post(
@@ -67,10 +85,12 @@ def groq_rest(prompt, max_tokens=600):
     return r.json()["choices"][0]["message"]["content"].strip(), r.headers
 
 def gemini_gen(prompt, max_tokens=2000):
+    """PRIMARY for Pipeline 2 (Intel). 250,000 TPM | 10 RPM | 500 RPD free.
+    FIXED S17: gemini-2.0-flash RETIRED March 3 2026 -> now gemini-2.5-flash"""
     if not GEMINI_KEY:
         raise Exception("GEMINI_API_KEY not set")
     r = requests.post(
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
         headers={"Content-Type": "application/json"},
         params={"key": GEMINI_KEY},
         json={"contents": [{"parts": [{"text": prompt}]}],
@@ -84,7 +104,98 @@ def gemini_gen(prompt, max_tokens=2000):
     r.raise_for_status()
     return r.json()["candidates"][0]["content"]["parts"][0]["text"].strip(), {}
 
+def cerebras_gen(prompt, max_tokens=600):
+    """PRIMARY for Pipeline 4 (MAD). ~1M TPD free | No RPM cap | 450 TPS on 70B.
+    OpenAI-compatible REST. api.cerebras.ai"""
+    if not CEREBRAS_KEY:
+        raise Exception("CEREBRAS_API_KEY not set")
+    r = requests.post(
+        "https://api.cerebras.ai/v1/chat/completions",
+        headers={"Authorization": f"Bearer {CEREBRAS_KEY}",
+                 "Content-Type": "application/json"},
+        json={"model": "llama-3.3-70b",
+              "max_tokens": max_tokens,
+              "temperature": 0.3,
+              "messages": [{"role": "user", "content": prompt}]},
+        timeout=30)
+    if r.status_code == 429:
+        raise RateLimitError(int(r.headers.get("retry-after", 60)))
+    if r.status_code == 503:
+        raise CapacityError()
+    r.raise_for_status()
+    return r.json()["choices"][0]["message"]["content"].strip(), r.headers
+
+def openrouter_gen(prompt, max_tokens=600):
+    """PRIMARY for Pipeline 5 (Market). 20 RPM | 50 RPD (free, no deposit).
+    WARNING: Only 50 RPD! Sufficient for Market (1-3 calls/day). openrouter.ai/api/v1"""
+    if not OPENROUTER_KEY:
+        raise Exception("OPENROUTER_API_KEY not set")
+    r = requests.post(
+        "https://openrouter.ai/api/v1/chat/completions",
+        headers={"Authorization": f"Bearer {OPENROUTER_KEY}",
+                 "Content-Type": "application/json",
+                 "HTTP-Referer": "https://gni-myanmar.vercel.app",
+                 "X-Title": "GNI Myanmar Pipeline"},
+        json={"model": "meta-llama/llama-3.3-70b-instruct:free",
+              "max_tokens": max_tokens,
+              "temperature": 0.3,
+              "messages": [{"role": "user", "content": prompt}]},
+        timeout=45)
+    if r.status_code == 429:
+        raise RateLimitError(int(r.headers.get("retry-after", 60)))
+    if r.status_code == 503:
+        raise CapacityError()
+    r.raise_for_status()
+    return r.json()["choices"][0]["message"]["content"].strip(), {}
+
+def huggingface_gen(prompt, max_tokens=600):
+    """BACKUP 1 for all pipelines. ~$0.10 monthly credits. router.huggingface.co/v1
+    OpenAI-compatible REST."""
+    if not HF_KEY:
+        raise Exception("HF_API_KEY not set")
+    r = requests.post(
+        "https://router.huggingface.co/v1/chat/completions",
+        headers={"Authorization": f"Bearer {HF_KEY}",
+                 "Content-Type": "application/json"},
+        json={"model": "meta-llama/Llama-3.3-70B-Instruct",
+              "max_tokens": max_tokens,
+              "temperature": 0.3,
+              "messages": [{"role": "user", "content": prompt}]},
+        timeout=60)
+    if r.status_code == 429:
+        raise RateLimitError(int(r.headers.get("retry-after", 60)))
+    if r.status_code == 402:
+        raise Exception("HuggingFace monthly credits exhausted")
+    if r.status_code == 503:
+        raise CapacityError()
+    r.raise_for_status()
+    return r.json()["choices"][0]["message"]["content"].strip(), {}
+
+def github_models_gen(prompt, max_tokens=600):
+    """BACKUP 2 for all pipelines. 10-15 RPM | 50-150 RPD free.
+    GNI-R-171: MUST use CLASSIC PAT (ghp_) with repo scope -- fine-grained tokens DO NOT work.
+    models.inference.ai.azure.com"""
+    if not GH_KEY:
+        raise Exception("GH_MODELS_KEY not set")
+    r = requests.post(
+        "https://models.inference.ai.azure.com/chat/completions",
+        headers={"Authorization": f"Bearer {GH_KEY}",
+                 "Content-Type": "application/json"},
+        json={"model": "meta-llama/Llama-3.3-70B-Instruct",
+              "max_tokens": max_tokens,
+              "temperature": 0.3,
+              "messages": [{"role": "user", "content": prompt}]},
+        timeout=45)
+    if r.status_code == 429:
+        raise RateLimitError(int(r.headers.get("retry-after", 60)))
+    if r.status_code == 503:
+        raise CapacityError()
+    r.raise_for_status()
+    return r.json()["choices"][0]["message"]["content"].strip(), {}
+
 def cloudflare_gen(prompt, max_tokens=1024):
+    """BACKUP 3 -- LAST RESORT ONLY. Only 10,000 neurons/day (~1,000-3,000 tokens).
+    Use ONLY when all other providers fail."""
     if not CF_TOKEN or not CF_ACCOUNT:
         raise Exception("CF_API_TOKEN or CF_ACCOUNT_ID not set")
     r = requests.post(
@@ -92,22 +203,68 @@ def cloudflare_gen(prompt, max_tokens=1024):
         headers={"Authorization": f"Bearer {CF_TOKEN}",
                  "Content-Type": "application/json"},
         json={"messages": [{"role": "user", "content": prompt}],
-              "max_tokens": max_tokens},
+              "max_tokens": min(max_tokens, 512)},
         timeout=60)
     r.raise_for_status()
     return r.json()["result"]["response"].strip(), {}
 
-def smart_gen(prompt, min_sent=5, max_tokens=600):
-    providers = [
-        ("groq",       lambda p: groq_rest(p, max_tokens)),
-        ("gemini",     lambda p: gemini_gen(p, max_tokens * 3)),
-        ("cloudflare", lambda p: cloudflare_gen(p, min(max_tokens * 2, 1024))),
-    ]
-    groq_503 = 0
+# ============================================================
+# PIPELINE-SPECIFIC WATERFALL
+# Each pipeline has its own PRIMARY to avoid quota interference.
+# Fallback chain: Backup1 (HF) -> Backup2 (GitHub) -> Backup3 (CF)
+#
+# Pipeline 2 Intel:   Gemini  -> HF -> GitHub -> CF
+# Pipeline 3 Articles:Groq    -> HF -> GitHub -> CF
+# Pipeline 4 MAD:     Cerebras-> HF -> GitHub -> CF
+# Pipeline 5 Market:  OpenRouter -> HF -> GitHub -> CF
+# Default (backward compat): Groq -> Gemini -> CF
+# ============================================================
+
+PIPELINE_PROVIDERS = {
+    "intel":    [
+        ("gemini",     lambda p, t: gemini_gen(p, t * 3)),
+        ("huggingface",lambda p, t: huggingface_gen(p, t)),
+        ("github",     lambda p, t: github_models_gen(p, t)),
+        ("cloudflare", lambda p, t: cloudflare_gen(p, min(t * 2, 512))),
+    ],
+    "articles": [
+        ("groq",       lambda p, t: groq_rest(p, t)),
+        ("huggingface",lambda p, t: huggingface_gen(p, t)),
+        ("github",     lambda p, t: github_models_gen(p, t)),
+        ("cloudflare", lambda p, t: cloudflare_gen(p, min(t * 2, 512))),
+    ],
+    "mad": [
+        ("cerebras",   lambda p, t: cerebras_gen(p, t)),
+        ("huggingface",lambda p, t: huggingface_gen(p, t)),
+        ("github",     lambda p, t: github_models_gen(p, t)),
+        ("cloudflare", lambda p, t: cloudflare_gen(p, min(t * 2, 512))),
+    ],
+    "market": [
+        ("openrouter", lambda p, t: openrouter_gen(p, t)),
+        ("huggingface",lambda p, t: huggingface_gen(p, t)),
+        ("github",     lambda p, t: github_models_gen(p, t)),
+        ("cloudflare", lambda p, t: cloudflare_gen(p, min(t * 2, 512))),
+    ],
+    "default": [
+        ("groq",       lambda p, t: groq_rest(p, t)),
+        ("gemini",     lambda p, t: gemini_gen(p, t * 3)),
+        ("cloudflare", lambda p, t: cloudflare_gen(p, min(t * 2, 512))),
+    ],
+}
+
+def smart_gen(prompt, min_sent=5, max_tokens=600, pipeline="default"):
+    """
+    Pipeline-aware smart translation with dedicated primary per pipeline.
+    pipeline = "intel" | "articles" | "mad" | "market" | "default"
+    """
+    providers = PIPELINE_PROVIDERS.get(pipeline, PIPELINE_PROVIDERS["default"])
+    log(f"    [smart_gen] pipeline={pipeline} providers={[p[0] for p in providers]}")
+
     for pname, pfn in providers:
+        capacity_errors = 0
         for attempt in range(4):
             try:
-                text, headers = pfn(prompt)
+                text, headers = pfn(prompt, max_tokens)
                 text = strip_disclaimers(text)
                 n = count_sentences(text)
                 if n >= min_sent:
@@ -116,20 +273,26 @@ def smart_gen(prompt, min_sent=5, max_tokens=600):
                 log(f"    [{pname.upper()}] Only {n} sentences (need {min_sent}), retrying...")
                 time.sleep(3)
             except RateLimitError as e:
-                log(f"    [{pname.upper()}] Rate limited. Sleeping {e.retry_after}s...")
-                time.sleep(e.retry_after)
+                wait = min(e.retry_after, 120)
+                log(f"    [{pname.upper()}] Rate limited. Sleeping {wait}s...")
+                time.sleep(wait)
             except CapacityError:
-                groq_503 += 1
-                if pname == "groq" and groq_503 >= 5:
-                    log("    [GROQ] Down (5x 503). Switching to Gemini.")
+                capacity_errors += 1
+                if capacity_errors >= 5:
+                    log(f"    [{pname.upper()}] Down (5x 503). Switching provider.")
                     break
                 log(f"    [{pname.upper()}] Over capacity. Sleeping 30s...")
                 time.sleep(30)
             except Exception as e:
                 log(f"    [{pname.upper()}] Error: {e}. Switching provider.")
                 break
-    log("    ALL PROVIDERS FAILED -- using None")
+
+    log("    ALL PROVIDERS FAILED -- returning None")
     return None, None
+
+# ============================================================
+# PARSING + QUALITY GATES
+# ============================================================
 
 def parse_bundle(response_text, tag):
     if not response_text:
@@ -139,10 +302,11 @@ def parse_bundle(response_text, tag):
     return {key.strip(): text.strip() for key, text in matches}
 
 def check_quota():
+    """Check Groq quota -- used by Articles pipeline (Groq primary)."""
     try:
         _, headers = groq_rest("OK", max_tokens=1)
         remaining = int(headers.get("x-ratelimit-remaining-tokens", 6000))
-        log(f"  Quota: {remaining} tokens remaining")
+        log(f"  Groq quota: {remaining} tokens remaining")
         return remaining
     except Exception as e:
         log(f"  Quota check failed: {e}")
@@ -212,6 +376,10 @@ def quality_ok(label, text, min_sent=5):
     log(f"    [QG] {label}: OK ({n} sentences)")
     return True
 
+# ============================================================
+# SUPABASE SIGNALS
+# ============================================================
+
 def write_signal(supa, source, status="complete", data=None):
     try:
         row = {"source": source, "status": status,
@@ -270,6 +438,10 @@ def wait_for_signal(supa, source, timeout_min=45, poll_sec=30):
     log(f"  TIMEOUT: No signal from {source} after {timeout_min} min. Proceeding anyway.")
     return None
 
+# ============================================================
+# TELEGRAM
+# ============================================================
+
 def tg_send(text):
     if not TG_TOKEN:
         log("  WARNING: No TG_TOKEN"); return
@@ -290,6 +462,10 @@ def esc_emoji(level):
             "MODERATE": "[MODERATE]", "LOW": "[LOW]"}.get(
                 (level or "").upper(), "[INFO]")
 
+# ============================================================
+# HEALTH CHECK -- all 7 providers
+# ============================================================
+
 def check_health(supa):
     health = {}
     try:
@@ -303,7 +479,11 @@ def check_health(supa):
         health["gni_api"] = "OK" if res.status_code == 200 else f"HTTP {res.status_code}"
     except Exception as e:
         health["gni_api"] = f"ERROR: {str(e)[:60]}"
-    health["groq_key"]   = "SET" if GROQ_KEY   else "MISSING"
-    health["gemini_key"] = "SET" if GEMINI_KEY else "MISSING"
-    health["cf_token"]   = "SET" if CF_TOKEN   else "MISSING"
+    health["groq_key"]       = "SET" if GROQ_KEY        else "MISSING"
+    health["gemini_key"]     = "SET" if GEMINI_KEY      else "MISSING"
+    health["cerebras_key"]   = "SET" if CEREBRAS_KEY    else "MISSING"
+    health["openrouter_key"] = "SET" if OPENROUTER_KEY  else "MISSING"
+    health["hf_key"]         = "SET" if HF_KEY          else "MISSING"
+    health["gh_key"]         = "SET" if GH_KEY          else "MISSING"
+    health["cf_token"]       = "SET" if CF_TOKEN        else "MISSING"
     return health

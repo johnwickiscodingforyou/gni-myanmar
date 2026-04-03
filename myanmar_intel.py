@@ -121,7 +121,7 @@ def run_intel(supa, run_date, run_ts, report_data):
         f"Myanmar businesses should hedge currency exposure and monitor commodity prices closely."
     )
 
-    intel_text, intel_prov = smart_gen(intel_prompt, min_sent=20, max_tokens=2000)
+    intel_text, intel_prov = smart_gen(intel_prompt, min_sent=20, max_tokens=2000, pipeline="intel")
     intel = parse_bundle(intel_text or "", "INTEL") if intel_text else {}
     log(f"  P4 Intel bundle: {intel_prov or 'FAILED'} -- {len(intel)} fields")
 

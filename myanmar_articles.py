@@ -72,7 +72,7 @@ def run_articles(supa, run_date, run_ts):
             f"Total length: approximately 80 words. No disclaimers. No notes."
         )
 
-        english_text, provider = smart_gen(prompt, min_sent=5, max_tokens=300)
+        english_text, provider = smart_gen(prompt, min_sent=5, max_tokens=300, pipeline="articles")
 
         row = {
             "run_date":             str(run_date),
@@ -156,7 +156,7 @@ def run_articles(supa, run_date, run_ts):
             )
 
             log(f"  Translating articles {batch_num[0]}-{batch_num[-1]} ({len(batch)*5} sentences)...")
-            result_text, provider = smart_gen(prompt, min_sent=len(batch)*3, max_tokens=len(batch)*300)
+            result_text, provider = smart_gen(prompt, min_sent=len(batch)*3, max_tokens=len(batch)*300, pipeline="articles")
 
             if result_text:
                 parsed = parse_bundle(result_text, "ART")
