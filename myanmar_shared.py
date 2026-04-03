@@ -106,6 +106,9 @@ def gemini_gen(prompt, max_tokens=2000):
     r.raise_for_status()
     parts = r.json()["candidates"][0]["content"]["parts"]
     text = " ".join(p.get("text", "") for p in parts).strip()
+    return text, {}parts = r.json()["candidates"][0]["content"]["parts"]
+    text = " ".join(p.get("text", "") for p in parts).strip()
+    log(f"    [GEMINI-DEBUG] parts={len(parts)} text_preview={repr(text[:150])}")
     return text, {}
 
 def cerebras_gen(prompt, max_tokens=600):
