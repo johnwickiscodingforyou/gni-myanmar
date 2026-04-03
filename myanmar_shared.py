@@ -111,7 +111,7 @@ def gemini_gen(prompt, max_tokens=2000):
 
 def cerebras_gen(prompt, max_tokens=600):
     """PRIMARY for Pipeline 4 (MAD). ~1M TPD free | 30 RPM | 60K TPM free.
-    FIXED S17: llama-3.3-70b removed -> now llama3.1-8b (still available free tier)
+    UPGRADED S18: llama3.1-8b -> gpt-oss-120b (MoE 120B, 5.1B active, free tier confirmed)
     OpenAI-compatible REST. api.cerebras.ai"""
     if not CEREBRAS_KEY:
         raise Exception("CEREBRAS_API_KEY not set")
@@ -119,7 +119,7 @@ def cerebras_gen(prompt, max_tokens=600):
         "https://api.cerebras.ai/v1/chat/completions",
         headers={"Authorization": f"Bearer {CEREBRAS_KEY}",
                  "Content-Type": "application/json"},
-        json={"model": "llama3.1-8b",
+        json={"model": "gpt-oss-120b",
               "max_tokens": max_tokens,
               "temperature": 0.3,
               "messages": [{"role": "user", "content": prompt}]},
