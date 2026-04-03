@@ -19,7 +19,9 @@ for f in files:
 "
 echo ""
 echo "3. Model Names:"
-grep -n "model.*Llama" myanmar_shared.py
+grep -n "model.*Llama\|model.*llama\|model.*cerebras\|model.*gpt-oss" myanmar_shared.py
+echo "   Cerebras model:"
+grep -n "llama3.1-8b\|gpt-oss" myanmar_shared.py
 echo ""
 echo "4. No wait_for_quota in wrong pipelines:"
 grep -rn "wait_for_quota" myanmar_intel.py myanmar_mad.py myanmar_market.py 2>/dev/null && echo "   WARNING FOUND!" || echo "   OK -- none found"
