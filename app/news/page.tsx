@@ -19,7 +19,7 @@ export default function NewsPage() {
   const [collected, setCollected] = useState<Article[]>([])
   const [loadingSel, setLoadingSel] = useState(true)
   const [loadingAll, setLoadingAll] = useState(true)
-  const [showAll, setShowAll] = useState(false)
+  const [displayCount, setDisplayCount] = useState(50)
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
   useEffect(() => {
@@ -100,7 +100,13 @@ export default function NewsPage() {
                       <span className="text-xs font-bold text-amber-400">MM</span>
                       <span className="text-xs text-green-600 border border-green-800 rounded px-1.5 py-0.5">Translated to Myanmar Language</span>
                       {a.translation_provider && (
-                        <span className="text-xs text-gray-600 border border-gray-700 rounded px-1.5 py-0.5">{a.translation_provider.toUpperCase()}</span>
+                        <span className={`text-xs rounded px-1.5 py-0.5 border ${
+                          a.translation_provider === 'groq'       ? 'text-green-400 border-green-700' :
+                          a.translation_provider === 'gemini'     ? 'text-purple-400 border-purple-700' :
+                          a.translation_provider === 'cerebras'   ? 'text-blue-400 border-blue-700' :
+                          a.translation_provider === 'openrouter' ? 'text-orange-400 border-orange-700' :
+                          'text-gray-400 border-gray-700'
+                        }`}>{a.translation_provider.toUpperCase()}</span>
                       )}
                     </div>
                     <div className="bg-amber-950 border border-amber-800 rounded-lg p-3">
@@ -150,7 +156,7 @@ export default function NewsPage() {
           )}
 
           <div className="bg-gray-900 border border-gray-700 rounded-xl overflow-hidden">
-            {(showAll ? allCollected : allCollected.slice(0, 30)).map((a, i) => (
+            {allCollected.slice(0, displayCount).map((a, i) => (
               <div key={a.id} className={`flex items-start gap-3 px-4 py-3 ${i % 2 === 0 ? 'bg-gray-900' : 'bg-gray-800'} hover:bg-gray-700 transition-colors border-b border-gray-800`}>
                 <span className="text-xs text-gray-600 shrink-0 w-16">{a.source}</span>
                 <a href={a.url} target="_blank" className="text-xs text-gray-300 hover:text-white flex-1">{a.article_title}</a>
@@ -159,10 +165,10 @@ export default function NewsPage() {
             ))}
           </div>
 
-          {allCollected.length > 30 && (
+          {displayCount < allCollected.length && (
             <div className="text-center mt-3">
-              <button onClick={() => setShowAll(!showAll)} className="text-xs text-blue-400 border border-blue-800 rounded px-4 py-1.5 hover:bg-blue-950">
-                {showAll ? 'Show Less' : `Show All ${allCollected.length} Articles`}
+              <button onClick={() => setDisplayCount(prev => prev + 50)} className="text-xs text-blue-400 border border-blue-800 rounded px-4 py-1.5 hover:bg-blue-950">
+                Load More ({Math.min(50, allCollected.length - displayCount)} more of {allCollected.length} total)
               </button>
             </div>
           )}
