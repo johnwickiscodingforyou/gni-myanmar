@@ -3,7 +3,7 @@
 myanmar_mad.py -- GNI Myanmar Pipeline 4: MAD Translation
 Translates full 3-round MAD debate. 15 individual agent calls.
 James Model V4 | Per-Agent Split (GNI-R-208)
-Team Geeks | Session 16-17-18 | April 2026
+Team Geeks | Session 16-17-18-19 | April 2026
 GNI-R-194: Every prompt specifies EXACT sentence count
 GNI-R-205: Each pipeline checks quota for its OWN primary only
 CRITICAL FILE -- Do NOT delete. See GNI-R-192.
@@ -24,6 +24,12 @@ S18 CHANGES:
 - Arb1 + Arb2 stay as single calls (already small, keep [ARB:N] tags)
 - Verdict = separate standalone call
 - Total: 15 smart_gen() calls (4+1+4+1+4+1)
+
+S19 CHANGES (3 fixes applied):
+- A1: max_tokens 350->500 in _translate_agent() -- llama3.1-8b needs room for 5 sentences
+- A1: Stronger prompt wording -- "Write all 5. Do not stop early."
+- A2: Added .eq("report_id", rep_id) to ALL 7 .update() calls -- prevents multi-row contamination
+- A3: Added minimum length guard (len < 20) in _translate_agent() -- prevents garbage short strings
 """
 
 import sys, time
@@ -62,19 +68,30 @@ def _translate_agent(label, english_text, round_num, agent_sleep=True):
     Translate a single agent statement to Myanmar.
     Returns Myanmar text string or None if failed.
     No parse_bundle() needed -- response IS the translation.
+
+    S19-A1: max_tokens increased 350->500 (llama3.1-8b needs room for 5 full sentences)
+    S19-A1: Stronger prompt wording -- do not stop early
+    S19-A3: Minimum length guard -- skip garbage short strings
     """
+    # S19-A3: Guard against empty or too-short content
     if not english_text or not english_text.strip():
         log(f"    [{label}] No English text -- skipping")
         return None
+    if len(english_text.strip()) < 20:
+        log(f"    [{label}] Text too short ({len(english_text.strip())} chars) -- skipping")
+        return None
 
+    # S19-A1: Stronger prompt -- "Write all 5. Do not stop early."
     prompt = (
         f"Translate the following into Myanmar language (Burmese Unicode).\n"
-        f"EXACTLY 5 complete sentences. Each sentence ends with Myanmar full stop ။\n"
+        f"Write EXACTLY 5 complete sentences. Write all 5. Do not stop early.\n"
+        f"Each sentence ends with Myanmar full stop ။\n"
         f"No disclaimers. No notes. No extra text. Just the translation.\n\n"
         f"{english_text.strip()}"
     )
 
-    text, prov = smart_gen(prompt, min_sent=1, max_tokens=350, pipeline="mad")
+    # S19-A1: max_tokens increased from 350 to 500
+    text, prov = smart_gen(prompt, min_sent=1, max_tokens=500, pipeline="mad")
     if text:
         log(f"    [{label}] OK ({prov}) -- {len(text)} chars")
         if agent_sleep:
@@ -108,7 +125,8 @@ def _translate_arb(label, arb_coaching_dict):
     prompt = (
         f"Translate the following into Myanmar language (Burmese Unicode).\n"
         f"Keep the [ARB:{label[-1]}] marker exactly as shown.\n"
-        f"EXACTLY 5 complete sentences. Each sentence ends with Myanmar full stop ။\n"
+        f"Write EXACTLY 5 complete sentences. Write all 5. Do not stop early.\n"
+        f"Each sentence ends with Myanmar full stop ။\n"
         f"No disclaimers. No extra text outside the marker.\n\n"
         f"[ARB:{label[-1]}] {summary}"
     )
@@ -127,7 +145,7 @@ def _translate_arb(label, arb_coaching_dict):
 def run_mad(supa, run_date, run_ts, report_data):
     start = datetime.now(timezone.utc)
     log("\n" + "=" * 60)
-    log("Pipeline 4 -- MAD Translation (Per-Agent Split S18)")
+    log("Pipeline 4 -- MAD Translation (Per-Agent Split S18, Fixes S19)")
     log(f"Started: {start.isoformat()}")
     log("=" * 60)
 
@@ -195,6 +213,7 @@ def run_mad(supa, run_date, run_ts, report_data):
         f"Arb2={'done' if existing.get('mad_arb2') else 'pending'} | "
         f"R3={'done' if existing.get('mad_r3_bull') else 'pending'} | "
         f"Verdict={'done' if existing.get('mad_verdict_mm') else 'pending'}")
+    log(f"  report_id: {rep_id or 'WARNING: EMPTY -- check report_data!'}")
 
     # ── Track results ─────────────────────────────────────────────
     r1_prov = None
@@ -219,12 +238,13 @@ def run_mad(supa, run_date, run_ts, report_data):
         if any([bull_r1_mm, bear_r1_mm, swan_r1_mm, ostr_r1_mm]):
             r1_prov = "cerebras"
             try:
+                # S19-A2: Added .eq("report_id", rep_id) to target correct row
                 supa.table("debate_summaries").update({
                     "mad_r1_bull":    bull_r1_mm,
                     "mad_r1_bear":    bear_r1_mm,
                     "mad_r1_swan":    swan_r1_mm,
                     "mad_r1_ostrich": ostr_r1_mm,
-                }).eq("run_date", str(run_date)).execute()
+                }).eq("run_date", str(run_date)).eq("report_id", rep_id).execute()
                 saved = sum(1 for x in [bull_r1_mm, bear_r1_mm, swan_r1_mm, ostr_r1_mm] if x)
                 log(f"  OK: R1 saved {saved}/4 agents -- website updated!")
             except Exception as e:
@@ -261,9 +281,10 @@ def run_mad(supa, run_date, run_ts, report_data):
 
         if arb1_mm:
             try:
+                # S19-A2: Added .eq("report_id", rep_id) to target correct row
                 supa.table("debate_summaries").update({
                     "mad_arb1": arb1_mm,
-                }).eq("run_date", str(run_date)).execute()
+                }).eq("run_date", str(run_date)).eq("report_id", rep_id).execute()
                 log("  OK: Arb1 saved -- website updated!")
             except Exception as e:
                 log(f"  WARNING: Arb1 save: {e}")
@@ -289,12 +310,13 @@ def run_mad(supa, run_date, run_ts, report_data):
 
         if any([bull_r2_mm, bear_r2_mm, swan_r2_mm, ostr_r2_mm]):
             try:
+                # S19-A2: Added .eq("report_id", rep_id) to target correct row
                 supa.table("debate_summaries").update({
                     "mad_r2_bull":    bull_r2_mm,
                     "mad_r2_bear":    bear_r2_mm,
                     "mad_r2_swan":    swan_r2_mm,
                     "mad_r2_ostrich": ostr_r2_mm,
-                }).eq("run_date", str(run_date)).execute()
+                }).eq("run_date", str(run_date)).eq("report_id", rep_id).execute()
                 saved = sum(1 for x in [bull_r2_mm, bear_r2_mm, swan_r2_mm, ostr_r2_mm] if x)
                 log(f"  OK: R2 saved {saved}/4 agents -- website updated!")
             except Exception as e:
@@ -330,9 +352,10 @@ def run_mad(supa, run_date, run_ts, report_data):
 
         if arb2_mm:
             try:
+                # S19-A2: Added .eq("report_id", rep_id) to target correct row
                 supa.table("debate_summaries").update({
                     "mad_arb2": arb2_mm,
-                }).eq("run_date", str(run_date)).execute()
+                }).eq("run_date", str(run_date)).eq("report_id", rep_id).execute()
                 log("  OK: Arb2 saved -- website updated!")
             except Exception as e:
                 log(f"  WARNING: Arb2 save: {e}")
@@ -359,12 +382,13 @@ def run_mad(supa, run_date, run_ts, report_data):
         if any([bull_r3_mm, bear_r3_mm, swan_r3_mm, ostr_r3_mm]):
             r3_prov = "cerebras"
             try:
+                # S19-A2: Added .eq("report_id", rep_id) to target correct row
                 supa.table("debate_summaries").update({
                     "mad_r3_bull":    bull_r3_mm,
                     "mad_r3_bear":    bear_r3_mm,
                     "mad_r3_swan":    swan_r3_mm,
                     "mad_r3_ostrich": ostr_r3_mm,
-                }).eq("run_date", str(run_date)).execute()
+                }).eq("run_date", str(run_date)).eq("report_id", rep_id).execute()
                 saved = sum(1 for x in [bull_r3_mm, bear_r3_mm, swan_r3_mm, ostr_r3_mm] if x)
                 log(f"  OK: R3 saved {saved}/4 agents -- website updated!")
             except Exception as e:
@@ -392,11 +416,12 @@ def run_mad(supa, run_date, run_ts, report_data):
 
         if verdict_mm:
             try:
+                # S19-A2: Added .eq("report_id", rep_id) to target correct row
                 supa.table("debate_summaries").update({
                     "mad_verdict_mm":           verdict_mm,
                     "mad_translation_status":   "translated",
                     "mad_translation_provider": r3_prov or r1_prov or "cerebras",
-                }).eq("run_date", str(run_date)).execute()
+                }).eq("run_date", str(run_date)).eq("report_id", rep_id).execute()
                 log("  OK: Verdict saved -- website updated!")
                 verdict_done = True
             except Exception as e:
@@ -412,7 +437,7 @@ def run_mad(supa, run_date, run_ts, report_data):
         res = supa.table("debate_summaries")\
             .select("mad_r1_bull,mad_r1_bear,mad_r1_swan,mad_r1_ostrich,"
                     "mad_r3_bull,mad_r3_bear,mad_r3_swan,mad_r3_ostrich,mad_verdict_mm")\
-            .eq("run_date", str(run_date)).limit(1).execute()
+            .eq("run_date", str(run_date)).eq("report_id", rep_id).limit(1).execute()
         if res.data:
             row = res.data[0]
             parts = [
@@ -424,9 +449,10 @@ def run_mad(supa, run_date, run_ts, report_data):
             ]
             mad_mm = "\n".join(p for p in parts if p) or None
             if mad_mm:
+                # S19-A2: Added .eq("report_id", rep_id) to target correct row
                 supa.table("debate_summaries").update({
                     "mad_mm": mad_mm,
-                }).eq("run_date", str(run_date)).execute()
+                }).eq("run_date", str(run_date)).eq("report_id", rep_id).execute()
                 log("  OK: mad_mm assembled and saved")
     except Exception as e:
         log(f"  WARNING: Final assembly: {e}")
