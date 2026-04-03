@@ -57,7 +57,7 @@ def run_mad(supa, run_date, run_ts, report_data):
     p_mkt   = mkt_imp[:150] or "Global market conditions remain volatile."
 
     log("\n-- P3a: MAD Round 1 (4 agents x 5 sentences) --")
-    wait_for_quota(2000, "MAD Round 1")
+    log("  Skipping Groq quota check -- MAD uses Cerebras primary")
     r1_prompt = (
         f"TRANSLATE ALL ITEMS INTO MYANMAR LANGUAGE (Burmese Unicode).\n"
         f"Keep each [MAD:AGENT] marker exactly as shown.\n"
@@ -73,7 +73,7 @@ def run_mad(supa, run_date, run_ts, report_data):
     log(f"  P3a Round 1: {r1_prov or 'FAILED'} -- {len(mad_r1)} agents")
 
     log("\n-- P3b: Arbitrator Remark 1 (3 sentences) --")
-    wait_for_quota(500, "Arbitrator 1")
+    log("  Cerebras quota check skipped -- Arbitrator 1")
     arb1_prompt = (
         f"TRANSLATE INTO MYANMAR LANGUAGE (Burmese Unicode).\n"
         f"Keep [ARB:1] marker exactly as shown.\n"
@@ -88,7 +88,7 @@ def run_mad(supa, run_date, run_ts, report_data):
     log(f"  P3b Arbitrator 1: {arb1_prov or 'FAILED'}")
 
     log("\n-- P3c: MAD Round 2 (4 agents x 5 sentences) --")
-    wait_for_quota(2000, "MAD Round 2")
+    log("  Cerebras quota check skipped -- MAD Round 2")
     r2_prompt = (
         f"TRANSLATE ALL ITEMS INTO MYANMAR LANGUAGE (Burmese Unicode).\n"
         f"Keep each [MAD:AGENT] marker exactly as shown.\n"
@@ -124,7 +124,7 @@ def run_mad(supa, run_date, run_ts, report_data):
     log(f"  P3c Round 2: {r2_prov or 'FAILED'} -- {len(mad_r2)} agents")
 
     log("\n-- P3d: Arbitrator Remark 2 (3 sentences) --")
-    wait_for_quota(500, "Arbitrator 2")
+    log("  Cerebras quota check skipped -- Arbitrator 2")
     arb2_prompt = (
         f"TRANSLATE INTO MYANMAR LANGUAGE (Burmese Unicode).\n"
         f"Keep [ARB:2] marker exactly as shown.\n"
@@ -139,7 +139,7 @@ def run_mad(supa, run_date, run_ts, report_data):
     log(f"  P3d Arbitrator 2: {arb2_prov or 'FAILED'}")
 
     log("\n-- P3e+f: Round 3 + Verdict bundled (25 sentences) --")
-    wait_for_quota(2500, "MAD Round 3 + Verdict")
+    log("  Cerebras quota check skipped -- Round 3 + Verdict")
     r3_prompt = (
         f"TRANSLATE ALL ITEMS INTO MYANMAR LANGUAGE (Burmese Unicode).\n"
         f"Keep each [MAD:AGENT] marker exactly as shown.\n"

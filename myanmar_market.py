@@ -38,7 +38,7 @@ def run_market(supa, run_date, run_ts, report_data, intel_result=None):
     p_mkt     = mkt_imp[:300] or mkt_def
 
     log("\n-- P5: Market briefs bundle [MKT:*] --")
-    wait_for_quota(1500, "Market bundle")
+    log("  Skipping Groq quota check -- Market uses OpenRouter primary")
 
     market_prompt = (
         f"TRANSLATE ALL ITEMS INTO MYANMAR LANGUAGE (Burmese Unicode).\n"
