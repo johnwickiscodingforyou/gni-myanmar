@@ -91,7 +91,7 @@ def gemini_gen(prompt, max_tokens=2000):
     if not GEMINI_KEY:
         raise Exception("GEMINI_API_KEY not set")
     r = requests.post(
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-04-17:generateContent",
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
         headers={"Content-Type": "application/json"},
         params={"key": GEMINI_KEY},
         json={"contents": [{"parts": [{"text": prompt}]}],
