@@ -117,7 +117,7 @@ def run_mad(supa, run_date, run_ts, report_data):
             f"[MAD:SWAN_R1] The black swan unknown risk: {p_swan}\n"
             f"[MAD:OSTRICH_R1] The ignored reality warning: {p_ostr}"
         )
-        r1_text, r1_prov = smart_gen(r1_prompt, min_sent=15, max_tokens=1200, pipeline="mad")
+        r1_text, r1_prov = smart_gen(r1_prompt, min_sent=1, max_tokens=1200, pipeline="mad")
         mad_r1 = parse_bundle(r1_text or "", "MAD") if r1_text else {}
         log(f"  P3a Round 1: {r1_prov or 'FAILED'} -- {len(mad_r1)} agents")
         if mad_r1:
@@ -205,7 +205,7 @@ def run_mad(supa, run_date, run_ts, report_data):
             f"ESG and climate transition costs are not fully reflected in corporate valuations. "
             f"Demographic headwinds in major economies will constrain growth for decades ahead."
         )
-        r2_text, r2_prov = smart_gen(r2_prompt, min_sent=15, max_tokens=1200, pipeline="mad")
+        r2_text, r2_prov = smart_gen(r2_prompt, min_sent=1, max_tokens=1200, pipeline="mad")
         mad_r2 = parse_bundle(r2_text or "", "MAD") if r2_text else {}
         log(f"  P3c Round 2: {r2_prov or 'FAILED'} -- {len(mad_r2)} agents")
         if mad_r2:
@@ -298,7 +298,7 @@ def run_mad(supa, run_date, run_ts, report_data):
             f"The blind spot Myanmar readers must watch: {p_blind} "
             f"Overall escalation: {esc_score}/10 ({esc_level}) -- {p_nar}"
         )
-        r3_text, r3_prov = smart_gen(r3_prompt, min_sent=20, max_tokens=1800, pipeline="mad")
+        r3_text, r3_prov = smart_gen(r3_prompt, min_sent=1, max_tokens=1800, pipeline="mad")
         mad_r3 = parse_bundle(r3_text or "", "MAD") if r3_text else {}
         log(f"  P3e+f Round 3+Verdict: {r3_prov or 'FAILED'} -- {len(mad_r3)} items")
         if mad_r3:
