@@ -154,11 +154,12 @@ def run_articles(supa, run_date, run_ts):
         # Fetch pending articles from Supabase
         try:
             pend_res = supa.table("article_briefs")\
-                .select("url, english_conclusion")\
-                .eq("is_selected", True)\
-                .eq("translation_status", "pending")\
-                .order("created_at", desc=False)\
-                .execute()
+            .select("url, english_conclusion")\
+            .eq("is_selected", True)\
+            .eq("run_date", str(run_date))\
+            .eq("translation_status", "pending")\
+            .order("created_at", desc=False)\
+            .execute()
             pending = pend_res.data or []
         except Exception as e:
             log(f"  WARNING: Could not fetch pending: {e}")

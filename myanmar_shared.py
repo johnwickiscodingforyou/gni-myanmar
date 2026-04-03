@@ -162,7 +162,7 @@ def huggingface_gen(prompt, max_tokens=600):
         "https://router.huggingface.co/v1/chat/completions",
         headers={"Authorization": f"Bearer {HF_KEY}",
                  "Content-Type": "application/json"},
-        json={"model": "Llama-3.3-70B-Instruct",
+        json={"model": "meta-llama/Llama-3.3-70B-Instruct",
               "max_tokens": max_tokens,
               "temperature": 0.3,
               "messages": [{"role": "user", "content": prompt}]},
@@ -339,6 +339,10 @@ DISCLAIMER_PATTERNS = [
     r"(?i)myanmar translation:",
     r"(?i)here is the translation",
     r"(?i)here are the sentences",
+    r"(?i)myanmar language",
+    r"မြန်မာဘာသာ ပြန်",
+    r"မြန်မာဘာသာ အက္ခ",
+    r"မြန်မာဘာသာ စကား",
 ]
 
 def strip_disclaimers(text):
