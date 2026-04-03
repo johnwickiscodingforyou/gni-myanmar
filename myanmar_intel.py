@@ -14,7 +14,7 @@ import sys
 from datetime import datetime, timezone
 from myanmar_shared import (
     log, get_supa, gni_get, smart_gen, parse_bundle,
-    wait_for_quota, quality_ok, write_signal, tg_send, esc_emoji
+    quality_ok, write_signal, tg_send, esc_emoji
 )
 
 def run_intel(supa, run_date, run_ts, report_data):
