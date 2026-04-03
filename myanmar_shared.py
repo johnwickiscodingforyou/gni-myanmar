@@ -186,7 +186,7 @@ def github_models_gen(prompt, max_tokens=600):
         "https://models.inference.ai.azure.com/chat/completions",
         headers={"Authorization": f"Bearer {GH_KEY}",
                  "Content-Type": "application/json"},
-        json={"model": "meta-llama/Llama-3.3-70B-Instruct",
+        json={"model": "Llama-3.3-70B-Instruct",
               "max_tokens": max_tokens,
               "temperature": 0.3,
               "messages": [{"role": "user", "content": prompt}]},
