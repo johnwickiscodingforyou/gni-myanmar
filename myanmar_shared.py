@@ -96,8 +96,8 @@ def gemini_gen(prompt, max_tokens=2000):
         params={"key": GEMINI_KEY},
         json={"contents": [{"parts": [{"text": prompt}]}],
               "generationConfig": {"maxOutputTokens": max_tokens,
-                                   "temperature": 0.3},
-              "thinkingConfig": {"thinkingBudget": 0}},
+                                   "temperature": 0.3,
+                                   "thinkingConfig": {"thinkingBudget": 0}}},
         timeout=60)
     if r.status_code == 429:
         raise RateLimitError(60)
