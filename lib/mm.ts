@@ -33,7 +33,7 @@ export const mm = {
   news_intro:
     'News Archive သည် ကမ္ဘာ့ geopolitics သတင်းများကို မူရင်းအင်္ဂလိပ်ဘာသာဖြင့် ဖတ်ရှုလိုသော ' +
     'Myanmar သတင်းစာဖတ်သူများနှင့် သုတေသီများအတွက် ဒီဇိုင်းဆွဲထားသည်။ ' +
-    'Selected articles 120+ နှင့် collected articles 900+ ပါဝင်သည်။',
+    'Selected articles နှင့် collected articles 30 ရက် archive ပါဝင်သည်။ Date အလိုက် ဖွင့်ကြည့်နိုင်သည်။',
 
   // ── MARKET ───────────────────────────────────────────────────
   market_intro:

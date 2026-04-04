@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 const LINKS = [
   { href: '/map',         label: 'Map',         color: 'bg-blue-900 hover:bg-blue-700 border-blue-700 text-blue-200',       tip: 'ကမ္ဘာ့ geopolitical ဖြစ်ရပ်များကို မြေပုံပေါ်တွင် Myanmar brief နှင့်အတူ ကြည့်ရှုနိုင်သည်။' },
   { href: '/market',      label: 'Market',      color: 'bg-amber-900 hover:bg-amber-700 border-amber-700 text-amber-200',   tip: 'Commodity, Index, Stocks, Forex, Crypto, Bond — Yahoo Finance မှ live data ကို tab ၆ ခုဖြင့် ကြည့်ရှုနိုင်သည်။' },
-  { href: '/news',        label: 'News',        color: 'bg-green-900 hover:bg-green-700 border-green-700 text-green-200',   tip: 'Selected articles 120+ နှင့် collected articles 900+ ။ Myanmar brief toggle ဖြင့် ဖတ်ရှုနိုင်သည်။' },
+  { href: '/news',        label: 'News',        color: 'bg-green-900 hover:bg-green-700 border-green-700 text-green-200',   tip: 'Selected articles နှင့် collected articles 30 ရက် archive ။ Date အလိုက် lazy loading ဖြင့် ဖတ်ရှုနိုင်သည်။' },
   { href: '/intel',       label: 'Intel',       color: 'bg-purple-900 hover:bg-purple-700 border-purple-700 text-purple-200', tip: 'အပြည့်အစုံ AI သုံးသပ်ချက် hub ။ Brief, Funnel, Analysis, Pillars, MAD, Predictions tab ၆ ခုပါဝင်သည်။' },
   { href: '/reports',     label: 'Reports',     color: 'bg-teal-900 hover:bg-teal-700 border-teal-700 text-teal-200',       tip: 'GNI intelligence reports archive ။ Escalation score, MAD verdict နှင့် Myanmar brief ပါဝင်သည်။' },
   { href: '/predictions', label: 'Predictions', color: 'bg-pink-900 hover:bg-pink-700 border-pink-700 text-pink-200',       tip: 'MAD agent ခန့်မှန်းချက်များကို GPVS စနစ်ဖြင့် မှန်ကန်မှု စစ်ဆေးသည်။ April 10, 2026 တွင် ပထမဆုံး verification ။' },

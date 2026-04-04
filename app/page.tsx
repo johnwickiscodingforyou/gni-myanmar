@@ -606,7 +606,7 @@ export default function Dashboard() {
                 {[
                   { num:"01", href:"/map",         label:"World Map",    desc:"ကမ္ဘာ့ geopolitical ဖြစ်ရပ်များကို မြေပုံပေါ်တွင် မြင်ယောင်ကြည့်ရှုနိုင်သည်။ Myanmar brief ပါဝင်သည်။", color:"border-blue-800 text-blue-400" },
                   { num:"02", href:"/market",      label:"Markets",      desc:"Commodity, Index, Stocks, Forex, Crypto, Bond tab ၆ ခုပါသည်။ Yahoo Finance မှ live data ။", color:"border-amber-800 text-amber-400" },
-                  { num:"03", href:"/news",        label:"News Archive", desc:"Selected articles 120+ နှင့် collected articles 900+ ပါဝင်သည်။ Myanmar brief toggle ဖြင့် ဖတ်နိုင်သည်။", color:"border-green-800 text-green-400" },
+                  { num:"03", href:"/news",        label:"News Archive", desc:"Selected articles နှင့် collected articles 30 ရက် archive ပါဝင်သည်။ Date အလိုက် lazy loading ဖြင့် ဖတ်နိုင်သည်။", color:"border-green-800 text-green-400" },
                   { num:"04", href:"/intel",       label:"Full Intel",   desc:"အပြည့်အစုံ analysis hub ။ Brief, Funnel, Analysis, Pillars, MAD, Predictions tab ၆ ခုပါသည်။", color:"border-purple-800 text-purple-400" },
                   { num:"05", href:"/reports",     label:"Reports",      desc:"Intelligence reports archive ။ Escalation score, MAD verdict, Myanmar brief ပါဝင်သည်။", color:"border-teal-800 text-teal-400" },
                   { num:"06", href:"/predictions", label:"Predictions",  desc:"MAD agent ခန့်မှန်းချက်များ ။ GPVS accuracy track လုပ်သည်။ April 10 verification ဖြစ်မည်။", color:"border-pink-800 text-pink-400" },
