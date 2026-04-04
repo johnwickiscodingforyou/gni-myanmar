@@ -68,7 +68,6 @@ export default function HealthPage() {
           <>
             <div className="flex items-center justify-between mb-4">
               <div className="text-xs text-gray-500">Last checked: {lastChecked}</div>
-              <button onClick={runCheck} className="text-xs text-blue-400 border border-blue-800 rounded px-3 py-1 hover:bg-blue-950">Re-check</button>
             </div>
             <div className="bg-gray-900 border border-gray-700 rounded-xl overflow-hidden">
               {Object.entries(health.checks).map(([key, val], i) => (
