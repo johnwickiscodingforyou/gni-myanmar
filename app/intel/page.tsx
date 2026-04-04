@@ -337,6 +337,55 @@ export default function IntelPage() {
                   )}
                 </div>
 
+                {/* C1 — Johari Quadrant Map */}
+                {intelMM?.mad_r3_bull && (
+                  <div className="bg-gray-900 border border-gray-700 rounded-xl p-5">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-sm font-bold text-white">Agent Position Map</h3>
+                      <span className="text-xs text-gray-500 border border-gray-700 rounded px-2 py-0.5">Round 3 Final Positions</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      {/* Top-left: BULL */}
+                      <div className="bg-green-950 border border-green-800 rounded-xl p-3">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-base">🐂</span>
+                          <span className="text-xs font-bold text-green-300">BULL</span>
+                          <span className="text-xs text-green-600 ml-auto">Opportunity</span>
+                        </div>
+                        <p className="text-xs text-green-100 leading-relaxed line-clamp-4 opacity-90">{intelMM.mad_r3_bull}</p>
+                      </div>
+                      {/* Top-right: BLACK SWAN */}
+                      <div className="bg-purple-950 border border-purple-800 rounded-xl p-3">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-base">🦢</span>
+                          <span className="text-xs font-bold text-purple-300">BLACK SWAN</span>
+                          <span className="text-xs text-purple-600 ml-auto">Unknown</span>
+                        </div>
+                        <p className="text-xs text-purple-100 leading-relaxed line-clamp-4 opacity-90">{intelMM.mad_r3_swan}</p>
+                      </div>
+                      {/* Bottom-left: BEAR */}
+                      <div className="bg-red-950 border border-red-800 rounded-xl p-3">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-base">🐻</span>
+                          <span className="text-xs font-bold text-red-300">BEAR</span>
+                          <span className="text-xs text-red-600 ml-auto">Downside</span>
+                        </div>
+                        <p className="text-xs text-red-100 leading-relaxed line-clamp-4 opacity-90">{intelMM.mad_r3_bear}</p>
+                      </div>
+                      {/* Bottom-right: OSTRICH */}
+                      <div className="bg-amber-950 border border-amber-800 rounded-xl p-3">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-base">🙈</span>
+                          <span className="text-xs font-bold text-amber-300">OSTRICH</span>
+                          <span className="text-xs text-amber-600 ml-auto">Inertia</span>
+                        </div>
+                        <p className="text-xs text-amber-100 leading-relaxed line-clamp-4 opacity-90">{intelMM.mad_r3_ostrich}</p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-600 text-center mt-2">Final agent positions after 3 rounds of debate</p>
+                  </div>
+                )}
+
                 {/* 3-Round debate section */}
                 <div className="bg-gray-900 border border-gray-700 rounded-xl p-5">
                   <div className="flex items-center justify-between mb-4">
