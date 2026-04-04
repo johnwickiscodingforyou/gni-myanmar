@@ -90,8 +90,8 @@ export default function MiniMap({ events, height = '220px' }: Props) {
       `}</style>
 
       <MapContainer
-        center={[20, 0]}
-        zoom={2}
+        center={[15, 10]}
+        zoom={1}
         style={{ height, width: '100%' }}
         scrollWheelZoom={true}
         zoomControl={true}
