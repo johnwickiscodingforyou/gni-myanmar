@@ -134,7 +134,7 @@ def run_intel(supa, run_date, run_ts, report_data):
 
     log("\n-- Save intel fields to debate_summaries --")
     try:
-        supa.table("debate_summaries").insert({
+        supa.table("debate_summaries").upsert({
             "run_date":         str(run_date),
             "run_timestamp":    run_ts,
             "report_id":        rep_id,
@@ -149,7 +149,7 @@ def run_intel(supa, run_date, run_ts, report_data):
             "fin_mm":           fin_mm,
             "brief_mm":         brief_mm,
             "pipeline_success": True,
-        }).execute()
+        }, on_conflict="run_date").execute()
         log("  OK: Intel fields saved to debate_summaries")
     except Exception as e:
         log(f"  ERROR: {e}")
