@@ -47,3 +47,4 @@ create_*.py
 
 check_*.py
 fix_myanmar_issues.py
+__pycache__/
