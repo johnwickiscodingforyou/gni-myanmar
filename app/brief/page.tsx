@@ -6,7 +6,7 @@ interface Report {
   id: string; title: string; summary: string
   sentiment: string; mad_verdict: string; mad_confidence: number
   mad_action_recommendation: string; mad_blind_spot: string
-  mad_black_swan_case: string; mad_ostrich_case: string
+  mad_black_swan_case: string; mad_ostrich_case: string; mad_bull_case: string; mad_bear_case: string
   escalation_score: number; escalation_level: string
   tickers_affected: string[]; location_name: string
   created_at: string; market_impact: string
@@ -179,18 +179,18 @@ export default function BriefPage() {
             </div>
 
             {/* Bull + Bear cards side by side */}
-            {(report.mad_black_swan_case || report.mad_ostrich_case) && (
+            {(report.mad_bull_case || report.mad_bear_case) && (
               <div className="grid grid-cols-2 gap-2 mb-3">
-                {report.mad_black_swan_case && (
+                {report.mad_bull_case && (
                   <div className="bg-green-950 border border-green-800 rounded-lg p-2">
                     <div className="text-xs text-green-400 font-bold mb-1">🐂 Bull Case</div>
-                    <p className="text-xs text-gray-300 leading-relaxed line-clamp-3">{report.mad_black_swan_case}</p>
+                    <p className="text-xs text-gray-300 leading-relaxed line-clamp-3">{report.mad_bull_case}</p>
                   </div>
                 )}
-                {report.mad_ostrich_case && (
+                {report.mad_bear_case && (
                   <div className="bg-red-950 border border-red-800 rounded-lg p-2">
                     <div className="text-xs text-red-400 font-bold mb-1">🐻 Bear Case</div>
-                    <p className="text-xs text-gray-300 leading-relaxed line-clamp-3">{report.mad_ostrich_case}</p>
+                    <p className="text-xs text-gray-300 leading-relaxed line-clamp-3">{report.mad_bear_case}</p>
                   </div>
                 )}
               </div>
