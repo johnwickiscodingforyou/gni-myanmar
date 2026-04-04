@@ -6,15 +6,37 @@ import dynamic from 'next/dynamic'
 
 const MapView = dynamic(() => import('@/components/MiniMap'), { ssr: false })
 
-interface Article {
-  id: string; article_title: string; url: string; source: string
-  lat: number; lng: number; escalation_score: number
-  myanmar_brief: string; has_geo: boolean; is_selected: boolean
+interface ArticleEvent {
+  id: string
+  source: string
+  bias: string
+  title: string
+  url: string
+  summary: string
+  stage3_score: number
+  location_name: string
+  lat: number
+  lng: number
+  created_at: string
 }
 
 interface MapEvent {
-  id: string; title: string; lat: number; lng: number
-  location_name: string; source: string; bias: string; url?: string
+  id: string
+  title: string
+  lat: number
+  lng: number
+  location_name: string
+  source: string
+  bias: string
+  url?: string
+}
+
+interface Article {
+  id: string
+  article_title: string
+  url: string
+  source: string
+  myanmar_brief: string | null
 }
 
 export default function MapPage() {
@@ -23,39 +45,43 @@ export default function MapPage() {
   const [selected, setSelected] = useState<Article | null>(null)
   const [loading, setLoading] = useState(true)
   const [daysFilter, setDaysFilter] = useState(7)
-  const [allEvents, setAllEvents] = useState<MapEvent[]>([])
 
+  // Fetch briefs once for Myanmar slide-up panel
   useEffect(() => {
     fetch('/api/article-briefs?geo=true&limit=200')
       .then(r => r.json())
+      .then(d => setBriefs(d.articles || []))
+      .catch(() => {})
+  }, [])
+
+  // Re-fetch article-events on every filter change — real server-side filtering like QS
+  useEffect(() => {
+    setLoading(true)
+    fetch(`/api/article-events?days=${daysFilter}`)
+      .then(r => r.json())
       .then(d => {
-        const articles: Article[] = d.articles || []
-        setBriefs(articles)
-        const mapped: MapEvent[] = articles.map(a => ({
-          id: a.id,
-          title: a.article_title,
-          lat: a.lat,
-          lng: a.lng,
-          location_name: a.source,
-          source: a.source,
-          url: a.url,
-          bias: !a.escalation_score ? 'neutral'
-            : a.escalation_score >= 7 ? 'bearish'
-            : a.escalation_score >= 4 ? 'neutral'
-            : 'bullish',
-        }))
-        setAllEvents(mapped)
+        const rawEvents: ArticleEvent[] = d.events || []
+        const mapped: MapEvent[] = rawEvents
+          .filter(e => e.lat !== null && e.lng !== null)
+          .map(e => ({
+            id: e.id,
+            title: e.title,
+            lat: e.lat,
+            lng: e.lng,
+            location_name: e.location_name,
+            source: e.source,
+            url: e.url,
+            bias: !e.stage3_score       ? 'neutral'
+                : e.stage3_score >= 15  ? 'bearish'
+                : e.stage3_score >= 10  ? 'bearish'
+                : e.stage3_score >= 7   ? 'neutral'
+                : 'bullish',
+          }))
         setEvents(mapped)
         setLoading(false)
       })
       .catch(() => setLoading(false))
-  }, [])
-
-  useEffect(() => {
-    if (allEvents.length === 0) return
-    const limits: Record<number, number> = { 1: 20, 3: 60, 7: 120, 14: 200 }
-    setEvents(allEvents.slice(0, limits[daysFilter] || 200))
-  }, [daysFilter, allEvents])
+  }, [daysFilter])
 
   const findBrief = (title: string) =>
     briefs.find(b => b.article_title?.toLowerCase().includes(title?.toLowerCase().slice(0, 30)))
@@ -63,18 +89,16 @@ export default function MapPage() {
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100">
 
-      {/* HEADER — matches QS: title + description + days filter inside */}
+      {/* HEADER */}
       <header className="border-b border-gray-800 bg-gray-900">
         <div className="max-w-5xl mx-auto px-4 py-4">
           <a href="/" className="inline-block mb-2 text-xs text-blue-400 border border-blue-800 rounded px-3 py-1 hover:bg-blue-950 transition-colors">← Dashboard</a>
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
               <h1 className="text-xl font-bold text-white">🗺 World Map</h1>
-              <p className="text-xs text-gray-400 mt-0.5 max-w-xl">
-                {mm.map_intro}
-              </p>
+              <p className="text-xs text-gray-400 mt-0.5 max-w-xl">{mm.map_intro}</p>
             </div>
-            {/* DAYS FILTER — top right like QS */}
+            {/* DAYS FILTER — re-fetches on click like QS */}
             <div className="flex gap-2 shrink-0">
               {[1, 3, 7, 14].map(d => (
                 <button key={d} onClick={() => setDaysFilter(d)}
@@ -90,7 +114,7 @@ export default function MapPage() {
         </div>
       </header>
 
-      {/* LEGEND — full width like QS */}
+      {/* LEGEND */}
       <div className="bg-gray-900 border-b border-gray-800 px-4 py-2 flex items-center gap-6 text-xs text-gray-400 flex-wrap">
         <span className="flex items-center gap-1.5">
           <span className="w-3 h-3 rounded-full bg-red-600 inline-block shrink-0"></span>
@@ -104,7 +128,9 @@ export default function MapPage() {
           <span className="w-3 h-3 rounded-full bg-green-500 inline-block shrink-0"></span>
           Bullish / Low Risk
         </span>
-        <span className="text-gray-600 hidden md:inline">📰 = articles | Click pin for details</span>
+        <span className="text-gray-600 hidden md:inline">
+          {loading ? 'Loading...' : `${events.length} events | last ${daysFilter}d`} | Click pin for details
+        </span>
       </div>
 
       {/* LOADING */}
@@ -114,7 +140,7 @@ export default function MapPage() {
         </div>
       )}
 
-      {/* FULL SCREEN MAP — QS style: MapView directly, height passed as prop */}
+      {/* FULL SCREEN MAP */}
       {!loading && (
         <MapView events={events} height="calc(100vh - 140px)" />
       )}
@@ -124,10 +150,8 @@ export default function MapPage() {
         <div className="max-w-5xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-3">
             <div className="text-xs text-gray-500">
-              Showing <span className="text-white font-bold">{events.length}</span> events
-              {daysFilter < 14 && <span> (last {daysFilter}d)</span>}
+              Showing <span className="text-white font-bold">{events.length}</span> events (last {daysFilter}d)
             </div>
-            <div className="text-xs text-gray-600">{allEvents.length} total geo-tagged articles</div>
           </div>
 
           <div className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Sources in current analysis</div>
