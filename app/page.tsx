@@ -83,17 +83,31 @@ export default function Dashboard() {
       .then(d => { setReports(d.reports || []); setBaseline(d.baseline); setLoading(false) })
       .catch(() => setLoading(false))
 
-    fetch('/api/article-briefs?geo=true&limit=200')
+    fetch('/api/article-events?days=1')
       .then(r => r.json())
-      .then(d => setMapEvents((d.articles || []).map((a: any) => ({
-        id: a.id,
-        title: a.article_title,
-        lat: a.lat,
-        lng: a.lng,
-        location_name: a.source,
-        source: a.source,
-        bias: !a.escalation_score ? 'neutral' : a.escalation_score >= 7 ? 'bearish' : a.escalation_score >= 4 ? 'neutral' : 'bullish',
-      }))))
+      .then(d => {
+        const events = d.events || []
+        const unique = events
+          .filter((e: any, i: number, arr: any[]) =>
+            arr.findIndex(x => x.location_name === e.location_name) === i
+          )
+          .slice(0, 50)
+          .map((e: any) => ({
+            id: e.id,
+            title: e.title,
+            lat: e.lat,
+            lng: e.lng,
+            location_name: e.location_name,
+            source: e.source,
+            url: e.url,
+            bias: !e.stage3_score ? 'neutral'
+              : e.stage3_score >= 15 ? 'bearish'
+              : e.stage3_score >= 10 ? 'bearish'
+              : e.stage3_score >= 7  ? 'neutral'
+              : 'bullish',
+          }))
+        setMapEvents(unique)
+      })
       .catch(() => {})
 
     fetch('/api/intel-mm')
