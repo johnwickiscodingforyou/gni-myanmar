@@ -104,7 +104,9 @@ export default function NewsPage() {
                           a.translation_provider === 'groq'       ? 'text-green-400 border-green-700' :
                           a.translation_provider === 'gemini'     ? 'text-purple-400 border-purple-700' :
                           a.translation_provider === 'cerebras'   ? 'text-blue-400 border-blue-700' :
-                          a.translation_provider === 'openrouter' ? 'text-orange-400 border-orange-700' :
+                          a.translation_provider === 'openrouter'   ? 'text-orange-400 border-orange-700' :
+                          a.translation_provider === 'github'       ? 'text-cyan-400 border-cyan-700' :
+                          a.translation_provider === 'cloudflare'   ? 'text-teal-400 border-teal-700' :
                           'text-gray-400 border-gray-700'
                         }`}>{a.translation_provider.toUpperCase()}</span>
                       )}
