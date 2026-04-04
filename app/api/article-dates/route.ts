@@ -11,27 +11,54 @@ export async function GET(request: NextRequest) {
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     )
-    // Get distinct run_dates with selected + collected counts for last 30 days
-    const { data, error } = await supabase
+
+    const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+      .toISOString().split('T')[0]
+
+    // Fetch selected counts per date
+    const { data: selectedData, error: e1 } = await supabase
       .from('article_briefs')
-      .select('run_date, is_selected')
-      .gte('run_date', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
-      .order('run_date', { ascending: false })
+      .select('run_date')
+      .eq('is_selected', true)
+      .gte('run_date', cutoff)
+      .limit(10000)
 
-    if (error) throw error
+    if (e1) throw e1
 
-    // Group by run_date and count selected vs collected
-    const dateMap: Record<string, { selected_count: number; collected_count: number }> = {}
-    for (const row of data || []) {
-      if (!dateMap[row.run_date]) {
-        dateMap[row.run_date] = { selected_count: 0, collected_count: 0 }
-      }
-      if (row.is_selected) dateMap[row.run_date].selected_count++
-      else dateMap[row.run_date].collected_count++
+    // Fetch collected counts per date
+    const { data: collectedData, error: e2 } = await supabase
+      .from('article_briefs')
+      .select('run_date')
+      .eq('is_selected', false)
+      .gte('run_date', cutoff)
+      .limit(10000)
+
+    if (e2) throw e2
+
+    // Count per date for selected
+    const selectedCounts: Record<string, number> = {}
+    for (const row of selectedData || []) {
+      selectedCounts[row.run_date] = (selectedCounts[row.run_date] || 0) + 1
     }
 
-    const dates = Object.entries(dateMap)
-      .map(([run_date, counts]) => ({ run_date, ...counts }))
+    // Count per date for collected
+    const collectedCounts: Record<string, number> = {}
+    for (const row of collectedData || []) {
+      collectedCounts[row.run_date] = (collectedCounts[row.run_date] || 0) + 1
+    }
+
+    // Merge all dates
+    const allDates = new Set([
+      ...Object.keys(selectedCounts),
+      ...Object.keys(collectedCounts)
+    ])
+
+    const dates = Array.from(allDates)
+      .map(run_date => ({
+        run_date,
+        selected_count: selectedCounts[run_date] || 0,
+        collected_count: collectedCounts[run_date] || 0,
+      }))
       .sort((a, b) => b.run_date.localeCompare(a.run_date))
 
     return NextResponse.json({ dates })
