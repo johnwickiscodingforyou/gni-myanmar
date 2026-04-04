@@ -81,7 +81,7 @@ export default function IntelPage() {
   useEffect(() => {
     fetch('/api/reports')
       .then(r => r.json())
-      .then(d => { setReport(d.reports?.[0] || null); setBaseline(d.baseline); setLoading(false) })
+      .then(d => { setReport(d.reports?.find((r: Report) => r.escalation_score > 0) || d.reports?.[0] || null); setBaseline(d.baseline); setLoading(false) })
       .catch(() => setLoading(false))
     fetch('/api/pillar-reports')
       .then(r => r.json())
