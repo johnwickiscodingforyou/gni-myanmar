@@ -4,9 +4,8 @@ import Nav from '@/components/Nav'
 import { mm } from '@/lib/mm'
 import dynamic from 'next/dynamic'
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
-
 const MiniMap = dynamic(() => import('@/components/MiniMap'), { ssr: false })
-
+import LiveClock from '@/components/LiveClock'
 interface Report {
   id: string; title: string; summary: string
   sentiment: string; mad_verdict: string; mad_confidence: number
@@ -171,6 +170,7 @@ export default function Dashboard() {
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-white">🌐 GNI Myanmar</h1>
               <p className="text-xs text-gray-400">What is happening in the world right now, and what does it mean for Myanmar?</p>
+              <LiveClock />
             </div>
             {latest && (
               <div className="flex items-center gap-2">
